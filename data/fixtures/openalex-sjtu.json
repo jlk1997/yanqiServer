@@ -1,0 +1,96 @@
+{
+  "institution": {
+    "id": "https://openalex.org/IFixturesjtu",
+    "display_name": "Shanghai Jiao Tong University",
+    "display_name_alternatives": [
+      "上海交通大学"
+    ],
+    "geo": {
+      "city": "Shanghai",
+      "country": "China"
+    },
+    "homepage_url": "https://www.example.edu/sjtu",
+    "type": "education"
+  },
+  "works": [
+    {
+      "id": "https://openalex.org/Wfixsjtu0",
+      "title": "交大方向：Deep learning for industrial surface defect inspection",
+      "abstract_inverted_index": null,
+      "abstract": "A practical pipeline for metal surface defect detection under limited labels, targeting AOI lines.",
+      "doi": "https://doi.org/10.1000/yanqi.oa.001",
+      "concepts": [
+        {
+          "display_name": "Computer vision"
+        },
+        {
+          "display_name": "Deep learning"
+        },
+        {
+          "display_name": "Manufacturing"
+        },
+        {
+          "display_name": "Robotics"
+        },
+        {
+          "display_name": "Computer Vision"
+        },
+        {
+          "display_name": "Power Electronics"
+        }
+      ]
+    },
+    {
+      "id": "https://openalex.org/Wfixsjtu1",
+      "title": "交大方向：Interface engineering for oxide solid electrolytes",
+      "abstract": "Interface modification lowers impedance in solid-state batteries and discusses thermal management co-design.",
+      "doi": "https://doi.org/10.1000/yanqi.oa.002",
+      "concepts": [
+        {
+          "display_name": "Solid-state battery"
+        },
+        {
+          "display_name": "Materials science"
+        },
+        {
+          "display_name": "Thermal management"
+        },
+        {
+          "display_name": "Robotics"
+        },
+        {
+          "display_name": "Computer Vision"
+        },
+        {
+          "display_name": "Power Electronics"
+        }
+      ]
+    },
+    {
+      "id": "https://openalex.org/Wfixsjtu2",
+      "title": "交大方向：Digital twin driven assembly line balancing",
+      "abstract": "A digital twin approach for discrete manufacturing line balancing and flexible assembly.",
+      "doi": "https://doi.org/10.1000/yanqi.oa.003",
+      "concepts": [
+        {
+          "display_name": "Digital twin"
+        },
+        {
+          "display_name": "Flexible manufacturing"
+        },
+        {
+          "display_name": "Robotics"
+        },
+        {
+          "display_name": "Robotics"
+        },
+        {
+          "display_name": "Computer Vision"
+        },
+        {
+          "display_name": "Power Electronics"
+        }
+      ]
+    }
+  ]
+}

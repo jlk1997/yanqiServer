@@ -1,0 +1,608 @@
+{
+  "labelZh": "演示夹具·企业/地方科技需求（扩容包A）",
+  "compliance": "仅供本地演示与冷启动堆量；上线请改用授权 CSV/JSON。禁止 CNKI / 未授权企查查。标注「演示夹具」不得对外冒充真实工商库。",
+  "demands": [
+    {
+      "orgName": "演示·苏州精密装备有限公司",
+      "orgType": "ENTERPRISE",
+      "region": "江苏",
+      "title": "产线视觉缺陷检测提速",
+      "problem": "现有人工抽检漏检高，希望上工业相机+算法，适应多 SKU 换型。",
+      "expectedOut": "可落地的检测方案与试点线改造建议",
+      "budgetBand": "30-80万",
+      "industry": [
+        "先进制造",
+        "工业视觉"
+      ],
+      "taxonomyCodes": [
+        "mfg.vision"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 6,
+      "urgency": "高",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·合肥储能材料科技",
+      "orgType": "ENTERPRISE",
+      "region": "安徽",
+      "title": "电芯热失控预警算法",
+      "problem": "需要可解释的热管理与早期预警模型，服务中试线。",
+      "expectedOut": "模型原型 + 传感器布置建议",
+      "budgetBand": "50-120万",
+      "industry": [
+        "新能源",
+        "热管理"
+      ],
+      "taxonomyCodes": [
+        "energy.thermal",
+        "mat.battery"
+      ],
+      "licenseNeed": "exclusive",
+      "minTrl": 5,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某市科技局产业处",
+      "orgType": "GOVERNMENT",
+      "region": "浙江",
+      "title": "地方科技计划·智能传感专题征集（样例）",
+      "problem": "征集高校院所在农业遥感、水质传感方向的可转化成果，形成对接清单。",
+      "expectedOut": "专题对接名录与路演候选",
+      "budgetBand": "计划内补贴",
+      "industry": [
+        "现代农业",
+        "环保"
+      ],
+      "taxonomyCodes": [
+        "agri.sense",
+        "env.water"
+      ],
+      "licenseNeed": "any",
+      "minTrl": 4,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·深圳协作机器人集成商",
+      "orgType": "ENTERPRISE",
+      "region": "广东",
+      "title": "柔性装配节拍优化",
+      "problem": "多品种小批量场景下协作机器人轨迹与工装换型成本高。",
+      "expectedOut": "数字孪生仿真与试点工位方案",
+      "budgetBand": "40-100万",
+      "industry": [
+        "机器人",
+        "智能制造"
+      ],
+      "taxonomyCodes": [
+        "mfg.robot",
+        "mfg.twin"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 6,
+      "urgency": "高",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·青岛海洋装备研究所（企业化）",
+      "orgType": "ENTERPRISE",
+      "region": "山东",
+      "title": "耐蚀涂层均匀性控制",
+      "problem": "大面积喷涂厚度波动，影响海工件寿命。",
+      "expectedOut": "工艺窗口与在线检测建议",
+      "budgetBand": "20-60万",
+      "industry": [
+        "新材料",
+        "海洋工程"
+      ],
+      "taxonomyCodes": [
+        "mat.coat",
+        "ocean"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 5,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·成都医疗器械初创",
+      "orgType": "ENTERPRISE",
+      "region": "四川",
+      "title": "便携超声探头信号处理",
+      "problem": "噪声抑制与实时成像算力受限，寻求高校算法合作。",
+      "expectedOut": "算法模块与嵌入式移植路径",
+      "budgetBand": "15-40万",
+      "industry": [
+        "医疗器械",
+        "人工智能"
+      ],
+      "taxonomyCodes": [
+        "bio.device",
+        "ict.ai"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 5,
+      "urgency": "高",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·揭榜挂帅·某高新区管委会",
+      "orgType": "GOVERNMENT",
+      "region": "江苏",
+      "title": "揭榜挂帅：工业软件国产替代（样例）",
+      "problem": "面向离散制造 MES/APS 关键模块，征集可工程化团队揭榜。",
+      "expectedOut": "试点企业清单+验收指标",
+      "budgetBand": "揭榜奖金+后补助",
+      "industry": [
+        "工业软件",
+        "智能制造"
+      ],
+      "taxonomyCodes": [
+        "mfg.mes",
+        "ict.soft"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 6,
+      "urgency": "高",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·揭榜挂帅·某经开区",
+      "orgType": "GOVERNMENT",
+      "region": "湖北",
+      "title": "揭榜挂帅：动力电池安全监测（样例）",
+      "problem": "园区链主企业提出电芯/模组热失控早期识别需求。",
+      "expectedOut": "可部署算法与传感器方案",
+      "budgetBand": "揭榜专项",
+      "industry": [
+        "新能源",
+        "安全"
+      ],
+      "taxonomyCodes": [
+        "energy.thermal",
+        "mat.battery"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 6,
+      "urgency": "高",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某省级科技计划办",
+      "orgType": "GOVERNMENT",
+      "region": "广东",
+      "title": "省重点研发·人工智能+制造（样例公告）",
+      "problem": "征集高校院所与企业联合申报方向：视觉质检、柔性装配。",
+      "expectedOut": "形成指南条目与对接会名单",
+      "budgetBand": "计划经费口径",
+      "industry": [
+        "人工智能",
+        "先进制造"
+      ],
+      "taxonomyCodes": [
+        "ict.ai",
+        "mfg.vision"
+      ],
+      "licenseNeed": "any",
+      "minTrl": 5,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某省级科技计划办",
+      "orgType": "GOVERNMENT",
+      "region": "山东",
+      "title": "省重点研发·海洋与新材料（样例公告）",
+      "problem": "征集耐蚀涂层、轻量化结构、在线检测类成果。",
+      "expectedOut": "专题项目库",
+      "budgetBand": "计划经费口径",
+      "industry": [
+        "新材料",
+        "海洋"
+      ],
+      "taxonomyCodes": [
+        "mat.coat",
+        "ocean"
+      ],
+      "licenseNeed": "any",
+      "minTrl": 5,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某产业园区招商办",
+      "orgType": "GOVERNMENT",
+      "region": "上海",
+      "title": "园区企业技术需求榜（样例）",
+      "problem": "汇总入驻企业共性痛点：能耗监测、碳核算、设备预测维护。",
+      "expectedOut": "需求榜单与匹配沙龙",
+      "budgetBand": "园区配套",
+      "industry": [
+        "双碳",
+        "工业互联网"
+      ],
+      "taxonomyCodes": [
+        "env.carbon",
+        "ict.edge"
+      ],
+      "licenseNeed": "any",
+      "minTrl": 4,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某产业园区招商办",
+      "orgType": "GOVERNMENT",
+      "region": "四川",
+      "title": "园区揭榜：医疗器械检测平台（样例）",
+      "problem": "缺少第三方快速检测与算法验证平台。",
+      "expectedOut": "共建平台方案",
+      "budgetBand": "园区专项",
+      "industry": [
+        "医疗器械"
+      ],
+      "taxonomyCodes": [
+        "bio.device",
+        "bio.diag"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 5,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·无锡精密模具厂",
+      "orgType": "ENTERPRISE",
+      "region": "江苏",
+      "title": "注塑冷却水路仿真",
+      "problem": "复杂模具冷却不均导致翘曲，需要仿真与水路优化。",
+      "expectedOut": "仿真报告与优化方案",
+      "budgetBand": "18-50万",
+      "industry": [
+        "模具",
+        "仿真"
+      ],
+      "taxonomyCodes": [
+        "mfg.mold",
+        "mfg.twin"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 5,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·东莞电子组装厂",
+      "orgType": "ENTERPRISE",
+      "region": "广东",
+      "title": "AOI 误报率下降",
+      "problem": "现有 AOI 误报高，换线成本大，希望少样本自适应。",
+      "expectedOut": "算法迭代方案与现场验证",
+      "budgetBand": "25-70万",
+      "industry": [
+        "电子制造",
+        "工业视觉"
+      ],
+      "taxonomyCodes": [
+        "mfg.vision",
+        "ict.ai"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 6,
+      "urgency": "高",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·长沙工程机械企业",
+      "orgType": "ENTERPRISE",
+      "region": "湖南",
+      "title": "液压系统故障预测",
+      "problem": "工地设备突发停机多，希望基于工况数据做预测维护。",
+      "expectedOut": "模型与边缘部署建议",
+      "budgetBand": "40-90万",
+      "industry": [
+        "工程机械",
+        "边缘计算"
+      ],
+      "taxonomyCodes": [
+        "ict.edge",
+        "mfg"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 5,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·西安航空零部件",
+      "orgType": "ENTERPRISE",
+      "region": "陕西",
+      "title": "高温合金表面处理",
+      "problem": "叶片涂层结合力不稳定，寻求高校工艺合作。",
+      "expectedOut": "工艺窗口与检测标准",
+      "budgetBand": "30-80万",
+      "industry": [
+        "航空",
+        "新材料"
+      ],
+      "taxonomyCodes": [
+        "mat.coat",
+        "space"
+      ],
+      "licenseNeed": "exclusive",
+      "minTrl": 6,
+      "urgency": "高",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·杭州农产品科技",
+      "orgType": "ENTERPRISE",
+      "region": "浙江",
+      "title": "大田长势遥感监测",
+      "problem": "需要低成本多光谱方案，服务合作社。",
+      "expectedOut": "硬件+算法一体化试点",
+      "budgetBand": "10-35万",
+      "industry": [
+        "现代农业",
+        "遥感"
+      ],
+      "taxonomyCodes": [
+        "agri.sense"
+      ],
+      "licenseNeed": "open",
+      "minTrl": 4,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·南京环保工程公司",
+      "orgType": "ENTERPRISE",
+      "region": "江苏",
+      "title": "工业废水在线溯源",
+      "problem": "多排口混合难溯源，希望传感+算法。",
+      "expectedOut": "溯源方案与试点",
+      "budgetBand": "20-55万",
+      "industry": [
+        "环保",
+        "传感"
+      ],
+      "taxonomyCodes": [
+        "env.water"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 5,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·郑州食品机械厂",
+      "orgType": "ENTERPRISE",
+      "region": "河南",
+      "title": "产线数字孪生培训",
+      "problem": "希望用孪生做工艺培训与节拍推演。",
+      "expectedOut": "孪生场景与课件",
+      "budgetBand": "15-40万",
+      "industry": [
+        "食品装备",
+        "数字孪生"
+      ],
+      "taxonomyCodes": [
+        "mfg.twin"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 5,
+      "urgency": "低",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·厦门光伏组件厂",
+      "orgType": "ENTERPRISE",
+      "region": "福建",
+      "title": "组件隐裂视觉检测",
+      "problem": "产线速度提升后隐裂漏检上升。",
+      "expectedOut": "高速视觉方案",
+      "budgetBand": "35-90万",
+      "industry": [
+        "光伏",
+        "视觉"
+      ],
+      "taxonomyCodes": [
+        "mfg.vision",
+        "energy.pv"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 6,
+      "urgency": "高",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·沈阳机床改造商",
+      "orgType": "ENTERPRISE",
+      "region": "辽宁",
+      "title": "老旧机床数控化改造",
+      "problem": "客户要求低成本数控化与远程运维。",
+      "expectedOut": "改造包与远程模块",
+      "budgetBand": "20-60万",
+      "industry": [
+        "机床",
+        "工业软件"
+      ],
+      "taxonomyCodes": [
+        "mfg.mes",
+        "ict.edge"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 6,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·昆明生物医药园企业",
+      "orgType": "ENTERPRISE",
+      "region": "云南",
+      "title": "体外诊断试剂稳定性",
+      "problem": "温湿度波动导致批次差异，寻求工艺与包装改进。",
+      "expectedOut": "稳定性提升方案",
+      "budgetBand": "25-70万",
+      "industry": [
+        "体外诊断",
+        "生物医药"
+      ],
+      "taxonomyCodes": [
+        "bio.diag",
+        "bio.pharma"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 5,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某市工信局",
+      "orgType": "GOVERNMENT",
+      "region": "天津",
+      "title": "企业数字化诊断需求汇集（样例）",
+      "problem": "中小企业数字化改造摸底，形成可对接高校清单。",
+      "expectedOut": "诊断报告模板与对接会",
+      "budgetBand": "财政引导资金口径",
+      "industry": [
+        "数字化",
+        "中小企业"
+      ],
+      "taxonomyCodes": [
+        "ict.soft",
+        "mfg.mes"
+      ],
+      "licenseNeed": "any",
+      "minTrl": 4,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某市科技局",
+      "orgType": "GOVERNMENT",
+      "region": "重庆",
+      "title": "揭榜挂帅：氢燃料电池电堆（样例）",
+      "problem": "本地产业链补短板，征集电堆与热管理团队。",
+      "expectedOut": "揭榜任务书",
+      "budgetBand": "专项资金",
+      "industry": [
+        "氢能",
+        "热管理"
+      ],
+      "taxonomyCodes": [
+        "energy.hydrogen",
+        "energy.thermal"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 5,
+      "urgency": "高",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·宁波汽车零部件",
+      "orgType": "ENTERPRISE",
+      "region": "浙江",
+      "title": "注塑件尺寸在线检测",
+      "problem": "换型频繁，三坐标跟不上节拍。",
+      "expectedOut": "在线检测与SPC建议",
+      "budgetBand": "30-75万",
+      "industry": [
+        "汽车",
+        "检测"
+      ],
+      "taxonomyCodes": [
+        "mfg.vision",
+        "trans.ev"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 6,
+      "urgency": "高",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·兰州化工企业",
+      "orgType": "ENTERPRISE",
+      "region": "甘肃",
+      "title": "催化过程强化小试",
+      "problem": "希望高校提供过程强化与在线分析合作。",
+      "expectedOut": "小试方案",
+      "budgetBand": "50-150万",
+      "industry": [
+        "化工",
+        "催化"
+      ],
+      "taxonomyCodes": [
+        "chem.process"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 4,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·海口智慧农业公司",
+      "orgType": "ENTERPRISE",
+      "region": "海南",
+      "title": "热带作物病虫害识别",
+      "problem": "需要轻量模型适配田间手机端。",
+      "expectedOut": "模型与数据集建设建议",
+      "budgetBand": "8-25万",
+      "industry": [
+        "农业",
+        "人工智能"
+      ],
+      "taxonomyCodes": [
+        "agri.sense",
+        "ict.ai"
+      ],
+      "licenseNeed": "open",
+      "minTrl": 4,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某高新区管委会",
+      "orgType": "GOVERNMENT",
+      "region": "安徽",
+      "title": "揭榜挂帅：工业视觉开源工具链（样例）",
+      "problem": "降低中小企业视觉落地门槛。",
+      "expectedOut": "开源工具+培训",
+      "budgetBand": "揭榜+后补助",
+      "industry": [
+        "工业视觉",
+        "开源"
+      ],
+      "taxonomyCodes": [
+        "mfg.vision",
+        "ict.ai"
+      ],
+      "licenseNeed": "open",
+      "minTrl": 5,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某新区管委会",
+      "orgType": "GOVERNMENT",
+      "region": "北京",
+      "title": "科技计划·空天光电专项需求征集（样例）",
+      "problem": "征集可转化的光电探测与轻量化结构成果。",
+      "expectedOut": "对接名录",
+      "budgetBand": "计划口径",
+      "industry": [
+        "空天",
+        "光电"
+      ],
+      "taxonomyCodes": [
+        "space"
+      ],
+      "licenseNeed": "any",
+      "minTrl": 5,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    }
+  ]
+}

@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>研企通 · 运营中台</title>
+  <script src="/i18n/zh.js"></script>
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/branding.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#opsMain">跳到主内容</a>
+  <header class="top">
+    <div class="brand">
+      <span class="logo" data-brand-name>研企通</span>
+      <span class="sub">运营中台 · 今天待办优先（M40 密度）</span>
+    </div>
+    <div class="auth" id="authBox">
+      <input id="user" aria-label="管理员账号" placeholder="账号" value="admin" />
+      <input id="pass" aria-label="密码" type="password" placeholder="密码" value="yanqi123" />
+      <button id="btnLogin" aria-label="登录运营中台">登录</button>
+      <a class="buttonish ghost" href="/">身份入口</a>
+      <button type="button" class="notif-bell ghost" id="btnOpsNotif" title="通知">通知 <span id="opsUnread" class="muted">0</span></button>
+      <span id="authState" class="muted">未登录</span>
+    </div>
+  </header>
+
+  <div class="ops-shell">
+    <aside class="ops-side" id="opsSide">
+      <div class="sec">今天先干这个</div>
+      <button data-tab="dash" class="active" aria-label="打开今天待办">今天待办</button>
+      <button data-tab="flywheel" aria-label="打开采洗配联飞轮">采洗配联</button>
+      <a class="ops-side-link" href="/ingest.html">数据清洗</a>
+      <p class="ops-calm-note">次要能力默认收起，别一上来被三十个入口吓到。</p>
+      <p class="ops-density-note">M40：首页只留今天待办与主路径；空态只给一个下一步。</p>
+      <details class="nav-group" open>
+        <summary>对接干活</summary>
+        <button data-tab="match">匹配复核</button>
+        <button data-tab="leads">线索跟进发信</button>
+        <button data-tab="brokers">经纪人跟进</button>
+        <button data-tab="playbooks">跟进话术</button>
+        <button data-tab="capacity">经纪人手头单</button>
+      </details>
+      <details class="nav-group">
+        <summary>把数据堆起来</summary>
+        <button data-tab="jobs">采集任务</button>
+        <button data-tab="imports">企业授权导入</button>
+        <button data-tab="quality">清洗质检</button>
+        <button data-tab="schedules">定时任务</button>
+      </details>
+      <details class="nav-group">
+        <summary>档案与标签</summary>
+        <button data-tab="orgs">单位名录</button>
+        <button data-tab="cards">能力/成果/需求</button>
+        <button data-tab="taxonomy">行业分类</button>
+        <button data-tab="reviews">专家复核</button>
+        <button data-tab="checklists">签约前核对</button>
+        <button data-tab="doctpl">对接文书草稿</button>
+        <button data-tab="cases">脱敏案例</button>
+        <button data-tab="parkobs">园区观察文案</button>
+        <button data-tab="parkdocs">园区公文交换 <button type="button" class="ghost" id="btnOpsRedheadZip">红头批量 ZIP</button></button>
+      </details>
+      <details class="nav-group">
+        <summary>看数与对外</summary>
+        <button data-tab="reports">分析报告</button>
+        <button data-tab="events">路演活动</button>
+        <button data-tab="commissions">经纪人分成</button>
+        <button data-tab="billing">对账开票</button>
+        <button data-tab="plans">套餐与开关</button>
+        <button data-tab="tenants">多机构品牌</button>
+        <button data-tab="integrations">外部对接</button>
+      </details>
+      <details class="nav-group">
+        <summary>发信与系统</summary>
+        <button data-tab="smtp">发信设置</button>
+        <button data-tab="templates">邮件套话</button>
+        <button data-tab="metrics">快慢与队列</button>
+        <button data-tab="inbox">站内消息</button>
+        <button data-tab="audits">操作记录</button>
+        <button data-tab="webhooks">对接通知</button>
+        <button data-tab="lineage">这条数据从哪来</button>
+      </details>
+      <div class="sec">入口</div>
+      <a class="navlink" href="/">身份入口</a>
+      <a class="navlink" href="/portal.html" target="_blank">打开公开门户</a>
+      <a class="navlink" href="/invite.html" target="_blank">邀请单位认领</a>
+      <a class="navlink" href="/api/docs" target="_blank">接口说明</a>
+    </aside>
+
+    <main class="ops-main" id="opsMain" tabindex="-1">
+      <section id="tab-dash" class="panel active">
+        <h2>今天先干什么</h2>
+        <p class="lead">今天先处理积压：复核 → 发信 → 再补库存。次要面板在侧栏折叠里。支付和域名别一上来折腾。</p>
+        <div class="health-strip" id="dashHealthStrip"></div>
+        <div class="health-strip" id="dashLatencyChip"></div>
+        <div class="row" style="gap:8px;flex-wrap:wrap;margin:8px 0;align-items:center">
+          <button type="button" class="ghost" id="btnDashCardPrefs">调整首页卡片</button>
+          <span class="muted" id="dashCardPrefsHint">显隐 / 排序：优先服务端同步，本机回退</span>
+        </div>
+        <div id="dashCardPrefsPanel" class="formbox" hidden style="margin-bottom:12px;max-width:720px">
+          <strong>首页卡片轻配置</strong>
+          <p class="muted" style="margin:6px 0">默认冷静：只显示关键工作项。勾选显示，用上下调整顺序。不是微前端拖拽看板。</p>
+          <div id="dashCardPrefsList" class="list"></div>
+          <div class="row" style="gap:8px;margin-top:8px">
+            <button type="button" id="btnDashCardSave">保存</button>
+            <button type="button" class="ghost" id="btnDashCardReset">恢复默认</button>
+            <button type="button" class="ghost" id="btnDashCardClose">收起</button>
+          </div>
+        </div>
+        <div class="cards" id="statsCards"></div>
+        <div id="todayGuide" class="funnel-strip" aria-label="今日指引"></div>
+        <p id="flywheelHint" class="muted"></p>
+        <pre id="matchSkipOut" class="codeblock" style="white-space:pre-wrap;font-size:12px;max-height:140px;overflow:auto;display:none"></pre>
+        <div class="row">
+          <button id="btnRunMatch">跑一轮匹配</button>
+          <button id="btnEnqueueMatch" class="ghost">匹配入队</button>
+          <button id="btnCancelJob" class="ghost" disabled>取消当前任务</button>
+          <button id="btnResumeMatch" class="ghost" disabled>按剩余需求续跑</button>
+          <button id="btnCrawlOA" class="ghost">批量采集高校</button>
+          <button id="btnCrawlCSV" class="ghost">导入企业 CSV</button>
+          <a class="buttonish" href="/api/leads/export.csv" id="exportLink">导出线索 CSV</a>
+          <button id="btnExportPack" class="ghost">作战包说明</button>
+        </div>
+        <div id="jobProgressBox" class="item feedback-m41" style="display:none;margin-top:10px" aria-live="polite">
+          <div class="row" style="justify-content:space-between;align-items:center">
+            <strong id="jobProgressTitle">任务进度</strong>
+            <span id="jobProgressPct" class="muted">0%</span>
+          </div>
+          <div class="yb-progress-bar" style="margin:8px 0"><i id="jobProgressFill" class="yb-progress-fill" style="width:0%"></i></div>
+          <p id="jobProgressPhase" class="muted" style="margin:0 0 4px"></p>
+          <ul id="jobProgressItemized" class="muted m76-job-itemized m77-job-itemized-sse" style="margin:4px 0 0;padding-left:18px;font-size:12px;display:none"></ul>
+          <div id="jobProgressFinerCancel" class="row m76-finer-cancel m77-finer-cancel-split" style="display:none;gap:8px;flex-wrap:wrap;margin-top:6px">
+            <button type="button" class="ghost m76-cancel-embed" data-scope="embed">仅停供给嵌入</button>
+            <button type="button" class="ghost m76-cancel-score" data-scope="score">仅停打分</button>
+            <button type="button" class="ghost m76-cancel-all" data-scope="all">全停</button>
+          </div>
+          <p id="jobProgressResumeSplit" class="muted m77-resume-split" style="margin:4px 0 0;font-size:12px;display:none"></p>
+          <p id="jobProgressMeta" class="muted" style="margin:0"></p>
+        </div>
+        <div id="resumeTaskCardsWrap" class="m45-resume-wrap" style="margin-top:14px" aria-label="续跑任务卡">
+          <div class="row" style="justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap">
+            <h3 style="margin:0">续跑任务卡</h3>
+            <button type="button" class="ghost" id="btnRefreshResumeCards">刷新</button>
+          </div>
+          <p class="muted" style="margin:6px 0 8px">取消或部分完成的匹配/导入会集中在这里：进度、取消、续跑，导入可先看冲突预览再选策略。</p>
+          <div id="resumeTaskCards" class="list"></div>
+        </div>
+        <h3>Top 匹配预览</h3>
+        <div id="topMatches" class="list"></div>
+      </section>
+
+      
+      <section id="tab-flywheel" class="panel">
+        <h2>采 — 洗 — 配 — 联</h2>
+        <div id="publishDesk" class="cards"></div>
+        <div class="row" style="flex-wrap:wrap;gap:8px;margin:8px 0 16px">
+          <button type="button" id="btnDeskRefresh">刷新发布台</button>
+          <button type="button" id="btnDeskRejudge">按规则重判发布</button>
+          <button type="button" id="btnDeskClean" class="ghost">清洗未处理草稿</button>
+        </div>
+        <div id="deskQueue" class="list"></div>
+        <h3>缺联系人</h3>
+        <div id="deskGaps" class="list"></div>
+        <h3>同名老师</h3>
+        <div id="deskDupes" class="list"></div>
+        <p class="lead">冷启动就靠把量堆起来：高校侧走 OpenAlex 公开接口；企业侧用授权 CSV 或「演示夹具」。不爬知网、不爬未授权企查查。</p>
+        <div id="fwSides" class="cards"></div>
+        <p id="fwSummary" class="muted"></p>
+        <div class="row" style="flex-wrap:wrap;gap:8px">
+          <button type="button" id="btnFwRefresh">刷新库存</button>
+          <label class="muted" style="font-size:12px;display:inline-flex;align-items:center;gap:4px"><input type="checkbox" id="fwFillEmpty" /> 仅补空字段（采集时直接补，慎用）</label>
+          <button type="button" id="btnFwFillPreview" class="ghost">预览仅补空</button>
+          <button type="button" id="btnFwFillConfirm" class="ghost" disabled>确认写入补空</button>
+          <button type="button" id="btnFwCrawlOa">采集高校（OpenAlex）</button>
+          <button type="button" id="btnFwFixtures">一键导入演示需求包</button>
+          <button type="button" id="btnFwCsv" class="ghost">导入企业 CSV 样例</button>
+          <button type="button" id="btnFwClean">跑清洗打标</button>
+          <button type="button" id="btnFwQuarantine" class="ghost">隔离垃圾标题</button>
+          <button type="button" id="btnFwReembed" class="ghost">重算向量</button>
+          <button type="button" id="btnFwAnalyze" class="ghost">生成入库洞察</button>
+          <button type="button" id="btnFwMini" class="ghost">一键迷你流水线</button>
+        </div>
+        <p id="fwCrawlProgress" class="muted" style="font-size:12px"></p>
+        <p class="muted" style="font-size:12px">合规：只用公开 OpenAlex + 授权/演示数据。详见 docs/数据飞轮-M21.md</p>
+        <h3>粘贴一段需求 → 结构化卡片</h3>
+        <div class="item formbox">
+          <textarea id="fwPasteText" rows="5" placeholder="直接粘贴公告/企业口述，例如：&#10;单位：某某公司&#10;预算：30-80万&#10;痛点：产线视觉漏检高……"></textarea>
+          <div class="row">
+            <button type="button" id="btnFwParse">先预览解析</button>
+            <button type="button" id="btnFwParseCommit" class="ghost">确认入库</button>
+          </div>
+          <pre id="fwPasteOut" class="codeblock" style="white-space:pre-wrap;font-size:12px;max-height:200px;overflow:auto"></pre>
+        </div>
+        <h3>授权多文件导入（CSV / JSON）</h3>
+        <p class="muted" style="font-size:12px">拖进企业授权名单或需求表。先出校验报告（哪一行错、怎么改），再确认入库好行。不是爬虫。</p>
+        <div id="fwImportDrop" class="item formbox" style="border:2px dashed #9ab;padding:16px;text-align:center;cursor:pointer">
+          把多个 .csv / .json 拖到这里，或
+          <label style="cursor:pointer;color:#246;text-decoration:underline">点选文件
+            <input type="file" id="fwImportFiles" accept=".csv,.json,text/csv,application/json" multiple hidden />
+          </label>
+        </div>
+        <div class="row" style="margin-top:8px">
+          <button type="button" id="btnFwImportPreview">先出校验报告</button>
+          <button type="button" id="btnFwImportCommit" class="ghost" disabled>确认入库好行</button>
+        </div>
+        <pre id="fwImportReport" class="codeblock" style="white-space:pre-wrap;font-size:12px;max-height:280px;overflow:auto"></pre>
+        <div id="fwMapBox" class="item formbox" style="display:none;margin-top:8px">
+          <h4>列映射（表头对不上模板时）</h4>
+          <p class="muted" style="font-size:12px">把你们的列名对到系统字段，再点预览。坏行可下载改正包。</p>
+          <div id="fwMapFields" class="list"></div>
+          <div class="row">
+            <button type="button" id="btnFwMapApply">用这组映射再预览</button>
+            <button type="button" id="btnFwBadCsv" class="ghost">下载坏行改正包</button>
+          </div>
+        </div>
+        <div id="fwNetNew" class="cards" style="margin:12px 0"></div>
+        <h3>本周新入库 · 可匹配</h3>
+        <p class="muted" style="font-size:12px">本周新建且未隔离的需求/成果/能力，适合直接跑匹配。</p>
+        <div class="row" style="flex-wrap:wrap;gap:8px">
+          <button type="button" id="btnFwWeekReady">刷新本周清单</button>
+          <button type="button" id="btnFwWeekMatch">对勾选需求跑匹配</button>
+          <button type="button" id="btnFwWeekMatchQ" class="ghost">勾选入队（不卡页面）</button>
+          <button type="button" id="btnFwWeekCancel" class="ghost" disabled>取消进行中的批量</button>
+        </div>
+        <p id="fwWeekProgress" class="muted" style="font-size:12px"></p>
+        <pre id="fwFillDiff" class="codeblock" style="white-space:pre-wrap;font-size:12px;max-height:220px;overflow:auto;display:none"></pre>
+        <div id="fwWeekReady" class="list"></div>
+        <h3>重复卡合并建议</h3>
+        <div class="row"><button type="button" id="btnFwMerges">刷新合并建议</button></div>
+        <div id="fwMergeList" class="list"></div>
+        <h3>缺字段补全向导</h3>
+        <div id="fwCompleteList" class="list"></div>
+        <h3>最近任务</h3>
+        <div id="fwJobs" class="list"></div>
+        <h3>最新洞察</h3>
+        <pre id="fwAnalyzeOut" class="codeblock" style="white-space:pre-wrap;font-size:12px;max-height:280px;overflow:auto"></pre>
+      </section>
+
+      <section id="tab-doctpl" class="panel">
+        <h2>对接文书草稿</h2>
+        <p class="lead">保密沟通摘要、合作意向骨架、样品试用备忘。只是 Markdown 草稿，<strong>不是电子签，也不是律师意见</strong>。</p>
+        <p class="muted" id="tplDisclaimer"></p>
+        <div class="row">
+          <button type="button" id="btnRefreshTemplates">刷新模板</button>
+          <input id="tplMatchId" placeholder="匹配编号，用来填空" style="min-width:220px" />
+          <select id="tplCodeSel"></select>
+          <button type="button" id="btnGenDraft">生成草稿</button>
+        </div>
+        <div id="tplList" class="list"></div>
+        <h3>最近草稿</h3>
+        <div id="tplDrafts" class="list"></div>
+        <pre id="tplPreview" class="codeblock" style="white-space:pre-wrap;font-size:12px;max-height:360px;overflow:auto"></pre>
+      </section>
+
+      <section id="tab-capacity" class="panel">
+        <h2>经纪人手头单</h2>
+        <p class="lead">谁手上单子多、谁逾期了、话术转化怎么样。逾期太多会标红提醒。</p>
+        <div class="row">
+          <button type="button" id="btnRefreshCapacity">刷新</button>
+          <label>逾期几单算预警 <input id="capWarnAt" type="number" value="3" min="1" style="width:64px" /></label>
+        </div>
+        <p id="capSummary" class="muted"></p>
+        <div id="capList" class="list"></div>
+      </section>
+
+      <section id="tab-cases" class="panel">
+        <h2>案例审核台</h2>
+        <p class="lead">脱敏案例队列：待审核 → 通过公示 / 驳回 / 下架。通过后进公开案例池；园区号也能审。</p>
+        <div class="hall-cue" style="margin-bottom:14px">
+          <div class="hall-cue-icon" aria-hidden="true">审</div>
+          <div>
+            <strong>像政务大厅的材料窗口</strong>
+            <p class="muted">先确认没有真名/金额/联系人，再点「通过公示」。下架后门户立刻看不到。</p>
+          </div>
+        </div>
+        <div class="row" id="caseQueueKpis" style="gap:8px;flex-wrap:wrap;margin-bottom:10px"></div>
+        <div class="row">
+          <button type="button" id="btnRefreshCases">刷新队列</button>
+          <input id="caseMatchId" placeholder="已关闭的匹配编号" style="min-width:220px" />
+          <button type="button" id="btnCaseFromMatch">生成脱敏稿</button>
+          <select id="caseStatusFilter">
+            <option value="">全部状态</option>
+            <option value="pending">待审核</option>
+            <option value="published">已公示</option>
+            <option value="rejected">已驳回</option>
+            <option value="unpublished">已下架</option>
+            <option value="draft">草稿</option>
+          </select>
+          <a class="buttonish ghost" href="/work-park.html#moderation" target="_blank">园区审核台</a>
+        </div>
+        <div class="row" id="caseBatchBar" style="gap:8px;flex-wrap:wrap;margin:8px 0">
+          <label class="muted" style="font-size:12.5px"><input type="checkbox" id="caseSelectAll" /> 全选本页</label>
+          <button type="button" id="btnCaseBatchPub">批量通过公示</button>
+          <button type="button" class="ghost" id="btnCaseBatchRej">批量驳回</button>
+          <button type="button" class="ghost" id="btnCaseBatchUnpub">批量下架</button>
+          <span class="muted" id="caseBatchHint" style="font-size:12.5px">勾选后可批量处理</span>
+        </div>
+        <div id="caseList" class="list"></div>
+      </section>
+
+      <section id="tab-parkobs" class="panel">
+        <h2>园区观察文案（CMS-lite）</h2>
+        <p class="lead">改这里的政策/热度文案，园区号打开观察台就能看到。不是完整 CMS，够试点改字。</p>
+        <div class="row">
+          <button type="button" id="btnParkObsLoad">加载当前文案</button>
+          <button type="button" id="btnParkObsSave">保存</button>
+          <a class="buttonish ghost" href="/work-park.html" target="_blank">预览观察台</a>
+        </div>
+        <p id="parkObsMsg" class="muted" role="status"></p>
+        <label class="lbl">政策与合规 JSON（数组）</label>
+        <textarea id="parkObsPolicies" rows="16" style="width:100%;font-family:ui-monospace,monospace;font-size:12px"></textarea>
+        <label class="lbl">区域热度 JSON（数组）</label>
+        <textarea id="parkObsHeat" rows="8" style="width:100%;font-family:ui-monospace,monospace;font-size:12px"></textarea>
+        <label class="lbl">汇报提示（每行一条）</label>
+        <textarea id="parkObsTips" rows="4" style="width:100%"></textarea>
+        <h3 style="margin-top:20px">征集审批（M30）</h3>
+        <p class="lead">真实状态机骨架。可从需求卡灌示范队列；园区号在观察台推进审阅。</p>
+        <div class="row">
+          <button type="button" id="btnParkBoardRefresh">刷新审批板</button>
+          <button type="button" id="btnParkSeedApprovals" class="ghost">从需求导入示范</button>
+          <button type="button" id="btnParkNewWindow" class="ghost">新建征集窗</button>
+          <a class="buttonish ghost" href="/work-park.html#approvals" target="_blank">园区审批台</a>
+        </div>
+        <pre id="parkBoardBox" class="codeblock" style="white-space:pre-wrap;font-size:12px;max-height:360px;overflow:auto"></pre>
+      </section>
+
+
+
+      <section id="tab-orgs" class="panel">
+        <h2>单位名录</h2>
+        <p class="lead">高校 / 实验室 / 企业档案。机构用户登录后只能看到自己的组织。</p>
+        <div class="row">
+          <input id="orgSearch" placeholder="搜索组织名称" style="min-width:220px" />
+          <button id="btnOrgSearch">搜索</button>
+        </div>
+        <div id="orgList" class="list"></div>
+      </section>
+
+      <section id="tab-cards" class="panel">
+        <h2>能力 / 成果 / 需求</h2>
+        <p class="lead">能力卡 · 成果卡 · 需求卡。通用字段，个性扩展放 extensions。</p>
+        <div class="row tabs-mini">
+          <button data-card="capabilities" class="active">能力卡</button>
+          <button data-card="outcomes">成果卡</button>
+          <button data-card="demands">需求卡</button>
+        </div>
+        <div id="cardList" class="list"></div>
+      </section>
+
+      <section id="tab-match" class="panel">
+        <h2>匹配工作台</h2>
+        <p class="lead">对标 Linear / HubSpot 的复核台：贡献分解释、批量动作、分派经纪人。每条都能说清楚「为什么推这一对」。</p>
+        <div class="row toolbar">
+          <button id="btnRunMatch2">再跑一轮匹配</button>
+          <label>最低分 <input id="minScore" type="number" step="0.05" value="0.30" style="width:72px" /></label>
+          <label>列表过滤分 <input id="filterScore" type="number" step="0.05" value="0" style="width:72px" /></label>
+          <label>状态
+            <select id="filterStatus">
+              <option value="">全部</option>
+              <option value="PENDING_REVIEW">待复核</option>
+              <option value="APPROVED">已通过</option>
+              <option value="REJECTED">已驳回</option>
+              <option value="CONTACTED">已触达</option>
+              <option value="CLOSED">已关闭</option>
+            </select>
+          </label>
+          <button id="btnFilterMatch" class="ghost">筛选</button>
+          <button id="btnBulkApprove" class="ghost">批量通过勾选</button>
+          <button id="btnBulkReject" class="ghost">批量驳回勾选</button>
+          <button id="btnSelectAllMatch" class="ghost">全选/取消</button>
+          <span class="cmd-hint" title="快捷键">j/k 上下 · e 解释 · a 通过 · r 驳回 · / 全局搜索</span>
+          <div class="omnibox-wrap"><label class="sr-only" for="globalSearchBox">全局搜索</label><input id="globalSearchBox" class="searchbox" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="globalSearchResults" aria-label="全局搜索组织、需求、能力、成果、匹配、线索" placeholder="搜组织/需求/能力/成果/匹配/线索…" autocomplete="off" /><div id="globalSearchResults" class="omnibox-results" role="listbox" aria-label="搜索结果" style="display:none"></div></div>
+        </div>
+        <div class="row toolbar">
+          <label>已存视图
+            <select id="savedViewSelect"><option value="">— 选择 —</option></select>
+          </label>
+          <input id="savedViewName" placeholder="视图名称，如：高分待复核" style="min-width:160px" />
+          <button id="btnSaveView" class="ghost">保存当前筛选</button>
+          <button id="btnApplyView" class="ghost">应用</button>
+          <button id="btnDeleteView" class="ghost">删除视图</button>
+          <span id="viewMsg" class="muted"></span>
+        </div>
+        <div class="split-workspace">
+          <div id="matchList" class="list"></div>
+          <div>
+            <div class="item" id="explainBox">
+              <h3 style="margin-top:0">解释 + 草稿并排</h3>
+              <p class="muted">看贡献分后，可直接改邀约主题/正文（署名小蚁），保存后再去发信页人审。</p>
+              <div id="explainBody" class="empty-state"><h3>还没选中匹配</h3><p>左边点一条匹配，或按快捷键 <span class="cmd-hint">e</span>。</p></div>
+              <div id="draftEditor" class="formbox" style="display:none;margin-top:12px;border-top:1px solid var(--line);padding-top:12px">
+                <div class="meta" id="draftLeadMeta"></div>
+                <label>草稿主题</label>
+                <input id="draftSubject" />
+                <label>草稿正文</label>
+                <textarea id="draftBody" rows="10" style="width:100%;font-family:inherit"></textarea>
+                <div class="row">
+                  <button id="btnSaveDraft">保存草稿</button>
+                  <button class="ghost" id="btnApplyTplMatch">套「匹配就绪」模板</button>
+                  <button class="ghost" id="btnOpenLeadSend">去发信页</button>
+                </div>
+                <div id="draftMsg" class="muted"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-brokers" class="panel">
+        <h2>经纪人 / 技术经理人跟进台</h2>
+        <p class="lead">状态机：已分派 → 联系中 → 有意向 → 已成交 / 已流失。演示账号：broker@yanqi.local / yanqi123</p>
+        <div class="row">
+          <button id="btnRefreshBrokers" class="ghost">刷新</button>
+          <button id="btnRefreshSla" class="ghost">刷新跟进时限</button>
+            <button id="btnEvalAlerts" class="ghost">刷新告警</button>
+            <div id="opsAlertsPanel" class="muted" style="width:100%;margin-top:6px;font-size:12px"></div>
+          <button id="btnRemindSla" class="ghost">催办逾期</button>
+          <span id="brokerHint" class="muted"></span>
+        </div>
+        <div id="brokerSlaBox" class="health-strip"></div>
+        <div id="brokerOverdueList" class="list"></div>
+        <h3>跟进看板</h3>
+        <div id="brokerKanban" class="kanban"></div>
+        <h3>经纪人名单</h3>
+        <div id="brokerList" class="list"></div>
+        <h3>已分派任务与时间线</h3>
+        <div id="assignList" class="list"></div>
+        <div id="timelineBox" class="item" style="display:none;margin-top:12px">
+          <h3>跟进时间线</h3>
+          <div id="timelineMeta" class="meta"></div>
+          <div id="timelineEvents" class="list"></div>
+          <div class="row" style="margin-top:8px">
+            <select id="followNext"></select>
+            <input id="followNote" placeholder="跟进备注" style="min-width:240px;flex:1" />
+            <button id="btnFollowAdvance">推进状态</button>
+            <button class="ghost" id="btnFollowNote">只写备注</button>
+          </div>
+          <div class="row" style="margin-top:8px">
+            <input id="slaNextAt" type="datetime-local" />
+            <button class="ghost" id="btnSetSla">设下次跟进</button>
+            <input id="attachName" placeholder="附件名如 成交确认.txt" style="min-width:160px" />
+            <input id="attachText" placeholder="附件文本内容（演示）" style="flex:1;min-width:180px" />
+            <button class="ghost" id="btnUploadAttach">上传成交附件</button>
+          </div>
+          <div id="attachList" class="list" style="margin-top:8px"></div>
+        </div>
+      </section>
+
+      <section id="tab-leads" class="panel">
+        <h2>线索 / 发信</h2>
+        <p class="lead">草稿 → 人审 → 入队。左侧列表，右侧并排改稿。真发必须双确认；本沙箱 SMTP 出网可能被拦，失败会说人话。</p>
+        <div class="row">
+          <label class="pill"><input type="checkbox" id="confirmLiveSend" /> 确认真发（双确认，慎用）</label>
+          <span id="liveSendHint" class="muted"></span>
+          <select id="tplKind">
+            <option value="match_ready">匹配就绪</option>
+            <option value="invite">邀请完善</option>
+            <option value="approve">审核通过</option>
+          </select>
+          <button class="ghost" id="btnPreviewTpl">预览模板</button>
+        </div>
+        <div class="split-workspace">
+          <div id="leadList" class="list"></div>
+          <div class="item formbox" id="leadEditorBox">
+            <h3 style="margin-top:0">草稿编辑器</h3>
+            <div id="leadEditorEmpty" class="empty-state"><h3>选一条线索</h3><p>点「编辑草稿」在这里改主题和正文。</p></div>
+            <div id="leadEditor" style="display:none">
+              <div class="meta" id="leadEditorMeta"></div>
+              <label>主题</label>
+              <input id="leadEditSubject" />
+              <label>正文</label>
+              <textarea id="leadEditBody" rows="12" style="width:100%"></textarea>
+              <div class="row">
+                <button id="btnLeadSave">保存</button>
+                <button class="ghost" id="btnLeadApplyTpl">套用模板</button>
+                <button id="btnLeadApproveSend">审核并通过并发送</button>
+              </div>
+              <div id="leadEditMsg" class="muted"></div>
+            </div>
+          </div>
+        </div>
+        <pre id="tplPreview" class="item" style="display:none;margin-top:12px;white-space:pre-wrap"></pre>
+      </section>
+
+      <section id="tab-jobs" class="panel">
+        <h2>采集与任务</h2>
+        <p class="lead">有 Redis 走 BullMQ，没有就进程内队列。</p>
+        <div class="row">
+          <button id="btnRefreshJobs" class="ghost">刷新</button>
+          <span id="queueBackend" class="muted"></span>
+        </div>
+        <div id="jobList" class="list"></div>
+      </section>
+
+      
+      
+      <section id="tab-templates" class="panel">
+        <h2>邮件模板中心</h2>
+        <p class="lead">邀请 / 审核通过 / 匹配就绪，署名小蚁。这里只预览与套到线索，真发仍走人审双确认。</p>
+        <div class="row">
+          <button id="btnRefreshTemplates" class="ghost">刷新模板列表</button>
+        </div>
+        <div id="templateList" class="list"></div>
+        <div class="item formbox">
+          <h3>预览</h3>
+          <label>模板</label>
+          <select id="tplCenterKind">
+            <option value="invite">invite · 邀请完善档案</option>
+            <option value="approve">approve · 审核通过说明</option>
+            <option value="match_ready">match_ready · 匹配就绪</option>
+          </select>
+          <label>称呼</label>
+          <input id="tplWho" value="王老师" />
+          <label>需求标题</label>
+          <input id="tplDemand" value="工业视觉缺陷检测" />
+          <label>供给标题</label>
+          <input id="tplSupply" value="边缘视觉检测方案" />
+          <button id="btnTplCenterPreview">生成预览</button>
+          <pre id="tplCenterOut" class="item" style="margin-top:10px;white-space:pre-wrap"></pre>
+        </div>
+      </section>
+
+      <section id="tab-metrics" class="panel">
+        <h2>延迟 / 队列观测</h2>
+        <p class="lead">进程内采样 p50/p95 与直方图；队列积压会写 JobLog 和 .data/metrics 文件。不是完整 APM，但够早期试点用。</p>
+        <div class="row">
+          <button id="btnRefreshMetrics">刷新延迟</button>
+          <button class="ghost" id="btnCheckQueue">检查队列积压</button>
+          <button class="ghost" id="btnRefreshHomeCacheShell">刷新首页分壳命中</button>
+          <button class="ghost" id="btnRefreshInboxDeltaCache">刷新收件箱命中</button>
+          <span id="inboxDeltaCacheBadge" class="pill m62-inbox-delta-badge m63-inbox-lowhit-badge m64-inbox-selfheal-badge m65-inbox-selfheal-bust m66-inbox-hit-probe" title="收件箱 delta 分壳短缓存命中 / 持续偏低告警">收件箱命中 —</span>
+        </div>
+        <pre id="metricsLatency" class="item" style="white-space:pre-wrap">加载中…</pre>
+        <pre id="metricsQueue" class="item" style="white-space:pre-wrap;display:none"></pre>
+        <h3 style="margin-top:16px">首页短缓存 · 分壳命中（M48–M54）</h3>
+        <p class="lead" style="margin-top:0">按工作台壳看 HIT/MISS；M49 持久曲线；M50 分壳告警；M51 曲线双通道；M52 配额徽章；M53 配额双通道；M54 审计租户隔离 + Webhook 双确认干跑。</p>
+        <h3 style="margin-top:16px">收件箱 delta · 分壳命中（M62–M65）</h3>
+        <p class="lead" style="margin-top:0">匹配写库后按租户定向 bust；HIT/MISS/304 分壳曲线见 /api/metrics/inbox-delta-cache；持续偏低走双通道干跑告警。M89：旁路对照历史回放 + 冷却火花日点钻取 + 批重跑失败重试预算；M88 再对照/SSE/确认卡仍在；一键自愈干跑、无外发。不扩张导出/配额子系统。</p>
+        <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:6px">
+          <button type="button" id="btnNotifyInboxDeltaCurveAlert" class="ghost">派发收件箱偏低双通道（干跑）</button>
+          <button type="button" id="btnSelfHealInboxDelta" class="ghost m65-inbox-selfheal-bust m66-inbox-hit-probe m68-inbox-shell-trend m69-inbox-shell-inflection m70-inbox-shell-bust-sla m71-inbox-suggested-bust">一键自愈偏低壳（干跑 bust+HIT探测+失败二次bust+复探针+回升判定+建议bust+回升SLA）</button>
+          <button type="button" id="btnProbeInboxDeltaHit" class="ghost m66-inbox-hit-probe m67-inbox-shell-health">自愈后 HIT 探测（干跑）</button>
+          <button type="button" id="btnInboxShellHealth" class="ghost m67-inbox-shell-health m68-inbox-shell-trend m69-inbox-shell-inflection m70-inbox-shell-bust-sla m71-inbox-sla-remind m74-inbox-weekly-sparkline m75-inbox-spark-day-annotate">查看分壳健康（落盘+短趋势+周火花图日点注解+拐点+建议bust+回升SLA冷却+临近提醒）</button>
+          <button type="button" id="btnExecuteSuggestedBust" class="ghost m71-inbox-suggested-bust m72-inbox-post-bust-probe m73-inbox-sla-chain-heal m74-inbox-sla-reopen">一键执行建议 bust（干跑+自动HIT探针·失败串联SLA自愈·SLA冷却节流）</button>
+          <button type="button" id="btnRecoverySlaRemind" class="ghost m71-inbox-sla-remind">回升 SLA 临近/逾期提醒</button>
+          <button type="button" id="btnWeeklySparkline" class="ghost m74-inbox-weekly-sparkline m75-inbox-spark-day-annotate m76-inbox-day-drill">分壳周 HIT 火花图（含日点注解）</button>
+          <button type="button" id="btnSparkDayDrill" class="ghost m76-inbox-day-drill m77-inbox-multiday-drill">日点注解钻取探针样本（干跑）</button>
+          <button type="button" id="btnSparkMultiDayDrill" class="ghost m77-inbox-multiday-drill">日点多日对比钻取（干跑）</button>
+          <button type="button" id="btnSparkMultiDayLocalCompare" class="ghost m78-inbox-local-compare m79-inbox-trend-delta m80-inbox-trend-anomaly m77-inbox-multiday-drill">多日钻取本地对比卡·趋势差分（干跑）</button>
+          <button type="button" id="btnTrendDeltaAnomalyAttr" class="ghost m80-inbox-trend-anomaly m81-inbox-anomaly-chain">趋势差分异常归因（干跑）</button>
+          <button type="button" id="btnTrendAnomalyChainBust" class="ghost m81-inbox-anomaly-chain m82-inbox-anomaly-jobcard">异常归因一键串联 bust/复探针（干跑·挂任务卡）</button>
+          <button type="button" id="btnAnomalyChainJobCard" class="ghost m82-inbox-anomaly-jobcard">查看异常串联任务卡</button>
+          <button type="button" id="btnAnomalyChainJobCancel" class="ghost m82-inbox-anomaly-jobcard">取消异常串联任务卡</button>
+          <button type="button" id="btnAnomalyChainJobResume" class="ghost m82-inbox-anomaly-jobcard m83-inbox-anomaly-itemized-sse">续跑异常串联任务卡</button>
+          <button type="button" id="btnAnomalyChainItemized" class="ghost m83-inbox-anomaly-itemized-sse m84-inbox-anomaly-eventsource">查看异常串联分项进度</button>
+          <button type="button" id="btnAnomalyChainEventSource" class="ghost m84-inbox-anomaly-eventsource m85-inbox-anomaly-sse-reconnect">订阅异常串联真 EventSource</button>
+          <button type="button" id="btnAnomalyItemizedContrast" class="ghost m85-inbox-anomaly-sse-reconnect m85-inbox-itemized-contrast m86-inbox-contrast-row-rerun">异常分项 expected×actual 对照</button>
+          <button type="button" id="btnAnomalyContrastRowRerun" class="ghost m86-inbox-contrast-row-rerun m87-inbox-batch-rerun">对照行一键重跑 bust（干跑）</button>
+          <button type="button" id="btnAnomalyContrastBatchRerun" class="ghost m87-inbox-batch-rerun m88-inbox-batch-rerun-sse">对照行批重跑队列（干跑）</button>
+          <button type="button" id="btnAnomalyBatchRerunSse" class="ghost m88-inbox-batch-rerun-sse m89-batch-rerun-retry">批重跑 SSE 扇出进度</button>
+          <button type="button" id="btnAnomalyBatchRerunRetryFailed" class="ghost m89-batch-rerun-retry m90-batch-rerun-sse-phase">批重跑失败重试预算</button>
+          <button type="button" id="btnAnomalyBatchRerunSsePhaseFilter" class="ghost m90-batch-rerun-sse-phase m91-sse-phase-taskcard">批重跑 SSE 阶段过滤</button>
+          <button type="button" id="btnAnomalySsePhaseTaskCardBind" class="ghost m91-sse-phase-taskcard m92-sse-taskcard-drill">SSE阶段绑定任务卡进度</button>
+          <button type="button" id="btnAnomalySseTaskCardPhaseDrill" class="ghost m92-sse-taskcard-drill m93-sse-jump-queue">任务卡进度点钻单阶段SSE</button>
+          <button type="button" id="btnAnomalySseDrillJumpQueue" class="ghost m93-sse-jump-queue">SSE点钻跳批重跑队列项</button>
+          <button type="button" id="btnAnomalyBatchRerunPhasePauseResume" class="ghost m93-sse-jump-queue m93-phase-pause-resume m94-phase-resume-alarm">批重跑单阶段暂停/续跑</button>
+          <button type="button" id="btnAnomalyBatchRerunPhaseResumeAlarm" class="ghost m94-phase-resume-alarm m95-resume-alarm-autoresume">单阶段续跑闹钟</button>
+          <button type="button" id="btnAnomalyBatchRerunResumeAlarmAutoResume" class="ghost m95-resume-alarm-autoresume m96-autoresume-grace">续跑闹钟到期自动续跑</button>
+          <button type="button" id="btnAnomalyBatchRerunResumeAlarmGrace" class="ghost m96-autoresume-grace m97-grace-role-policy">自动续跑宽限/静默窗</button>
+          <button type="button" id="btnAnomalyBatchRerunResumeAlarmGraceRolePolicy" class="ghost m97-grace-role-policy m98-grace-ab-compare">宽限/静默角色策略模板</button>
+          <button type="button" id="btnAnomalyBatchRerunResumeAlarmGraceAbCompare" class="ghost m98-grace-ab-compare m99-ab-apply-winner">角色策略A/B宽限对比</button>
+          <button type="button" id="btnAnomalyBatchRerunGraceAbApplyWinner" class="ghost m99-ab-apply-winner m100-ab-soft-undo m109-share-expiry-field-filter m109-bm-diff-oneside-adopt m109-retry-phase-pause m109-winner-pinpoint-rebypass m109-oneside-summary-scrub-ab m110-share-role-audit-onepager m110-oneside-ba-card m110-phase-pause-grace m110-pinpoint-rebypass-fail-fold m110-ab-summary-frame-pinpoint m111-audit-seek-ff-bm-xshare m111-ba-pinpoint-rebypass m111-grace-soft-cancel-ledger m111-fail-attr-retry-fold-taskcard m111-summary-pinpoint-rebypass m112-ledger-multiselect-bm-diff-adopt m112-ba-pinpoint-fail-fold m112-soft-cancel-ledger-role-audit-onepager m112-retry-phase-pause-grace m112-summary-rebypass-before-after">策略A/B一键套用胜出侧</button>
+          <button type="button" id="btnAnomalyBatchRerunGraceAbApplyWinnerSoftUndo" class="ghost m100-ab-soft-undo m101-ab-soft-undo-grace">胜出侧套用软撤销</button>
+          <button type="button" id="btnAnomalyBatchRerunGraceAbApplyWinnerSoftUndoGraceContrast" class="ghost m101-ab-soft-undo-grace m102-grace-reapply">软撤销前后宽限对照</button>
+          <button type="button" id="btnAnomalyBatchRerunGraceContrastReApplyRestored" class="ghost m102-grace-reapply m103-grace-softundo-contrast">宽限对照再套用恢复侧</button>
+          <button type="button" id="btnAnomalyBatchRerunGraceReApplySoftUndoBackToContrast" class="ghost m103-grace-softundo-contrast">再套用恢复侧软撤销回对照</button>
+          <button type="button" id="btnAnomalyBatchRerunGraceSoftUndoBackDrillSupply" class="ghost m104-softundo-drill-supply m105-drill-supply-rebypass">软撤销对照再钻供给</button>
+          <button type="button" id="btnAnomalyBatchRerunGraceSoftUndoDrillSupplyReBypass" class="ghost m105-drill-supply-rebypass m106-rebypass-fail-attr">对照钻供给一键再旁路</button>
+          <button type="button" id="btnAnomalyBatchRerunGraceSoftUndoDrillSupplyReBypassFailAttr" class="ghost m106-rebypass-fail-attr m107-fail-attr-retry">再旁路失败中文归因卡</button>
+          <button type="button" id="btnAnomalyBatchRerunGraceSoftUndoDrillSupplyReBypassFailAttrRetry" class="ghost m107-fail-attr-retry m108-retry-fold-taskcard">失败归因一键重试</button>
+          <button type="button" id="btnAnomalyBatchRerunFailAttrRetryFoldChainTaskCard" class="ghost m108-retry-fold-taskcard m109-retry-phase-pause">一键重试折进串联任务卡</button>
+          <button type="button" id="btnAnomalyBatchRerunFailAttrRetryFoldChainTaskCardPhasePause" class="ghost m109-retry-phase-pause m110-phase-pause-grace">任务卡重试单阶段暂停/续跑</button>
+          <button type="button" id="btnAnomalyBatchRerunPhasePauseGraceAlarm" class="ghost m110-phase-pause-grace m111-grace-soft-cancel-ledger">任务卡阶段暂停宽限闹钟</button>
+          <button type="button" id="btnAnomalyBatchRerunGraceSoftCancelLedger" class="ghost m111-grace-soft-cancel-ledger m112-soft-cancel-ledger-role-audit-onepager">宽限闹钟软取消进中文台账</button>
+          <button type="button" id="btnAnomalyBatchRerunSoftCancelLedgerRoleAuditOnepager" class="ghost m112-soft-cancel-ledger-role-audit-onepager m113-soft-cancel-audit-seek-ledger">软取消台账角色审计一页纸</button>
+          <button type="button" id="btnAnomalyBatchRerunSoftCancelLedgerRoleAuditOnepagerSeekLedger" class="ghost m113-soft-cancel-audit-seek-ledger m114-soft-cancel-audit-multiselect">软取消审计一页纸seek回台账行</button>
+          <button type="button" id="btnAnomalyBatchRerunSoftCancelLedgerRoleAuditOnepagerSeekLedgerMultiSelectContrast" class="ghost m114-soft-cancel-audit-multiselect m115-soft-cancel-audit-clip-scrubber">软取消审计一页纸多选中文对照</button>
+          <button type="button" id="btnAnomalyBatchRerunSoftCancelLedgerRoleAuditOnepagerSeekLedgerMultiSelectContrastClipScrubber" class="ghost m115-soft-cancel-audit-clip-scrubber m116-audit-clip-kf-bm">软取消审计一页纸多选短片scrubber</button>
+          <button type="button" id="btnAnomalyBatchRerunSoftCancelLedgerRoleAuditOnepagerSeekLedgerMultiSelectContrastClipScrubberKeyframeBookmarks" class="ghost m116-audit-clip-kf-bm">审计多选短片scrubber关帧书签</button>
+          <button type="button" id="btnAnomalyBatchRerunClipKfBmXSessionRoShare" class="ghost m117-clip-kf-bm-xsession m118-clip-kf-bm-share-expiry-revoke">关帧书签跨会话只读分享</button>
+          <button type="button" id="btnAnomalyBatchRerunClipKfBmShareExpiryRevoke" class="ghost m118-clip-kf-bm-share-expiry-revoke m119-kf-revoke-ledger-role-filtered-audit">关帧书签分享过期吊销</button>
+          <button type="button" id="btnAnomalyBatchRerunClipKfBmShareExpiryRevokeRoleFilteredAudit" class="ghost m119-kf-revoke-ledger-role-filtered-audit m120-kf-role-filtered-audit-onepager">关帧吊销台账角色过滤审计</button>
+          <button type="button" id="btnAnomalyBatchRerunKfRoleFilteredAuditOnepager" class="ghost m120-kf-role-filtered-audit-onepager m121-kf-audit-onepager-seek-ledger">关帧角色过滤审计一页纸</button>
+          <button type="button" id="btnAnomalyBatchRerunKfAuditOnepagerSeekLedger" class="ghost m121-kf-audit-onepager-seek-ledger m122-audit-seek-ledger-multiselect-contrast">关帧审计一页纸回跳台账行</button>
+          <button type="button" id="btnAnomalyBatchRerunAuditSeekLedgerMultiselectContrast" class="ghost m122-audit-seek-ledger-multiselect-contrast m123-audit-seek-multiselect-clip-frames">审计回跳台账多选中文对照</button>
+          <button type="button" id="btnAnomalyBatchRerunAuditSeekMultiselectClipFrames" class="ghost m123-audit-seek-multiselect-clip-frames m124-audit-clip-scrubber-kf-bm">审计多选对照短片帧</button>
+          <button type="button" id="btnAnomalyBatchRerunAuditClipFramesScrubberKfBm" class="ghost m124-audit-clip-scrubber-kf-bm m125-audit-clip-kf-bm-xsession">审计短片帧scrubber关帧书签</button>
+          <button type="button" id="btnAnomalyBatchRerunAuditClipKfBmXsessionRoShare" class="ghost m125-audit-clip-kf-bm-xsession m126-audit-clip-kf-bm-xsession-expiry-revoke">审计短片关帧书签跨会话只读分享</button>
+          <button type="button" id="btnAnomalyBatchRerunAuditClipKfBmXsessionShareExpiryRevokeLedger" class="ghost m126-audit-clip-kf-bm-xsession-expiry-revoke m127-audit-share-revoke-ledger-role-audit">审计关帧跨会话分享过期吊销进台账</button>
+          <button type="button" id="btnAnomalyBatchRerunAuditShareRevokeLedgerRoleAuditOnepager" class="ghost m127-audit-share-revoke-ledger-role-audit m128-audit-share-revoke-role-audit-seek-ledger">审计分享吊销台账角色审计一页纸</button>
+          <button type="button" id="btnAnomalyBatchRerunAuditShareRevokeRoleAuditSeekLedger" class="ghost m128-audit-share-revoke-role-audit-seek-ledger m129-audit-share-revoke-seek-multiselect-contrast">审计分享吊销角色审计回跳台账</button>
+          <button type="button" id="btnAnomalyBatchRerunAuditShareRevokeSeekMultiselectContrast" class="ghost m129-audit-share-revoke-seek-multiselect-contrast m130-audit-share-revoke-multiselect-clip-scrubber">审计分享吊销回跳台账多选中文对照</button>
+          <button type="button" id="btnAnomalyBatchRerunAuditShareRevokeMultiselectClipScrubber" class="ghost m130-audit-share-revoke-multiselect-clip-scrubber m131-audit-share-revoke-multiselect-clip-kf-bm">审计分享吊销多选对照短片scrubber</button>
+          <button type="button" id="btnAnomalyBatchRerunAuditShareRevokeMultiselectClipKfBm" class="ghost m131-audit-share-revoke-multiselect-clip-kf-bm m132-audit-share-revoke-clip-kf-bm-xsession">审计分享吊销多选对照短片关帧书签</button>
+          <button type="button" id="btnAnomalyBatchRerunAuditShareRevokeMultiselectClipKfBmXsession" class="ghost m132-audit-share-revoke-clip-kf-bm-xsession m133-audit-share-revoke-kf-bm-xsession-expiry">审计分享吊销多选短片关帧跨会话只读分享</button>
+          <button type="button" id="btnAnomalyBatchRerunAuditShareRevokeKfBmXsessionExpiryRevoke" class="ghost m133-audit-share-revoke-kf-bm-xsession-expiry m134-audit-share-revoke-expiry-ledger-role-audit">审计分享吊销关帧跨会话过期吊销进台账</button>
+          <button type="button" id="btnAnomalyBatchRerunAuditShareRevokeExpiryLedgerRoleAudit" class="ghost m134-audit-share-revoke-expiry-ledger-role-audit m135-audit-share-revoke-expiry-ledger-role-audit-seek">审计分享吊销过期吊销台账角色审计一页纸</button>
+          <button type="button" id="btnAnomalyBatchRerunAuditShareRevokeExpiryLedgerRoleAuditSeek" class="ghost m135-audit-share-revoke-expiry-ledger-role-audit-seek">审计分享吊销过期吊销台账角色审计回跳台账</button>
+          <button type="button" id="btnBatchRerunAuditExpiryRoleAuditSeekMultiselect" class="ghost m136-audit-expiry-role-audit-seek-multiselect">审计分享吊销过期台账角色审计回跳多选对照</button>
+          <button type="button" id="btnBatchRerunAuditExpirySeekMultiselectClipScrubber" class="ghost m137-audit-expiry-seek-multiselect-clip-scrubber m138-audit-expiry-seek-multiselect-clip-kf-bm">审计回跳多选短片 scrubber</button>
+          <button type="button" id="btnBatchRerunAuditExpirySeekMultiselectClipKfBm" class="ghost m138-audit-expiry-seek-multiselect-clip-kf-bm">审计回跳多选短片关帧书签</button>
+          <button type="button" id="btnBatchRerunAuditKfBmXsessionRoShareM139" class="ghost m139-audit-kf-bm-xsession-ro-share">审计关帧跨会话只读分享</button>
+          <button type="button" id="btnBatchRerunAuditKfBmXsessionExpiryRevokeM140" class="ghost m140-audit-kf-bm-xsession-expiry-revoke">审计关帧跨会话过期吊销进台账</button>
+          <button type="button" id="btnBatchRerunAuditExpiryRevokeRoleAuditOnepagerM141" class="ghost m141-audit-expiry-revoke-role-audit-onepager">审计过期吊销台账角色审计一页纸</button>
+          <button type="button" id="btnBatchRerunAuditExpiryRoleAuditSeekLedgerM142" class="ghost m142-audit-expiry-role-audit-seek">审计过期角色审计回跳台账</button>
+          <button type="button" id="btnBatchRerunAuditExpirySeekMultiselectContrastM143" class="ghost m143-audit-expiry-seek-multiselect">审计过期回跳多选中文对照</button>
+          <button type="button" id="btnBatchRerunAuditExpiryMultiselectClipScrubberM144" class="ghost m144-audit-expiry-multiselect-clip-scrubber">审计过期多选短片scrubber</button>
+          <button type="button" id="btnBatchRerunAuditExpiryMultiselectClipKfBmM145" class="ghost m145-audit-expiry-multiselect-clip-kf-bm">审计过期多选短片关帧书签</button>
+          <button type="button" id="btnBatchRerunAuditExpiryKfBmXsessionRoShareM146" class="ghost m146-audit-expiry-kf-bm-xsession">审计过期关帧跨会话只读分享</button>
+          <button type="button" id="btnBatchRerunAuditExpiryKfBmXsessionExpiryRevokeM147" class="ghost m147-audit-expiry-kf-bm-xsession-expiry-revoke m148-audit-expiry-revoke-role-audit">审计过期关帧跨会话过期吊销进台账</button>
+          <button type="button" id="btnBatchRerunAuditExpiryRevokeRoleAuditOnepagerM148" class="ghost m148-audit-expiry-revoke-role-audit m149-audit-role-audit-seek">审计过期吊销角色审计一页纸</button>
+          <button type="button" id="btnBatchRerunAuditRoleAuditSeekLedgerM149" class="ghost m149-audit-role-audit-seek m150-audit-seek-ms">审计角色审计回跳台账</button>
+          <button type="button" id="btnBatchRerunAuditSeekMultiselectContrastM150" class="ghost m150-audit-seek-ms m151-audit-seek-ms-clip">审计回跳多选对照</button>
+          <button type="button" id="btnBatchRerunAuditSeekMultiselectClipScrubberM151" class="ghost m151-audit-seek-ms-clip m152-audit-seek-clip-kf">审计回跳多选短片scrubber</button>
+          <button type="button" id="btnBatchRerunAuditSeekClipKfBmM152" class="ghost m152-audit-seek-clip-kf m153-audit-kf-bm-xshare">审计回跳短片关帧书签</button>
+          <button type="button" id="btnBatchRerunAuditKfBmXsessionRoShareM153" class="ghost m153-audit-kf-bm-xshare m154-audit-kf-bm-expiry">审计回跳关帧跨会话只读分享</button>
+          <button type="button" id="btnBatchRerunAuditKfBmXsessionExpiryRevokeM154" class="ghost m154-audit-kf-bm-expiry m155-audit-expiry-role-audit">审计回跳关帧跨会话过期吊销</button>
+          <button type="button" id="btnBatchRerunAuditKfBmXsessionExpiryRevokeRoleAuditM155" class="ghost m155-audit-expiry-role-audit m156-audit-expiry-seek">审计过期吊销角色审计一页纸</button>
+          <button type="button" id="btnBatchRerunAuditExpiryRoleAuditSeekLedgerM156" class="ghost m156-audit-expiry-seek m157-audit-seek-ms">审计过期角色审计回跳台账</button>
+          <button type="button" id="btnBatchRerunAuditSeekMultiselectContrastM157" class="ghost m157-audit-seek-ms m158-audit-seek-ms-clip">审计回跳多选对照</button>
+          <button type="button" id="btnBatchRerunAuditSeekMultiselectClipScrubberM158" class="ghost m158-audit-seek-ms-clip m159-audit-seek-clip-kf">审计回跳多选短片scrubber</button>
+          <button type="button" id="btnBatchRerunAuditSeekClipKfBmM159" class="ghost m159-audit-seek-clip-kf m160-audit-kf-bm-xshare">审计回跳短片关帧书签</button>
+          <button type="button" id="btnBatchRerunAuditKfBmXsessionRoShareM160" class="ghost m160-audit-kf-bm-xshare m161-audit-kf-bm-expiry">审计关帧跨会话只读分享</button>
+          <button type="button" id="btnBatchRerunAuditKfBmXsessionExpiryRevokeM161" class="ghost m161-audit-kf-bm-expiry m162-audit-expiry-role-audit">审计关帧跨会话过期吊销</button>
+          <button type="button" id="btnBatchRerunAuditExpiryRevokeRoleAuditOnepagerM162" class="ghost m162-audit-expiry-role-audit m163-audit-role-seek">审计过期吊销角色审计一页纸</button>
+          <button type="button" id="btnBatchRerunAuditRoleAuditSeekLedgerM163" class="ghost m163-audit-role-seek m164-audit-seek-ms">审计角色审计回跳台账</button>
+          <button type="button" id="btnBatchRerunAuditSeekMultiselectContrastM164" class="ghost m164-audit-seek-ms m165-audit-seek-ms-clip">审计回跳多选对照</button>
+          <button type="button" id="btnBatchRerunAuditSeekMultiselectClipScrubberM165" class="ghost m165-audit-seek-ms-clip m166-audit-clip-kf">审计回跳多选短片scrubber</button>
+          <button type="button" id="btnBatchRerunAuditClipKeyframeBookmarksM166" class="ghost m166-audit-clip-kf m167-audit-kf-xshare">审计短片关帧书签</button>
+          <button type="button" id="btnBatchRerunAuditKfBmXsessionRoShareM167" class="ghost m167-audit-kf-xshare m168-audit-kf-expiry">审计关帧跨会话只读分享</button>
+          <button type="button" id="btnBatchRerunAuditKfBmXsessionExpiryRevokeM168" class="ghost m168-audit-kf-expiry m169-audit-expiry-role">审计关帧跨会话过期吊销</button>
+          <button type="button" id="btnBatchRerunAuditExpiryRoleAuditOnepagerM169" class="ghost m169-audit-expiry-role m170-audit-role-seek">审计过期吊销角色审计一页纸</button>
+          <button type="button" id="btnBatchRerunAuditRoleAuditSeekLedgerM170" class="ghost m170-audit-role-seek">审计角色审计回跳台账</button>
+          <button type="button" id="btnExceptFieldsTemplateByRole" class="ghost m94-except-templates m95-except-shared-preview">排除字段模板按角色</button>
+          <button type="button" id="btnExceptFieldsTemplateSharedPreview" class="ghost m95-except-shared-preview m96-shared-copy-draft">排除模板只读共享预览</button>
+          <button type="button" id="btnExceptSharedPreviewCopyDraft" class="ghost m96-shared-copy-draft m97-draft-shared-diff">共享预览复制为本角色草稿</button>
+          <button type="button" id="btnExceptDraftDiffSharedSource" class="ghost m97-draft-shared-diff m98-draft-resync">本角色草稿↔共享源差分</button>
+          <button type="button" id="btnExceptDraftResyncSharedSource" class="ghost m98-draft-resync m99-resync-buckets">草稿差分一键回同步共享源</button>
+          <button type="button" id="btnExceptDraftResyncSelectiveBuckets" class="ghost m99-resync-buckets m100-resync-contrast">草稿回同步按分桶选择</button>
+          <button type="button" id="btnExceptDraftResyncSelectiveBucketsBeforeAfter" class="ghost m100-resync-contrast m101-resync-changed-only">分桶回同步before/after对照</button>
+          <button type="button" id="btnExceptDraftResyncSyncChangedBucketsOnly" class="ghost m101-resync-changed-only m102-skip-list">对照卡只同步变更桶</button>
+          <button type="button" id="btnExceptDraftResyncChangedBucketsSkipListPreview" class="ghost m102-skip-list m103-skip-force-include">变更桶跳过清单预览</button>
+          <button type="button" id="btnExceptDraftResyncSkipListForceIncludePicks" class="ghost m103-skip-force-include">跳过清单勾选强制纳入</button>
+          <button type="button" id="btnExceptDraftForceIncludeRoleDefaults" class="ghost m104-force-include-role-defaults m105-role-defaults-ab">强制纳入存为角色默认</button>
+          <button type="button" id="btnExceptDraftForceIncludeRoleDefaultsAbApply" class="ghost m105-role-defaults-ab m106-ab-winner-soft-undo">角色默认A/B对照套用</button>
+          <button type="button" id="btnExceptDraftForceIncludeRoleDefaultsAbApplySoftUndo" class="ghost m106-ab-winner-soft-undo m107-ab-winner-softundo-ba">A/B胜出侧套用软撤销</button>
+          <button type="button" id="btnExceptDraftForceIncludeRoleDefaultsAbApplySoftUndoBeforeAfter" class="ghost m107-ab-winner-softundo-ba m108-winner-ba-pinpoint">胜出侧软撤销前后对照</button>
+          <button type="button" id="btnExceptDraftAbSoftUndoBeforeAfterPinpoint" class="ghost m108-winner-ba-pinpoint m109-winner-pinpoint-rebypass">胜出侧前后卡定点标注</button>
+          <button type="button" id="btnExceptDraftAbSoftUndoBeforeAfterPinpointReBypass" class="ghost m109-winner-pinpoint-rebypass m110-pinpoint-rebypass-fail-fold">胜出侧定点触发再旁路</button>
+          <button type="button" id="btnExceptDraftPinpointRebypassFailFoldAttr" class="ghost m110-pinpoint-rebypass-fail-fold m111-fail-attr-retry-fold-taskcard">定点再旁路失败并入归因</button>
+          <button type="button" id="btnExceptDraftFailFoldAttrRetryFoldTaskCard" class="ghost m111-fail-attr-retry-fold-taskcard m112-retry-phase-pause-grace">失败归因一键重试折进任务卡</button>
+          <button type="button" id="btnExceptDraftFailFoldAttrRetryFoldTaskCardPhasePauseGrace" class="ghost m112-retry-phase-pause-grace m113-grace-soft-cancel-ledger">任务卡重试单阶段暂停宽限</button>
+          <button type="button" id="btnExceptDraftFailFoldAttrRetryFoldTaskCardPhasePauseGraceSoftCancelLedger" class="ghost m113-grace-soft-cancel-ledger m114-soft-cancel-ledger-role-audit">宽限闹钟软取消进中文台账</button>
+          <button type="button" id="btnExceptDraftFailFoldAttrRetryFoldTaskCardPhasePauseGraceSoftCancelLedgerRoleAuditOnepager" class="ghost m114-soft-cancel-ledger-role-audit m115-soft-cancel-audit-seek-ledger">软取消台账角色审计一页纸</button>
+          <button type="button" id="btnExceptDraftFailFoldAttrRetryFoldTaskCardPhasePauseGraceSoftCancelLedgerRoleAuditOnepagerSeekLedger" class="ghost m115-soft-cancel-audit-seek-ledger m116-soft-cancel-seek-multiselect">软取消审计一页纸seek回台账</button>
+          <button type="button" id="btnExceptDraftFailFoldAttrRetryFoldTaskCardPhasePauseGraceSoftCancelLedgerRoleAuditOnepagerSeekLedgerMultiSelectContrast" class="ghost m116-soft-cancel-seek-multiselect">软取消seek台账多选中文对照</button>
+          <button type="button" id="btnExceptDraftSoftCancelSeekMultiselectClipScrubber" class="ghost m117-soft-cancel-seek-clip-scrubber m118-multiselect-clip-scrubber-kf-bm">软取消seek多选对照短片scrubber</button>
+          <button type="button" id="btnExceptDraftMultiselectClipScrubberKeyframeBookmarks" class="ghost m118-multiselect-clip-scrubber-kf-bm m119-multiselect-clip-kf-bm-xsession">多选对照短片scrubber关帧书签</button>
+          <button type="button" id="btnExceptDraftMultiselectClipScrubberKfBmXSessionRoShare" class="ghost m119-multiselect-clip-kf-bm-xsession m120-kf-xsession-diff-preview-adopt">多选对照关帧书签跨会话只读分享</button>
+          <button type="button" id="btnExceptDraftKfXsessionShareDiffPreviewAdopt" class="ghost m120-kf-xsession-diff-preview-adopt m121-diff-preview-adopt-soft-undo-ba">关帧跨会话分享差分预览再采纳</button>
+          <button type="button" id="btnExceptDraftDiffPreviewAdoptSoftUndoBeforeAfter" class="ghost m121-diff-preview-adopt-soft-undo-ba m122-soft-undo-ba-pinpoint-rebypass">差分预览采纳软撤销前后卡</button>
+          <button type="button" id="btnExceptDraftSoftUndoBaPinpointRebypass" class="ghost m122-soft-undo-ba-pinpoint-rebypass m123-pinpoint-rebypass-fail-fold">软撤销前后卡定点再旁路</button>
+          <button type="button" id="btnExceptDraftSoftUndoBaPinpointRebypassFailFoldAttr" class="ghost m123-pinpoint-rebypass-fail-fold m124-pinpoint-fail-attr-retry-fold">定点再旁路失败并入归因</button>
+          <button type="button" id="btnExceptDraftPinpointFailAttrOneClickRetryFoldTaskCard" class="ghost m124-pinpoint-fail-attr-retry-fold m125-fail-attr-retry-phase-pause-grace">定点失败归因一键重试折进任务卡</button>
+          <button type="button" id="btnExceptDraftFailAttrRetryTaskcardPhasePauseGrace" class="ghost m125-fail-attr-retry-phase-pause-grace m126-fail-attr-retry-pause-grace-soft-cancel-ledger">失败归因重试任务卡单阶段暂停宽限</button>
+          <button type="button" id="btnExceptDraftFailAttrRetryPauseGraceSoftCancelLedger" class="ghost m126-fail-attr-retry-pause-grace-soft-cancel-ledger m127-fail-attr-soft-cancel-ledger-role-audit">失败归因重试暂停宽限软取消进台账</button>
+          <button type="button" id="btnExceptDraftFailAttrSoftCancelLedgerRoleAuditOnepager" class="ghost m127-fail-attr-soft-cancel-ledger-role-audit m128-fail-attr-soft-cancel-audit-seek-ledger">失败归因软取消台账角色审计一页纸</button>
+          <button type="button" id="btnExceptDraftFailAttrSoftCancelAuditSeekLedger" class="ghost m128-fail-attr-soft-cancel-audit-seek-ledger m129-fail-attr-soft-cancel-seek-multiselect">失败归因软取消审计回跳台账</button>
+          <button type="button" id="btnExceptDraftFailAttrSoftCancelSeekMultiselectContrast" class="ghost m129-fail-attr-soft-cancel-seek-multiselect m130-fail-attr-soft-cancel-multiselect-clip-scrubber">失败归因软取消回跳多选中文对照</button>
+          <button type="button" id="btnExceptDraftFailAttrSoftCancelMultiselectClipScrubber" class="ghost m130-fail-attr-soft-cancel-multiselect-clip-scrubber m131-fail-attr-soft-cancel-multiselect-clip-kf-bm">失败归因软取消多选对照短片scrubber</button>
+          <button type="button" id="btnExceptDraftFailAttrSoftCancelMultiselectClipKfBm" class="ghost m131-fail-attr-soft-cancel-multiselect-clip-kf-bm m132-fail-attr-soft-cancel-clip-kf-bm-xsession">失败归因软取消多选对照短片关帧书签</button>
+          <button type="button" id="btnExceptDraftFailAttrSoftCancelClipKfBmXsession" class="ghost m132-fail-attr-soft-cancel-clip-kf-bm-xsession m133-fail-attr-soft-cancel-kf-bm-xsession-expiry">失败归因软取消多选短片关帧跨会话只读分享</button>
+          <button type="button" id="btnExceptDraftFailAttrSoftCancelKfBmXsessionExpiry" class="ghost m133-fail-attr-soft-cancel-kf-bm-xsession-expiry m134-fail-attr-soft-cancel-expiry-ledger-role-audit">失败归因软取消关帧跨会话过期吊销进台账</button>
+          <button type="button" id="btnExceptDraftFailAttrSoftCancelExpiryLedgerRoleAudit" class="ghost m134-fail-attr-soft-cancel-expiry-ledger-role-audit m135-fail-attr-soft-cancel-expiry-ledger-role-audit-seek">失败归因软取消过期吊销台账角色审计一页纸</button>
+          <button type="button" id="btnExceptDraftFailAttrSoftCancelExpiryLedgerRoleAuditSeek" class="ghost m135-fail-attr-soft-cancel-expiry-ledger-role-audit-seek">失败归因软取消过期吊销台账角色审计回跳台账</button>
+          <button type="button" id="btnExceptDraftFailAttrExpiryRoleAuditSeekMultiselect" class="ghost m136-fail-attr-expiry-role-audit-seek-multiselect">失败归因软取消过期台账角色审计回跳多选对照</button>
+          <button type="button" id="btnExceptDraftFailAttrExpirySeekMultiselectClipScrubber" class="ghost m137-fail-attr-expiry-seek-multiselect-clip-scrubber m138-fail-attr-expiry-multiselect-clip-kf-bm">失败归因过期回跳多选短片 scrubber</button>
+          <button type="button" id="btnExceptDraftFailAttrExpiryMultiselectClipKfBm" class="ghost m138-fail-attr-expiry-multiselect-clip-kf-bm">失败归因过期多选短片关帧书签</button>
+          <button type="button" id="btnExceptDraftFailAttrExpiryKfBmXsessionM139" class="ghost m139-fail-attr-expiry-kf-bm-xsession">失败归因过期关帧跨会话只读分享</button>
+          <button type="button" id="btnExceptDraftFailAttrExpiryKfBmExpiryRevokeM140" class="ghost m140-fail-attr-expiry-kf-bm-expiry-revoke">失败归因过期关帧过期吊销进台账</button>
+          <button type="button" id="btnExceptDraftFailAttrExpiryRevokeRoleAuditOnepagerM141" class="ghost m141-fail-attr-expiry-revoke-role-audit">失败归因过期吊销台账角色审计一页纸</button>
+          <button type="button" id="btnExceptDraftFailAttrExpiryRoleAuditSeekLedgerM142" class="ghost m142-fail-attr-expiry-role-audit-seek">失败归因过期角色审计回跳台账</button>
+          <button type="button" id="btnExceptDraftFailAttrExpirySeekMultiselectClipScrubberM143" class="ghost m143-fail-attr-expiry-seek-ms-clip">失败归因过期回跳多选短片scrubber</button>
+          <button type="button" id="btnExceptDraftFailAttrExpiryMultiselectClipKfBmM144" class="ghost m144-fail-attr-expiry-ms-clip-kf-bm">失败归因过期多选短片关帧书签</button>
+          <button type="button" id="btnExceptDraftFailAttrExpiryKfBmXsessionRoShareM145" class="ghost m145-fail-attr-expiry-kf-bm-xsession">失败归因过期关帧跨会话只读分享</button>
+          <button type="button" id="btnExceptDraftFailAttrExpiryXsessionExpiryRevokeLedgerM146" class="ghost m146-fail-attr-expiry-xsession-expiry-revoke">失败归因过期关帧过期吊销进台账</button>
+          <button type="button" id="btnExceptDraftFailAttrExpiryRevokeRoleAuditOnepagerM147" class="ghost m147-fail-attr-expiry-revoke-role-audit m148-fail-attr-role-audit-seek">失败归因过期吊销角色审计一页纸</button>
+          <button type="button" id="btnExceptDraftFailAttrRoleAuditSeekLedgerM148" class="ghost m148-fail-attr-role-audit-seek m149-fail-attr-seek-ms">失败归因角色审计回跳台账</button>
+          <button type="button" id="btnExceptDraftFailAttrSeekMultiselectContrastM149" class="ghost m149-fail-attr-seek-ms m150-fail-attr-ms-clip">失败归因回跳多选对照</button>
+          <button type="button" id="btnExceptDraftFailAttrMultiselectClipScrubberM150" class="ghost m150-fail-attr-ms-clip m151-fail-attr-clip-kf">失败归因多选短片scrubber</button>
+          <button type="button" id="btnExceptDraftFailAttrClipKfBmM151" class="ghost m151-fail-attr-clip-kf m152-fail-attr-kf-bm-xshare">失败归因短片关帧书签</button>
+          <button type="button" id="btnExceptDraftFailAttrKfBmXsessionRoShareM152" class="ghost m152-fail-attr-kf-bm-xshare m153-fail-attr-kf-bm-expiry">失败归因关帧跨会话只读分享</button>
+          <button type="button" id="btnExceptDraftFailAttrKfBmXsessionExpiryRevokeM153" class="ghost m153-fail-attr-kf-bm-expiry m154-fail-attr-expiry-role-audit">失败归因关帧跨会话过期吊销</button>
+          <button type="button" id="btnExceptDraftFailAttrExpiryLedgerRoleAuditM154" class="ghost m154-fail-attr-expiry-role-audit m155-fail-attr-expiry-seek">失败归因过期台账角色审计一页纸</button>
+          <button type="button" id="btnExceptDraftFailAttrExpiryRoleAuditSeekLedgerM155" class="ghost m155-fail-attr-expiry-seek m156-fail-attr-expiry-seek-ms">失败归因过期角色审计回跳台账</button>
+          <button type="button" id="btnExceptDraftFailAttrExpiryRoleAuditSeekMultiselectM156" class="ghost m156-fail-attr-expiry-seek-ms m157-fail-attr-seek-ms-clip">失败归因过期角色审计回跳多选对照</button>
+          <button type="button" id="btnExceptDraftFailAttrSeekMultiselectClipScrubberM157" class="ghost m157-fail-attr-seek-ms-clip m158-fail-attr-clip-kf">失败归因回跳多选短片scrubber</button>
+          <button type="button" id="btnExceptDraftFailAttrClipKeyframeBookmarksM158" class="ghost m158-fail-attr-clip-kf m159-fail-attr-kf-bm-xshare">失败归因短片关帧书签</button>
+          <button type="button" id="btnExceptDraftFailAttrKfBmXsessionRoShareM159" class="ghost m159-fail-attr-kf-bm-xshare m160-fail-attr-kf-bm-expiry">失败归因关帧跨会话只读分享</button>
+          <button type="button" id="btnExceptDraftFailAttrKfBmXsessionExpiryRevokeM160" class="ghost m160-fail-attr-kf-bm-expiry m161-fail-attr-expiry-audit">失败归因关帧跨会话过期吊销</button>
+          <button type="button" id="btnExceptDraftFailAttrExpiryLedgerRoleAuditOnepagerM161" class="ghost m161-fail-attr-expiry-audit m162-fail-attr-expiry-seek">失败归因过期台账角色审计一页纸</button>
+          <button type="button" id="btnExceptDraftFailAttrExpiryRoleAuditSeekLedgerM162" class="ghost m162-fail-attr-expiry-seek m163-fail-attr-seek-ms">失败归因过期角色审计回跳台账</button>
+          <button type="button" id="btnExceptDraftFailAttrSeekMultiselectContrastM163" class="ghost m163-fail-attr-seek-ms m164-fail-attr-ms-clip">失败归因回跳多选对照</button>
+          <button type="button" id="btnExceptDraftFailAttrMultiselectClipScrubberM164" class="ghost m164-fail-attr-ms-clip m165-fail-attr-clip-kf">失败归因多选短片scrubber</button>
+          <button type="button" id="btnExceptDraftFailAttrClipKeyframeBookmarksM165" class="ghost m165-fail-attr-clip-kf m166-fail-attr-kf-xshare">失败归因短片关帧书签</button>
+          <button type="button" id="btnExceptDraftFailAttrKfBmXsessionRoShareM166" class="ghost m166-fail-attr-kf-xshare m167-fail-attr-kf-expiry">失败归因关帧跨会话只读分享</button>
+          <button type="button" id="btnExceptDraftFailAttrKfBmXsessionExpiryRevokeM167" class="ghost m167-fail-attr-kf-expiry m168-fail-attr-expiry-role">失败归因关帧跨会话过期吊销</button>
+          <button type="button" id="btnExceptDraftFailAttrExpiryLedgerRoleAuditOnepagerM168" class="ghost m168-fail-attr-expiry-role m169-fail-attr-role-seek">失败归因过期台账角色审计一页纸</button>
+          <button type="button" id="btnExceptDraftFailAttrRoleAuditSeekLedgerM169" class="ghost m169-fail-attr-role-seek m170-fail-attr-seek-ms">失败归因过期角色审计回跳台账</button>
+          <button type="button" id="btnExceptDraftFailAttrSeekMultiselectContrastM170" class="ghost m170-fail-attr-seek-ms">失败归因回跳多选对照</button>
+          <button type="button" id="btnUndoSummaryOnePager" class="ghost m94-undo-onepager m95-undo-sidebar">可撤销摘要站内一页纸</button>
+          <button type="button" id="btnUndoSummaryMatchExplainSidebar" class="ghost m95-undo-sidebar m96-sidebar-match-highlight">摘要一页纸并入匹配解释侧栏</button>
+          <button type="button" id="btnUndoSidebarMatchHighlight" class="ghost m96-sidebar-match-highlight m97-sidebar-bidir-seek">侧栏摘要联动 matchId 一页纸高亮</button>
+          <button type="button" id="btnUndoSidebarBidirSeek" class="ghost m97-sidebar-bidir-seek m98-bidir-remember-anchor">侧栏↔一页纸章节双向seek</button>
+          <button type="button" id="btnUndoSidebarBidirSeekRememberAnchor" class="ghost m98-bidir-remember-anchor m99-anchor-by-matchid">双向seek记住章节锚点</button>
+          <button type="button" id="btnUndoSidebarBidirSeekRememberAnchorByMatchId" class="ghost m99-anchor-by-matchid m100-anchor-template">双向seek锚点按matchId</button>
+          <button type="button" id="btnUndoSidebarBidirSeekRememberAnchorCrossSessionTemplate" class="ghost m100-anchor-template m101-anchor-by-role">matchId锚点跨会话模板</button>
+          <button type="button" id="btnUndoSidebarBidirSeekRememberAnchorCrossSessionTemplateByRole" class="ghost m101-anchor-by-role m102-role-tpl-clone">跨会话锚点模板按角色分套</button>
+          <button type="button" id="btnUndoSidebarByRoleTemplateCrossTenantReadonlyClone" class="ghost m102-role-tpl-clone m103-clone-diff-adopt">按角色模板跨租户只读克隆</button>
+          <button type="button" id="btnUndoSidebarCloneDiffPreviewThenAdopt" class="ghost m103-clone-diff-adopt">跨租户克隆差分预览再采纳</button>
+          <button type="button" id="btnUndoSidebarCloneDiffFieldSubsetAdopt" class="ghost m104-clone-diff-field-subset m105-field-subset-soft-undo">克隆差分字段子集采纳</button>
+          <button type="button" id="btnUndoSidebarCloneDiffFieldSubsetAdoptSoftUndo" class="ghost m105-field-subset-soft-undo m106-field-subset-softundo-ba">字段子集采纳软撤销</button>
+          <button type="button" id="btnUndoSidebarCloneDiffFieldSubsetAdoptSoftUndoBeforeAfter" class="ghost m106-field-subset-softundo-ba m107-field-subset-pinpoint-oneside">字段子集软撤销前后对照</button>
+          <button type="button" id="btnUndoSidebarCloneDiffFieldSubsetSoftUndoBaPinpointOneside" class="ghost m107-field-subset-pinpoint-oneside m108-oneside-softundo-summary">子集前后卡定点/只采纳一侧</button>
+          <button type="button" id="btnUndoSidebarOnesideAdoptSoftUndoSummary" class="ghost m108-oneside-softundo-summary m109-oneside-summary-scrub-ab">只采纳一侧可软撤销摘要</button>
+          <button type="button" id="btnUndoSidebarOnesideAdoptSoftUndoSummaryScrubAbTimeline" class="ghost m109-oneside-summary-scrub-ab m110-ab-summary-frame-pinpoint">一侧摘要scrub进A/B时间线</button>
+          <button type="button" id="btnUndoSidebarAbSummaryFramePinpoint" class="ghost m110-ab-summary-frame-pinpoint m111-summary-pinpoint-rebypass">A/B时间线摘要帧定点标注</button>
+          <button type="button" id="btnUndoSidebarSummaryFramePinpointSupplyRebypass" class="ghost m111-summary-pinpoint-rebypass m112-summary-rebypass-before-after">摘要帧定点触发供给再旁路</button>
+          <button type="button" id="btnUndoSidebarSummaryFramePinpointSupplyRebypassBeforeAfter" class="ghost m112-summary-rebypass-before-after m113-summary-ba-pinpoint-rebypass">摘要帧再旁路前后对照</button>
+          <button type="button" id="btnUndoSidebarSummaryFramePinpointSupplyRebypassBeforeAfterPinpointRebypass" class="ghost m113-summary-ba-pinpoint-rebypass m114-summary-pinpoint-rebypass-fail-fold">摘要前后卡定点再旁路</button>
+          <button type="button" id="btnUndoSidebarSummaryFramePinpointSupplyRebypassBeforeAfterPinpointRebypassFailFoldAttr" class="ghost m114-summary-pinpoint-rebypass-fail-fold m115-summary-fail-attr-ff-replay">摘要定点再旁路失败并入归因</button>
+          <button type="button" id="btnUndoSidebarSummaryFramePinpointSupplyRebypassBeforeAfterPinpointRebypassFailFoldAttrFieldFilterReplay" class="ghost m115-summary-fail-attr-ff-replay m116-summary-ff-replay-scrubber-bm">摘要失败归因字段过滤回放</button>
+          <button type="button" id="btnUndoSidebarSummaryFramePinpointSupplyRebypassBeforeAfterPinpointRebypassFailFoldAttrFieldFilterReplayScrubberBookmarks" class="ghost m116-summary-ff-replay-scrubber-bm">摘要失败归因过滤回放scrubber书签</button>
+          <button type="button" id="btnUndoSidebarSummaryFfReplayBmXSessionRoShare" class="ghost m117-summary-ff-replay-bm-xsession m118-summary-ff-replay-bm-diff-preview-adopt">摘要失败归因回放书签跨会话只读分享</button>
+          <button type="button" id="btnUndoSidebarSummaryFfReplayBmDiffPreviewAdopt" class="ghost m118-summary-ff-replay-bm-diff-preview-adopt m119-summary-diff-preview-oneside-soft-undo">摘要回放书签差分预览再采纳</button>
+          <button type="button" id="btnUndoSidebarSummaryFfReplayBmDiffPreviewOnesideSoftUndo" class="ghost m119-summary-diff-preview-oneside-soft-undo m120-oneside-soft-undo-scrub-ab">摘要差分预览一侧软撤销</button>
+          <button type="button" id="btnUndoSidebarOnesideSoftUndoScrubAbTimeline" class="ghost m120-oneside-soft-undo-scrub-ab m121-ab-timeline-frame-pinpoint">一侧软撤销scrub进A/B时间线</button>
+          <button type="button" id="btnUndoSidebarAbTimelineFramePinpointAnnotate" class="ghost m121-ab-timeline-frame-pinpoint m122-ab-frame-pinpoint-supply-rebypass">A/B时间线帧定点标注</button>
+          <button type="button" id="btnUndoSidebarAbFramePinpointSupplyRebypass" class="ghost m122-ab-frame-pinpoint-supply-rebypass m123-ab-frame-rebypass-ba">A/B帧定点触发供给再旁路</button>
+          <button type="button" id="btnUndoSidebarAbFrameRebypassBeforeAfter" class="ghost m123-ab-frame-rebypass-ba m124-ab-frame-rebypass-ba-pinpoint">A/B帧再旁路前后对照卡</button>
+          <button type="button" id="btnUndoSidebarAbFrameRebypassBaPinpointRebypass" class="ghost m124-ab-frame-rebypass-ba-pinpoint m125-ab-frame-rebypass-pinpoint-fail-attr">A/B帧再旁路前后卡定点再旁路</button>
+          <button type="button" id="btnUndoSidebarAbFrameRebypassPinpointFailFoldAttr" class="ghost m126-ab-pinpoint-fail-attr-one-click-retry m125-ab-frame-rebypass-pinpoint-fail-attr">A/B帧再旁路定点失败并入归因</button>
+          <button type="button" id="btnUndoSidebarAbPinpointFailAttrOneClickRetry" class="ghost m126-ab-pinpoint-fail-attr-one-click-retry m127-ab-fail-attr-one-click-retry-fold-taskcard">A/B帧定点失败归因一键重试</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrOneClickRetryFoldTaskCard" class="ghost m127-ab-fail-attr-one-click-retry-fold-taskcard m128-ab-fail-attr-retry-taskcard-phase-pause-grace">A/B帧定点失败归因一键重试折进任务卡</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrRetryTaskcardPhasePauseGrace" class="ghost m128-ab-fail-attr-retry-taskcard-phase-pause-grace m129-ab-fail-attr-retry-pause-grace-soft-cancel-ledger">A/B失败归因重试任务卡单阶段暂停宽限</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrRetryPauseGraceSoftCancelLedger" class="ghost m129-ab-fail-attr-retry-pause-grace-soft-cancel-ledger m130-ab-fail-attr-soft-cancel-ledger-role-audit">A/B失败归因重试暂停宽限软取消进台账</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrSoftCancelLedgerRoleAuditOnepager" class="ghost m130-ab-fail-attr-soft-cancel-ledger-role-audit m131-ab-fail-attr-soft-cancel-role-audit-seek">A/B失败归因软取消台账角色审计一页纸</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrSoftCancelRoleAuditSeekLedger" class="ghost m131-ab-fail-attr-soft-cancel-role-audit-seek m132-ab-fail-attr-soft-cancel-role-audit-seek-ms">A/B失败归因软取消角色审计回跳台账</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrSoftCancelRoleAuditSeekMultiselect" class="ghost m132-ab-fail-attr-soft-cancel-role-audit-seek-ms m133-ab-fail-attr-soft-cancel-seek-ms-clip-scrubber">A/B失败归因软取消角色审计回跳多选对照</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrSoftCancelSeekMultiselectClipScrubber" class="ghost m133-ab-fail-attr-soft-cancel-seek-ms-clip-scrubber m134-ab-fail-attr-soft-cancel-seek-ms-clip-kf-bm">A/B失败归因软取消回跳多选短片scrubber</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrSoftCancelSeekMultiselectClipKfBm" class="ghost m134-ab-fail-attr-soft-cancel-seek-ms-clip-kf-bm m135-ab-fail-attr-soft-cancel-seek-ms-clip-kf-bm-xsession">A/B失败归因软取消多选短片关帧书签</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrSoftCancelSeekMultiselectClipKfBmXsession" class="ghost m135-ab-fail-attr-soft-cancel-seek-ms-clip-kf-bm-xsession">A/B失败归因软取消多选短片关帧跨会话只读分享</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrClipKfBmXsessionExpiryRevoke" class="ghost m136-ab-fail-attr-clip-kf-bm-xsession-expiry-revoke">A/B失败归因软取消关帧跨会话分享过期吊销进台账</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrExpiryRevokeRoleAudit" class="ghost m137-ab-fail-attr-expiry-revoke-role-audit m138-ab-fail-attr-expiry-role-audit-seek">A/B失败归因过期吊销台账角色审计一页纸</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrExpiryRoleAuditSeek" class="ghost m138-ab-fail-attr-expiry-role-audit-seek">A/B失败归因过期角色审计回跳台账</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrExpirySeekMultiselectM139" class="ghost m139-ab-fail-attr-expiry-seek-multiselect">A/B失败归因过期回跳多选对照</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrExpiryMultiselectClipScrubberM140" class="ghost m140-ab-fail-attr-expiry-ms-clip-scrubber">A/B失败归因过期多选短片scrubber</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrExpiryMultiselectClipKfBmM141" class="ghost m141-ab-fail-attr-expiry-ms-clip-kf-bm">A/B失败归因过期多选短片关帧书签</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrExpiryClipKfBmXsessionRoShareM142" class="ghost m142-ab-fail-attr-expiry-clip-kf-bm-xsession">A/B失败归因过期关帧跨会话只读分享</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrExpiryClipKfBmXsessionExpiryRevokeM143" class="ghost m143-ab-fail-attr-expiry-clip-kf-bm-xsession-expiry">A/B失败归因过期关帧跨会话过期吊销进台账</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrExpiryRevokeRoleAuditOnepagerM144" class="ghost m144-ab-fail-attr-expiry-revoke-role-audit">A/B失败归因过期吊销角色审计一页纸</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrExpiryRoleAuditSeekLedgerM145" class="ghost m145-ab-fail-attr-expiry-role-audit-seek">A/B失败归因过期角色审计回跳台账</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrExpirySeekMultiselectContrastM146" class="ghost m146-ab-fail-attr-expiry-seek-multiselect">A/B失败归因过期回跳多选中文对照</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrExpirySeekMultiselectClipScrubberM147" class="ghost m147-ab-fail-attr-expiry-seek-ms-clip-scrubber m148-ab-fail-attr-clip-scrubber-kf-bm">A/B失败归因过期多选短片scrubber</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrClipScrubberKeyframeBookmarksM148" class="ghost m148-ab-fail-attr-clip-scrubber-kf-bm m149-ab-fail-attr-kf-bm-xsession">A/B失败归因短片scrubber关帧书签</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrKfBmXsessionRoShareM149" class="ghost m149-ab-fail-attr-kf-bm-xsession m150-ab-fail-attr-kf-bm-xsession-expiry">A/B失败归因关帧跨会话只读分享</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrKfBmXsessionExpiryRevokeM150" class="ghost m150-ab-fail-attr-kf-bm-xsession-expiry m151-ab-fail-attr-expiry-role-audit">A/B失败归因关帧跨会话过期吊销</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrExpiryRevokeRoleAuditOnepagerM151" class="ghost m151-ab-fail-attr-expiry-role-audit m152-ab-fail-attr-role-audit-seek">A/B失败归因过期吊销角色审计一页纸</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrRoleAuditSeekLedgerM152" class="ghost m152-ab-fail-attr-role-audit-seek m153-ab-fail-attr-role-audit-seek-ms">A/B失败归因角色审计回跳台账</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrRoleAuditSeekMultiselectContrastM153" class="ghost m153-ab-fail-attr-role-audit-seek-ms m154-ab-fail-attr-role-audit-seek-ms-clip">A/B失败归因角色审计回跳台账多选对照</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrRoleAuditSeekMultiselectClipScrubberM154" class="ghost m154-ab-fail-attr-role-audit-seek-ms-clip m155-ab-fail-attr-role-audit-seek-ms-kf">A/B失败归因角色审计回跳多选短片scrubber</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrRoleAuditSeekMultiselectKeyframeBookmarksM155" class="ghost m155-ab-fail-attr-role-audit-seek-ms-kf m156-ab-fail-attr-ms-kf-xshare">A/B失败归因角色审计回跳多选关帧书签</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrMultiselectKfBmXsessionRoShareM156" class="ghost m156-ab-fail-attr-ms-kf-xshare m157-ab-fail-attr-ms-kf-expiry">A/B失败归因多选关帧跨会话只读分享</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrMultiselectKfBmXsessionExpiryRevokeM157" class="ghost m157-ab-fail-attr-ms-kf-expiry m158-ab-fail-attr-expiry-role-audit">A/B失败归因多选关帧跨会话过期吊销</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrExpiryRevokeRoleAuditOnepagerM158" class="ghost m158-ab-fail-attr-expiry-role-audit m159-ab-fail-attr-role-audit-seek">A/B失败归因过期吊销角色审计一页纸</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrRoleAuditSeekLedgerM159" class="ghost m159-ab-fail-attr-role-audit-seek m160-ab-fail-attr-role-audit-seek-ms">A/B失败归因角色审计回跳台账</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrRoleAuditSeekMultiselectContrastM160" class="ghost m160-ab-fail-attr-role-audit-seek-ms m161-ab-fail-attr-role-audit-seek-ms-clip">A/B失败归因角色审计回跳多选对照</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrRoleAuditSeekMultiselectClipScrubberM161" class="ghost m161-ab-fail-attr-role-audit-seek-ms-clip m162-ab-fail-attr-seek-ms-kf">A/B失败归因角色审计回跳多选短片scrubber</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrRoleAuditSeekMultiselectKfBmM162" class="ghost m162-ab-fail-attr-seek-ms-kf m163-ab-fail-attr-ms-kf-xshare">A/B失败归因角色审计回跳多选关帧书签</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrMultiselectKfBmXsessionRoShareM163" class="ghost m163-ab-fail-attr-ms-kf-xshare m164-ab-fail-attr-ms-kf-expiry">A/B失败归因多选关帧跨会话只读分享</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrMsKfBmXsessionExpiryRevokeM164" class="ghost m164-ab-fail-attr-ms-kf-expiry m165-ab-fail-attr-expiry-role">A/B失败归因多选关帧跨会话过期吊销</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrExpiryRevokeRoleAuditOnepagerM165" class="ghost m165-ab-fail-attr-expiry-role m166-ab-fail-attr-role-seek">A/B失败归因过期吊销角色审计一页纸</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrRoleAuditSeekLedgerM166" class="ghost m166-ab-fail-attr-role-seek m167-ab-fail-attr-seek-ms">A/B失败归因角色审计回跳台账</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrRoleAuditSeekMultiselectContrastM167" class="ghost m167-ab-fail-attr-seek-ms m168-ab-seek-ms-clip">A/B失败归因角色审计回跳多选对照</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrSeekMultiselectClipScrubberM168" class="ghost m168-ab-seek-ms-clip m169-ab-ms-clip-kf">A/B失败归因回跳多选短片scrubber</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrMultiselectClipKeyframeBookmarksM169" class="ghost m169-ab-ms-clip-kf m170-ab-ms-kf-xshare">A/B失败归因回跳多选关帧书签</button>
+          <button type="button" id="btnUndoSidebarAbFailAttrMultiselectKfBmXsessionRoShareM170" class="ghost m170-ab-ms-kf-xshare">A/B失败归因多选关帧跨会话只读分享</button>
+
+          <button type="button" id="btnRecallPoolHitBoard" class="ghost m83-recall-hit-pct-board m84-recall-pct-drill">召回池命中率分位数看板</button>
+          <button type="button" id="btnRecallPoolHitSample" class="ghost m83-recall-hit-pct-board m84-recall-pct-drill">写入召回命中干跑样</button>
+          <button type="button" id="btnRecallPoolHitDrill" class="ghost m84-recall-pct-drill m85-recall-drill-rerun">召回分位钻取 demandId</button>
+          <button type="button" id="btnRecallDrillSingleRerun" class="ghost m85-recall-drill-rerun m86-bypass-contrast-board">钻取单需求重跑旁路</button>
+          <button type="button" id="btnBypassContrastBoard" class="ghost m86-bypass-contrast-board m87-bypass-supply-peek">旁路结果对照看板</button>
+          <button type="button" id="btnBypassSupplyPeek" class="ghost m87-bypass-supply-peek m88-supply-peek-recontrast">旁路对照钻取供给卡</button>
+          <button type="button" id="btnSupplyPeekReContrast" class="ghost m88-supply-peek-recontrast m89-bypass-history">供给卡一键旁路重跑对照</button>
+          <button type="button" id="btnBypassContrastHistory" class="ghost m89-bypass-history m90-bypass-history-diff">旁路对照历史回放</button>
+          <button type="button" id="btnBypassContrastHistoryDiff" class="ghost m90-bypass-history-diff m91-bypass-diff-rollback">旁路历史差分对照</button>
+          <button type="button" id="btnBypassDiffRollbackToA" class="ghost m91-bypass-diff-rollback m92-bypass-rollback-contrast">旁路差分回滚到帧A</button>
+          <button type="button" id="btnBypassRollbackContrastCard" class="ghost m92-bypass-rollback-contrast m93-bypass-contrast-supply">旁路回滚前后对照卡</button>
+          <button type="button" id="btnBypassContrastCardSupplyDetail" class="ghost m93-bypass-contrast-supply m94-supply-rebypass">对照卡钻供给详情</button>
+          <button type="button" id="btnBypassSupplyDetailReBypass" class="ghost m94-supply-rebypass m95-rebypass-annotate">供给详情一键再旁路回写差分</button>
+          <button type="button" id="btnBypassReBypassDiffAnnotate" class="ghost m95-rebypass-annotate m96-annotate-contrast-strip">再旁路差分定点标注供给字段</button>
+          <button type="button" id="btnBypassAnnotateContrastStrip" class="ghost m96-annotate-contrast-strip m97-contrast-clip-frames">定点标注对照条与字段过滤播放</button>
+          <button type="button" id="btnBypassAnnotateContrastStripClipFrames" class="ghost m97-contrast-clip-frames m98-clip-scrubber">对照条短片帧与过滤预设</button>
+          <button type="button" id="btnBypassAnnotateContrastStripClipScrubber" class="ghost m98-clip-scrubber m99-clip-bookmarks">短片帧scrubber与角色默认过滤</button>
+          <button type="button" id="btnBypassAnnotateContrastStripClipScrubberBookmarks" class="ghost m99-clip-bookmarks m100-bm-share-link">短片帧scrubber帧书签·跨租户继承</button>
+          <button type="button" id="btnBypassClipBookmarkShareLinkInheritDiffAdopt" class="ghost m100-bm-share-link m101-bm-share-ledger">帧书签只读短链·继承差分采纳</button>
+          <button type="button" id="btnBypassClipShareLinkExpiryRevokeLedgerFieldSubset" class="ghost m101-bm-share-ledger m102-share-role-audit">短链过期撤销台账·继承字段子集</button>
+          <button type="button" id="btnBypassClipShareLedgerRoleFilteredAuditFieldSubsetRestore" class="ghost m102-share-role-audit m103-audit-onepager">短链台账角色过滤审计·字段子集一键还原</button>
+          <button type="button" id="btnBypassClipShareLedgerAuditOnePagerRestoreDiff" class="ghost m103-audit-onepager">审计台账站内一页纸·子集还原差分</button>
+          <button type="button" id="btnBypassClipShareLedgerAuditOnePagerSeekAdoptOneSide" class="ghost m104-audit-seek-oneside m105-ledger-multiselect">审计一页纸seek回台账·差分只采纳一侧</button>
+          <button type="button" id="btnBypassLedgerSeekMultiSelectContrastBeforeAfter" class="ghost m105-ledger-multiselect m106-ledger-clip-pinpoint">台账seek多选对照·只采纳一侧前后卡</button>
+          <button type="button" id="btnBypassLedgerMultiSelectClipFramesPinpointAnnotate" class="ghost m106-ledger-clip-pinpoint m107-clip-scrubber-pinpoint-rebypass">多选对照短片帧·前后卡定点标注</button>
+          <button type="button" id="btnBypassLedgerClipScrubberBookmarksPinpointReBypass" class="ghost m107-clip-scrubber-pinpoint-rebypass m108-scrub-xsession-fail-fold">短片帧scrubber书签·定点再旁路</button>
+          <button type="button" id="btnBypassLedgerClipScrubXSessionShareFailFoldAttr" class="ghost m108-scrub-xsession-fail-fold m109-share-expiry-field-filter">scrubber书签跨会话分享·定点失败并入归因</button>
+          <button type="button" id="btnBypassLedgerClipScrubShareExpiryRevokeFailAttrFieldFilterReplay" class="ghost m109-share-expiry-field-filter m110-share-role-audit-onepager">分享链过期吊销·失败归因字段过滤回放</button>
+          <button type="button" id="btnBypassLedgerShareRoleAuditOnepagerFfReplayScrubberBm" class="ghost m110-share-role-audit-onepager m111-audit-seek-ff-bm-xshare">分享台账角色审计一页纸·过滤回放书签</button>
+          <button type="button" id="btnBypassLedgerAuditSeekFfReplayBmXSessionShare" class="ghost m111-audit-seek-ff-bm-xshare m112-ledger-multiselect-bm-diff-adopt">审计一页纸回跳台账·过滤回放书签跨会话分享</button>
+          <button type="button" id="btnBypassLedgerSeekMultiSelectXSessionBmDiffAdopt" class="ghost m112-ledger-multiselect-bm-diff-adopt m113-ledger-clip-scrubber-bm-soft-undo">台账回跳多选对照·跨会话书签差分采纳</button>
+          <button type="button" id="btnBypassLedgerMultiSelectClipScrubberXSessionBmAdoptSoftUndoBa" class="ghost m113-ledger-clip-scrubber-bm-soft-undo m114-clip-kf-bm-xsession-ro-share">多选对照短片scrubber·书签采纳软撤销前后卡</button>
+          <button type="button" id="btnBypassLedgerClipScrubberKfBmXSessionRoShareSoftUndoBaPinpointRebypass" class="ghost m114-clip-kf-bm-xsession-ro-share m115-kf-bm-share-expiry-revoke">关帧书签跨会话只读分享·软撤销定点再旁路</button>
+          <button type="button" id="btnBypassLedgerKfBmShareExpiryRevokeSoftUndoPinpointFailFold" class="ghost m115-kf-bm-share-expiry-revoke m116-kf-share-revoke-role-audit-retry">关帧书签分享过期吊销·定点再旁路失败归因</button>
+          <button type="button" id="btnBypassLedgerKfBmShareRevokeRoleAuditOnepagerRetryFoldTaskCard" class="ghost m116-kf-share-revoke-role-audit-retry">关帧吊销台账角色审计一页纸·失败归因重试任务卡</button>
+          <button type="button" id="btnBypassLedgerRoleAuditSeekLedgerPhasePauseGrace" class="ghost m117-role-audit-seek-pause-grace m118-onepager-seek-multiselect-grace-ledger">角色审计一页纸回跳台账·重试单阶段暂停宽限</button>
+          <button type="button" id="btnBypassLedgerOnepagerSeekMultiselectGraceSoftCancelLedger" class="ghost m118-onepager-seek-multiselect-grace-ledger m119-multiselect-clip-frame-scrubber-grace-role-audit">一页纸回跳多选对照·宽限软取消进台账</button>
+          <button type="button" id="btnBypassLedgerMultiselectClipFrameScrubberGraceRoleAuditOnepager" class="ghost m119-multiselect-clip-frame-scrubber-grace-role-audit m120-clip-frame-kf-bm-role-audit-seek-ms">多选对照短片帧scrubber·宽限软取消角色审计一页纸</button>
+          <button type="button" id="btnBypassLedgerClipFrameKfBmRoleAuditSeekMultiselect" class="ghost m120-clip-frame-kf-bm-role-audit-seek-ms m121-kf-bm-xsession-ledger-clip">短片帧关帧书签·角色审计回跳台账多选</button>
+          <button type="button" id="btnBypassLedgerKfBmXsessionRoShareLedgerMultiselectClipFrames" class="ghost m121-kf-bm-xsession-ledger-clip m122-kf-xsession-diff-preview-adopt-confirm">关帧书签跨会话分享·台账多选对照短片帧</button>
+          <button type="button" id="btnBypassLedgerKfXsessionDiffPreviewAdoptConfirmLedgerClipScrubberKfBm" class="ghost m122-kf-xsession-diff-preview-adopt-confirm m123-confirm-soft-undo-ba-clip-xsession">关帧差分预览再采纳确认·短片scrubber关帧书签</button>
+          <button type="button" id="btnBypassLedgerConfirmAdoptSoftUndoBaClipScrubberKfBmXsessionRoShare" class="ghost m123-confirm-soft-undo-ba-clip-xsession m124-confirm-soft-undo-ba-pinpoint-expiry">确认卡软撤销前后对照·短片关帧跨会话分享</button>
+          <button type="button" id="btnBypassLedgerConfirmSoftUndoBaPinpointRebypassClipKfBmXsessionShareExpiryRevokeLedger" class="ghost m124-confirm-soft-undo-ba-pinpoint-expiry m125-confirm-pinpoint-fail-attr-share-revoke-audit">确认卡软撤销定点再旁路·关帧分享过期吊销进台账</button>
+          <button type="button" id="btnBypassLedgerConfirmPinpointRebypassFailFoldAttrShareRevokeLedgerRoleAuditOnepager" class="ghost m125-confirm-pinpoint-fail-attr-share-revoke-audit m126-confirm-fail-attr-retry-seek">确认卡定点再旁路失败归因·吊销台账角色审计一页纸</button>
+          <button type="button" id="btnBypassLedgerConfirmFailAttrOneClickRetryFoldTaskCardSeekLedger" class="ghost m126-confirm-fail-attr-retry-seek m127-confirm-retry-phase-pause-seek-ms">确认卡失败归因一键重试·吊销审计回跳台账</button>
+          <button type="button" id="btnBypassLedgerConfirmRetryPhasePauseSeekMultiselect" class="ghost m127-confirm-retry-phase-pause-seek-ms m128-confirm-retry-pause-grace-soft-cancel-clip-scrubber">确认卡重试任务卡暂停宽限·吊销审计多选对照</button>
+          <button type="button" id="btnBypassLedgerConfirmRetryPauseGraceSoftCancelClipScrubber" class="ghost m128-confirm-retry-pause-grace-soft-cancel-clip-scrubber m129-confirm-soft-cancel-ledger-role-audit-clip-kf-bm">确认卡重试暂停宽限软取消进台账·吊销多选短片scrubber</button>
+          <button type="button" id="btnBypassLedgerConfirmSoftCancelLedgerRoleAuditClipKfBm" class="ghost m129-confirm-soft-cancel-ledger-role-audit-clip-kf-bm m130-confirm-role-audit-seek-clip-kf-bm-xsession">确认卡软取消台账角色审计一页纸·吊销多选短片关帧书签</button>
+          <button type="button" id="btnBypassLedgerConfirmRoleAuditSeekClipKfBmXsession" class="ghost m130-confirm-role-audit-seek-clip-kf-bm-xsession m131-confirm-role-audit-seek-ms-expiry">确认卡角色审计回跳台账·吊销关帧跨会话只读分享</button>
+          <button type="button" id="btnBypassLedgerConfirmRoleAuditSeekMultiselectExpiryRevoke" class="ghost m131-confirm-role-audit-seek-ms-expiry m132-confirm-role-audit-seek-ms-clip-role-audit">确认卡角色审计回跳多选对照·吊销关帧过期吊销进台账</button>
+          <button type="button" id="btnBypassLedgerConfirmRoleAuditSeekMultiselectClipScrubberRoleAudit" class="ghost m132-confirm-role-audit-seek-ms-clip-role-audit m133-confirm-role-audit-seek-ms-clip-kf-bm-seek">确认卡角色审计回跳多选短片scrubber·吊销台账角色审计一页纸</button>
+          <button type="button" id="btnBypassLedgerConfirmRoleAuditSeekMultiselectClipKfBmSeek" class="ghost m133-confirm-role-audit-seek-ms-clip-kf-bm-seek m134-confirm-role-audit-kf-bm-xsession-seek-ms">确认卡角色审计回跳多选短片关帧书签·吊销台账角色审计回跳</button>
+          <button type="button" id="btnBypassLedgerConfirmRoleAuditKfBmXsessionShareRevokeSeekMultiselect" class="ghost m134-confirm-role-audit-kf-bm-xsession-seek-ms m135-confirm-kf-bm-xsession-expiry-seek-ms-clip">确认卡角色审计关帧跨会话只读分享·吊销台账角色审计回跳多选对照</button>
+          <button type="button" id="btnBypassLedgerConfirmKfBmXsessionShareExpiryRevokeSeekMultiselectClipScrubber" class="ghost m135-confirm-kf-bm-xsession-expiry-seek-ms-clip">确认卡关帧跨会话分享过期吊销进台账·吊销台账回跳多选短片scrubber</button>
+          <button type="button" id="btnBypassLedgerConfirmShareExpiryRoleAuditSeekMultiselectClipKfBm" class="ghost m136-confirm-share-expiry-role-audit-seek-ms-clip-kf-bm">确认卡分享过期吊销台账角色审计一页纸·吊销回跳多选短片关帧书签</button>
+          <button type="button" id="btnBypassLedgerConfirmRoleAuditSeekShareRevokeKfBmXsession" class="ghost m137-confirm-role-audit-seek-share-revoke-kf-bm-xsession m138-confirm-role-audit-seek-ms-share-revoke-kf-bm-expiry">确认卡角色审计回跳台账·吊销多选短片关帧跨会话只读分享</button>
+          <button type="button" id="btnBypassLedgerConfirmRoleAuditSeekMultiselectShareRevokeKfBmExpiry" class="ghost m138-confirm-role-audit-seek-ms-share-revoke-kf-bm-expiry">确认卡角色审计回跳多选对照·吊销关帧跨会话过期吊销进台账</button>
+          <button type="button" id="btnBypassLedgerConfirmSeekMsClipScrubberRoleAuditM139" class="ghost m139-confirm-seek-ms-clip-scrubber-role-audit">确认卡角色审计回跳多选短片scrubber·吊销过期台账角色审计一页纸</button>
+          <button type="button" id="btnBypassLedgerConfirmMultiselectClipKfBmRoleAuditSeekM140" class="ghost m140-confirm-ms-clip-kf-bm-role-audit-seek">确认卡多选短片关帧书签·吊销过期角色审计回跳台账</button>
+          <button type="button" id="btnBypassLedgerConfirmKfBmXsessionRoShareRoleAuditSeekMultiselectM141" class="ghost m141-confirm-kf-bm-xsession-ro-share-role-audit-seek-ms">确认卡关帧跨会话只读分享·吊销角色审计回跳多选对照</button>
+          <button type="button" id="btnBypassLedgerConfirmKfBmXsessionShareExpiryRevokeSeekMultiselectClipScrubberM142" class="ghost m142-confirm-kf-bm-xsession-expiry-seek-ms-clip">确认卡关帧跨会话分享过期吊销进台账·吊销回跳多选短片scrubber</button>
+          <button type="button" id="btnBypassLedgerConfirmShareExpiryLedgerRoleAuditClipKfBmM143" class="ghost m143-confirm-share-expiry-role-audit-clip-kf-bm">确认卡分享过期吊销台账角色审计一页纸·吊销回跳多选短片关帧书签</button>
+          <button type="button" id="btnBypassLedgerConfirmRoleAuditSeekLedgerShareRevokeKfBmXsessionM144" class="ghost m144-confirm-role-audit-seek-share-revoke-kf-bm-xsession">确认卡角色审计回跳台账·吊销关帧跨会话只读分享</button>
+          <button type="button" id="btnBypassLedgerConfirmSeekMultiselectShareRevokeKfBmExpiryM145" class="ghost m145-confirm-seek-ms-share-revoke-kf-bm-expiry">确认卡角色审计回跳多选对照·吊销关帧跨会话过期吊销进台账</button>
+          <button type="button" id="btnBypassLedgerConfirmSeekMsClipScrubberShareRevokeExpiryRoleAuditM146" class="ghost m146-confirm-seek-ms-clip-scrubber-share-revoke-expiry-role-audit">确认卡回跳多选短片scrubber·吊销过期台账角色审计一页纸</button>
+          <button type="button" id="btnBypassLedgerConfirmClipScrubberKfBmShareRevokeExpiryRoleAuditSeekM147" class="ghost m147-confirm-clip-scrubber-kf-bm-share-revoke-expiry-role-audit-seek m148-confirm-kf-bm-xsession-seek-ms">确认卡短片scrubber关帧书签·吊销过期角色审计回跳台账</button>
+          <button type="button" id="btnBypassLedgerConfirmKfBmXsessionRoShareSeekMultiselectM148" class="ghost m148-confirm-kf-bm-xsession-seek-ms m149-confirm-kf-bm-xsession-expiry-clip">确认卡关帧跨会话只读分享·吊销过期回跳多选对照</button>
+          <button type="button" id="btnBypassLedgerConfirmKfBmXsessionShareExpiryRevokeSeekMultiselectClipScrubberM149" class="ghost m149-confirm-kf-bm-xsession-expiry-clip m150-confirm-expiry-role-audit-clip-kf">确认卡关帧跨会话分享过期吊销进台账·吊销回跳多选短片scrubber</button>
+          <button type="button" id="btnBypassLedgerConfirmExpiryRevokeRoleAuditShareRevokeClipKfBmM150" class="ghost m150-confirm-expiry-role-audit-clip-kf m151-confirm-role-audit-seek-xshare">确认卡过期吊销台账角色审计一页纸·吊销多选短片关帧书签</button>
+          <button type="button" id="btnBypassLedgerConfirmRoleAuditSeekShareRevokeKfBmXsessionRoShareM151" class="ghost m151-confirm-role-audit-seek-xshare m152-confirm-seek-ms-expiry">确认卡角色审计回跳台账·吊销关帧跨会话只读分享</button>
+          <button type="button" id="btnBypassLedgerConfirmSeekMsShareRevokeKfBmXsessionExpiryRevokeM152" class="ghost m152-confirm-seek-ms-expiry m153-confirm-ms-clip-role-audit">确认卡回跳台账多选对照·吊销关帧跨会话过期吊销</button>
+          <button type="button" id="btnBypassLedgerConfirmMultiselectClipScrubberShareRevokeExpiryRoleAuditM153" class="ghost m153-confirm-ms-clip-role-audit m154-confirm-clip-kf-seek">确认卡多选对照短片scrubber·吊销过期台账角色审计一页纸</button>
+          <button type="button" id="btnBypassLedgerConfirmClipScrubberKfBmShareRevokeExpiryRoleAuditSeekM154" class="ghost m154-confirm-clip-kf-seek m155-confirm-kf-xshare-ms">确认卡短片scrubber关帧书签·吊销过期角色审计回跳台账</button>
+          <button type="button" id="btnBypassLedgerConfirmKfBmXsessionRoShareShareRevokeExpirySeekMultiselectM155" class="ghost m155-confirm-kf-xshare-ms m156-confirm-kf-expiry-ms-clip">确认卡关帧跨会话只读分享·吊销过期回跳多选对照</button>
+          <button type="button" id="btnBypassLedgerConfirmKfBmXsessionExpiryRevokeShareRevokeSeekMsClipM156" class="ghost m156-confirm-kf-expiry-ms-clip m157-confirm-expiry-audit-ms-kf">确认卡关帧跨会话过期吊销·吊销过期回跳多选短片scrubber</button>
+          <button type="button" id="btnBypassLedgerConfirmExpiryLedgerRoleAuditShareRevokeMsClipKfBmM157" class="ghost m157-confirm-expiry-audit-ms-kf m158-confirm-role-audit-seek-xshare">确认卡过期吊销台账角色审计·吊销过期回跳多选短片关帧书签</button>
+          <button type="button" id="btnBypassLedgerConfirmRoleAuditSeekShareRevokeKfBmXsessionRoShareM158" class="ghost m158-confirm-role-audit-seek-xshare m159-confirm-seek-ms-expiry">确认卡角色审计回跳台账·吊销关帧跨会话只读分享</button>
+          <button type="button" id="btnBypassLedgerConfirmSeekMsShareRevokeKfBmXsessionExpiryRevokeM159" class="ghost m159-confirm-seek-ms-expiry m160-confirm-ms-clip-expiry-audit">确认卡回跳台账多选对照·吊销关帧跨会话过期吊销</button>
+          <button type="button" id="btnBypassLedgerConfirmMsClipShareRevokeExpiryRoleAuditM160" class="ghost m160-confirm-ms-clip-expiry-audit m161-confirm-clip-kf-seek">确认卡多选短片scrubber·吊销过期台账角色审计一页纸</button>
+          <button type="button" id="btnBypassLedgerConfirmClipKfBmShareRevokeExpiryRoleAuditSeekM161" class="ghost m161-confirm-clip-kf-seek m162-confirm-kf-xshare-seek-ms">确认卡短片关帧书签·吊销过期角色审计回跳台账</button>
+          <button type="button" id="btnBypassLedgerConfirmKfBmXsessionRoShareShareRevokeSeekMsM162" class="ghost m162-confirm-kf-xshare-seek-ms m163-confirm-kf-expiry-ms-clip">确认卡关帧跨会话只读分享·吊销过期回跳多选对照</button>
+          <button type="button" id="btnBypassLedgerConfirmKfBmXsessionExpiryRevokeShareRevokeSeekMsClipM163" class="ghost m163-confirm-kf-expiry-ms-clip m164-confirm-expiry-role-ms-kf">确认卡关帧跨会话过期吊销·吊销过期回跳多选短片scrubber</button>
+          <button type="button" id="btnBypassLedgerConfirmExpiryRoleAuditShareRevokeMsClipKfBmM164" class="ghost m164-confirm-expiry-role-ms-kf m165-confirm-role-seek-kf-xshare">确认卡过期吊销角色审计一页纸·吊销多选短片关帧书签</button>
+          <button type="button" id="btnBypassLedgerConfirmRoleAuditSeekShareRevokeKfBmXsessionRoShareM165" class="ghost m165-confirm-role-seek-kf-xshare m166-confirm-seek-ms-kf-expiry">确认卡角色审计回跳台账·吊销关帧跨会话只读分享</button>
+          <button type="button" id="btnBypassLedgerConfirmSeekMultiselectShareRevokeKfBmXsessionExpiryM166" class="ghost m166-confirm-seek-ms-kf-expiry m167-confirm-ms-clip-expiry-role">确认卡回跳台账多选对照·吊销关帧跨会话过期吊销</button>
+          <button type="button" id="btnBypassLedgerConfirmMultiselectClipShareRevokeExpiryRoleAuditM167" class="ghost m167-confirm-ms-clip-expiry-role m168-confirm-clip-kf-seek">确认卡多选短片scrubber·吊销过期台账角色审计一页纸</button>
+          <button type="button" id="btnBypassLedgerConfirmClipKfBmShareRevokeExpiryRoleAuditSeekM168" class="ghost m168-confirm-clip-kf-seek m169-confirm-kf-xshare-ms">确认卡短片关帧书签·吊销过期角色审计回跳台账</button>
+          <button type="button" id="btnBypassLedgerConfirmKfBmXsessionRoShareSeekMultiselectM169" class="ghost m169-confirm-kf-xshare-ms m170-confirm-kf-expiry-clip">确认卡关帧跨会话只读分享·吊销回跳多选对照</button>
+          <button type="button" id="btnBypassLedgerConfirmKfBmXsessionExpiryRevokeSeekMsClipM170" class="ghost m170-confirm-kf-expiry-clip">确认卡关帧跨会话过期吊销·吊销回跳多选短片scrubber</button>
+          <button type="button" id="btnWriteShardCooldownSpark" class="ghost m88-writeshard-cooldown-spark m89-cooldown-spark-day-drill">写片冷却×BP分位火花图</button>
+          <button type="button" id="btnWriteShardCooldownSparkDayDrill" class="ghost m89-cooldown-spark-day-drill m90-cooldown-day-bust-chain">冷却火花日点钻取</button>
+          <button type="button" id="btnCooldownDaySuggestBustChain" class="ghost m90-cooldown-day-bust-chain m91-cooldown-chain-fail-attr">冷却日点建议 bust 串联</button>
+          <button type="button" id="btnCooldownDayBustChainFailAttr" class="ghost m91-cooldown-chain-fail-attr m92-cooldown-attr-retry">冷却串联失败归因卡</button>
+          <button type="button" id="btnCooldownAttrRetryFailedPhase" class="ghost m92-cooldown-attr-retry m93-cooldown-retry-chain">冷却归因一键重试失败阶段</button>
+          <button type="button" id="btnCooldownAttrRetryFoldChainCard" class="ghost m93-cooldown-retry-chain m94-chain-phase-reorder">冷却重试并入串联任务卡</button>
+          <button type="button" id="btnCooldownChainPhaseReorder" class="ghost m94-chain-phase-reorder m95-phase-reorder-dryrun">串联任务卡阶段重排</button>
+          <button type="button" id="btnCooldownChainPhaseReorderDryRun" class="ghost m95-phase-reorder-dryrun m96-dryrun-skip-completed">阶段重排后按新序干跑</button>
+          <button type="button" id="btnCooldownChainPhaseReorderDryRunSkipCompleted" class="ghost m96-dryrun-skip-completed m97-skip-why-replay">新序干跑跳过已完成阶段</button>
+          <button type="button" id="btnCooldownChainPhaseReorderWhySkipped" class="ghost m97-skip-why-replay m98-why-force-rerun">跳过已完成·为何跳过回放</button>
+          <button type="button" id="btnCooldownChainPhaseReorderWhySkippedForceRerun" class="ghost m98-why-force-rerun m99-force-fold-taskcard">为何跳过·强制重跑该阶段</button>
+          <button type="button" id="btnCooldownChainForceRerunFoldTaskCard" class="ghost m99-force-fold-taskcard m100-force-clip-scrubber">强制重跑并入串联任务卡</button>
+          <button type="button" id="btnCooldownChainForceRerunFoldClipScrubberReplay" class="ghost m100-force-clip-scrubber m101-clip-keyframe">强制重跑任务卡片段scrubber回放</button>
+          <button type="button" id="btnCooldownChainForceRerunClipKeyframeBookmarks" class="ghost m101-clip-keyframe m102-clip-chapters">片段scrubber关帧书签</button>
+          <button type="button" id="btnCooldownChainForceRerunClipKeyframeInAppChapters" class="ghost m102-clip-chapters m103-chapter-scrubber">关帧书签站内短片章节</button>
+          <button type="button" id="btnCooldownChainClipChapterScrubberJump" class="ghost m103-chapter-scrubber">短片章节scrubber跳章</button>
+          <button type="button" id="btnCooldownChainClipChapterScrubberCrossSessionBookmarks" class="ghost m104-chapter-cross-session-bm m105-chapter-bm-by-role">章节scrubber跨会话书签</button>
+          <button type="button" id="btnCooldownChainClipChapterBookmarksByRole" class="ghost m105-chapter-bm-by-role m106-chapter-bm-cross-tenant">章节书签按角色分套</button>
+          <button type="button" id="btnCooldownChainClipChapterBookmarksByRoleCrossTenantInherit" class="ghost m106-chapter-bm-cross-tenant m107-chapter-bm-subset">角色书签跨租户只读继承</button>
+          <button type="button" id="btnCooldownChainClipChapterBookmarksInheritBookmarkSubset" class="ghost m107-chapter-bm-subset m108-bm-subset-diff-confirm">跨租户继承按书签子集采纳</button>
+          <button type="button" id="btnCooldownChainClipChapterBookmarksSubsetDiffPreviewConfirm" class="ghost m108-bm-subset-diff-confirm m109-bm-diff-oneside-adopt">书签子集差分预览再确认</button>
+          <button type="button" id="btnCooldownChainClipChapterBookmarksSubsetDiffPreviewOnesideAdopt" class="ghost m109-bm-diff-oneside-adopt m110-oneside-ba-card">差分预览只采纳一侧</button>
+          <button type="button" id="btnCooldownChainOnesideAdoptBeforeAfterCard" class="ghost m110-oneside-ba-card m111-ba-pinpoint-rebypass">只采纳一侧前后对照卡</button>
+          <button type="button" id="btnCooldownChainOnesideBaPinpointRebypass" class="ghost m111-ba-pinpoint-rebypass m112-ba-pinpoint-fail-fold">前后对照卡定点再旁路</button>
+          <button type="button" id="btnCooldownChainOnesideBaPinpointRebypassFailFold" class="ghost m112-ba-pinpoint-fail-fold m113-ba-fail-attr-ff-replay">定点再旁路失败并入归因</button>
+          <button type="button" id="btnCooldownChainOnesideBaPinpointRebypassFailFoldFfReplay" class="ghost m113-ba-fail-attr-ff-replay m114-ba-ff-replay-scrubber-bm">失败归因字段过滤回放</button>
+          <button type="button" id="btnCooldownChainOnesideBaPinpointRebypassFailFoldFfReplayScrubberBm" class="ghost m114-ba-ff-replay-scrubber-bm m115-ba-ff-replay-bm-xsession">字段过滤回放scrubber书签</button>
+          <button type="button" id="btnCooldownChainOnesideBaPinpointRebypassFailFoldFfReplayScrubberBmXSessionRoShare" class="ghost m115-ba-ff-replay-bm-xsession m116-ff-xsession-diff-adopt">过滤回放书签跨会话只读分享</button>
+          <button type="button" id="btnCooldownChainOnesideBaPinpointRebypassFailFoldFfReplayScrubberBmXSessionRoShareDiffPreviewAdopt" class="ghost m116-ff-xsession-diff-adopt">过滤回放跨会话分享差分预览再采纳</button>
+          <button type="button" id="btnCooldownChainDiffAdoptSoftUndoBeforeAfter" class="ghost m117-diff-adopt-soft-undo-ba m118-soft-undo-ba-pinpoint-rebypass">差分采纳软撤销前后卡</button>
+          <button type="button" id="btnCooldownChainDiffAdoptSoftUndoBaPinpointRebypass" class="ghost m118-soft-undo-ba-pinpoint-rebypass m119-soft-undo-ba-pinpoint-fail-fold">软撤销前后卡定点再旁路</button>
+          <button type="button" id="btnCooldownChainDiffAdoptSoftUndoBaPinpointRebypassFailFoldAttr" class="ghost m119-soft-undo-ba-pinpoint-fail-fold m120-fail-attr-retry-fold-taskcard">软撤销定点再旁路失败并入归因</button>
+          <button type="button" id="btnCooldownChainFailAttrOneClickRetryFoldTaskCard" class="ghost m120-fail-attr-retry-fold-taskcard m121-fail-retry-phase-pause-grace">失败归因一键重试折进任务卡</button>
+          <button type="button" id="btnCooldownChainFailRetryTaskcardPhasePauseGrace" class="ghost m121-fail-retry-phase-pause-grace m122-fail-pause-grace-soft-cancel-ledger">失败重试任务卡单阶段暂停宽限</button>
+          <button type="button" id="btnCooldownChainFailPauseGraceSoftCancelLedger" class="ghost m122-fail-pause-grace-soft-cancel-ledger m123-soft-cancel-ledger-role-audit">失败暂停宽限软取消进中文台账</button>
+          <button type="button" id="btnCooldownChainSoftCancelLedgerRoleAuditOnepager" class="ghost m123-soft-cancel-ledger-role-audit m124-soft-cancel-audit-seek-ledger">软取消台账角色审计一页纸</button>
+          <button type="button" id="btnCooldownChainSoftCancelRoleAuditOnepagerSeekLedger" class="ghost m124-soft-cancel-audit-seek-ledger m125-soft-cancel-audit-seek-multiselect">软取消角色审计一页纸回跳台账行</button>
+          <button type="button" id="btnCooldownChainSoftCancelAuditSeekMultiselectContrast" class="ghost m125-soft-cancel-audit-seek-multiselect m126-soft-cancel-audit-multiselect-clip-scrubber">软取消审计回跳台账多选中文对照</button>
+          <button type="button" id="btnCooldownChainSoftCancelAuditMultiselectClipScrubber" class="ghost m126-soft-cancel-audit-multiselect-clip-scrubber m127-soft-cancel-audit-clip-scrubber-kf-bm">软取消审计多选对照短片scrubber</button>
+          <button type="button" id="btnCooldownChainSoftCancelAuditClipScrubberKfBm" class="ghost m127-soft-cancel-audit-clip-scrubber-kf-bm m128-soft-cancel-audit-kf-bm-xsession-ro-share">软取消审计短片scrubber关帧书签</button>
+          <button type="button" id="btnCooldownChainSoftCancelAuditKfBmXsessionRoShare" class="ghost m128-soft-cancel-audit-kf-bm-xsession-ro-share m129-soft-cancel-audit-kf-bm-share-expiry-revoke-ledger">软取消审计关帧跨会话只读分享</button>
+          <button type="button" id="btnCooldownChainSoftCancelAuditKfBmShareExpiryRevokeLedger" class="ghost m129-soft-cancel-audit-kf-bm-share-expiry-revoke-ledger m130-soft-cancel-audit-share-revoke-role-audit">软取消审计关帧分享过期吊销进台账</button>
+          <button type="button" id="btnCooldownChainSoftCancelAuditShareRevokeRoleAuditOnepager" class="ghost m130-soft-cancel-audit-share-revoke-role-audit m131-soft-cancel-audit-share-revoke-role-audit-seek">软取消审计分享吊销台账角色审计一页纸</button>
+          <button type="button" id="btnCooldownChainSoftCancelAuditShareRevokeRoleAuditSeekLedger" class="ghost m131-soft-cancel-audit-share-revoke-role-audit-seek m132-soft-cancel-audit-share-revoke-seek-ms">软取消审计分享吊销角色审计回跳台账</button>
+          <button type="button" id="btnCooldownChainSoftCancelAuditShareRevokeSeekMultiselect" class="ghost m132-soft-cancel-audit-share-revoke-seek-ms m133-soft-cancel-audit-share-revoke-ms-clip-scrubber">软取消审计分享吊销回跳多选中文对照</button>
+          <button type="button" id="btnCooldownChainSoftCancelAuditShareRevokeMultiselectClipScrubber" class="ghost m133-soft-cancel-audit-share-revoke-ms-clip-scrubber m134-soft-cancel-audit-share-revoke-ms-clip-kf-bm">软取消审计分享吊销多选短片scrubber</button>
+          <button type="button" id="btnCooldownChainSoftCancelAuditShareRevokeMultiselectClipKfBm" class="ghost m134-soft-cancel-audit-share-revoke-ms-clip-kf-bm m135-soft-cancel-audit-share-revoke-ms-clip-kf-bm-xsession">软取消审计分享吊销多选短片关帧书签</button>
+          <button type="button" id="btnCooldownChainSoftCancelAuditShareRevokeMultiselectClipKfBmXsession" class="ghost m135-soft-cancel-audit-share-revoke-ms-clip-kf-bm-xsession">软取消审计分享吊销多选短片关帧跨会话只读分享</button>
+          <button type="button" id="btnCooldownChainSoftCancelAuditKfBmXsessionExpiryRevoke" class="ghost m136-soft-cancel-audit-kf-bm-xsession-expiry-revoke">软取消审计关帧跨会话分享过期吊销进台账</button>
+          <button type="button" id="btnCooldownChainSoftCancelAuditExpiryLedgerRoleAudit" class="ghost m137-soft-cancel-audit-expiry-ledger-role-audit m138-soft-cancel-audit-expiry-role-audit-seek">软取消审计过期吊销台账角色审计一页纸</button>
+          <button type="button" id="btnCooldownChainSoftCancelAuditExpiryRoleAuditSeek" class="ghost m138-soft-cancel-audit-expiry-role-audit-seek">软取消审计过期角色审计回跳台账</button>
+          <button type="button" id="btnDataChainSoftCancelExpirySeekMultiselectM139" class="ghost m139-soft-cancel-expiry-seek-multiselect">软取消审计过期回跳多选中文对照</button>
+          <button type="button" id="btnDataChainSoftCancelExpiryMultiselectClipScrubberM140" class="ghost m140-soft-cancel-expiry-ms-clip-scrubber">软取消审计过期多选短片scrubber</button>
+          <button type="button" id="btnDataChainSoftCancelExpiryMultiselectClipKfBmM141" class="ghost m141-soft-cancel-expiry-ms-clip-kf-bm">软取消审计过期多选短片关帧书签</button>
+          <button type="button" id="btnDataChainSoftCancelExpiryKfBmXsessionRoShareM142" class="ghost m142-soft-cancel-expiry-kf-bm-xsession">软取消审计过期关帧跨会话只读分享</button>
+          <button type="button" id="btnDataChainSoftCancelExpiryKfBmXsessionExpiryRevokeM143" class="ghost m143-soft-cancel-expiry-kf-bm-xsession-expiry-revoke">软取消过期关帧跨会话过期吊销进台账</button>
+          <button type="button" id="btnDataChainSoftCancelExpiryRevokeLedgerRoleAuditOnepagerM144" class="ghost m144-soft-cancel-expiry-revoke-role-audit">软取消过期吊销台账角色审计一页纸</button>
+          <button type="button" id="btnDataChainSoftCancelExpiryRevokeRoleAuditSeekLedgerM145" class="ghost m145-soft-cancel-expiry-revoke-role-audit-seek">软取消过期吊销角色审计回跳台账</button>
+          <button type="button" id="btnDataChainSoftCancelSeekMultiselectContrastM146" class="ghost m146-soft-cancel-seek-multiselect">软取消角色审计回跳多选中文对照</button>
+          <button type="button" id="btnDataChainSoftCancelSeekMultiselectClipScrubberM147" class="ghost m147-soft-cancel-seek-multiselect-clip-scrubber m148-soft-cancel-clip-scrubber-kf-bm">软取消回跳多选短片scrubber</button>
+          <button type="button" id="btnDataChainSoftCancelClipScrubberKeyframeBookmarksM148" class="ghost m148-soft-cancel-clip-scrubber-kf-bm m149-soft-cancel-kf-bm-xsession">软取消短片scrubber关帧书签</button>
+          <button type="button" id="btnDataChainSoftCancelKfBmXsessionRoShareM149" class="ghost m149-soft-cancel-kf-bm-xsession m150-soft-cancel-kf-bm-xsession-expiry">软取消关帧跨会话只读分享</button>
+          <button type="button" id="btnDataChainSoftCancelKfBmXsessionExpiryRevokeLedgerM150" class="ghost m150-soft-cancel-kf-bm-xsession-expiry m151-soft-cancel-expiry-role-audit">软取消关帧跨会话过期吊销进台账</button>
+          <button type="button" id="btnDataChainSoftCancelExpiryLedgerRoleAuditOnepagerM151" class="ghost m151-soft-cancel-expiry-role-audit m152-soft-cancel-role-audit-seek">软取消过期台账角色审计一页纸</button>
+          <button type="button" id="btnDataChainSoftCancelRoleAuditSeekLedgerM152" class="ghost m152-soft-cancel-role-audit-seek m153-soft-cancel-seek-ms">软取消角色审计回跳台账</button>
+          <button type="button" id="btnDataChainSoftCancelSeekMultiselectContrastM153" class="ghost m153-soft-cancel-seek-ms m154-soft-cancel-ms-clip">软取消回跳台账多选对照</button>
+          <button type="button" id="btnDataChainSoftCancelMultiselectClipScrubberM154" class="ghost m154-soft-cancel-ms-clip m155-soft-cancel-ms-clip-kf">软取消多选对照短片scrubber</button>
+          <button type="button" id="btnDataChainSoftCancelMultiselectClipKeyframeBookmarksM155" class="ghost m155-soft-cancel-ms-clip-kf m156-soft-cancel-ms-kf-xshare">软取消多选短片关帧书签</button>
+          <button type="button" id="btnDataChainSoftCancelMultiselectKfBmXsessionRoShareM156" class="ghost m156-soft-cancel-ms-kf-xshare m157-soft-cancel-kf-xsession-expiry">软取消多选关帧跨会话只读分享</button>
+          <button type="button" id="btnDataChainSoftCancelKfBmXsessionExpiryRevokeLedgerM157" class="ghost m157-soft-cancel-kf-xsession-expiry m158-soft-cancel-expiry-role-audit">软取消关帧跨会话过期吊销</button>
+          <button type="button" id="btnDataChainSoftCancelExpiryLedgerRoleAuditOnepagerM158" class="ghost m158-soft-cancel-expiry-role-audit m159-soft-cancel-role-audit-seek">软取消过期台账角色审计一页纸</button>
+          <button type="button" id="btnDataChainSoftCancelRoleAuditSeekLedgerM159" class="ghost m159-soft-cancel-role-audit-seek m160-soft-cancel-seek-ms">软取消角色审计回跳台账</button>
+          <button type="button" id="btnDataChainSoftCancelSeekMultiselectContrastM160" class="ghost m160-soft-cancel-seek-ms m161-soft-cancel-ms-clip">软取消回跳台账多选对照</button>
+          <button type="button" id="btnDataChainSoftCancelMultiselectClipScrubberM161" class="ghost m161-soft-cancel-ms-clip m162-soft-cancel-ms-kf">软取消多选短片scrubber</button>
+          <button type="button" id="btnDataChainSoftCancelMultiselectKfBmM162" class="ghost m162-soft-cancel-ms-kf m163-soft-cancel-kf-xshare">软取消多选关帧书签</button>
+          <button type="button" id="btnDataChainSoftCancelKfBmXsessionRoShareM163" class="ghost m163-soft-cancel-kf-xshare m164-soft-cancel-kf-expiry">软取消关帧跨会话只读分享</button>
+          <button type="button" id="btnDataChainSoftCancelKfBmXsessionExpiryRevokeM164" class="ghost m164-soft-cancel-kf-expiry m165-soft-cancel-expiry-role">软取消关帧跨会话过期吊销</button>
+          <button type="button" id="btnDataChainSoftCancelExpiryLedgerRoleAuditOnepagerM165" class="ghost m165-soft-cancel-expiry-role m166-soft-cancel-role-seek">软取消过期台账角色审计一页纸</button>
+          <button type="button" id="btnDataChainSoftCancelRoleAuditSeekLedgerM166" class="ghost m166-soft-cancel-role-seek m167-soft-cancel-seek-ms">软取消角色审计回跳台账</button>
+          <button type="button" id="btnDataChainSoftCancelSeekMultiselectContrastM167" class="ghost m167-soft-cancel-seek-ms m168-soft-cancel-ms-clip">软取消回跳台账多选对照</button>
+          <button type="button" id="btnDataChainSoftCancelMultiselectClipScrubberM168" class="ghost m168-soft-cancel-ms-clip m169-soft-cancel-ms-kf">软取消多选短片scrubber</button>
+          <button type="button" id="btnDataChainSoftCancelMultiselectKeyframeBookmarksM169" class="ghost m169-soft-cancel-ms-kf m170-soft-cancel-kf-xshare">软取消多选关帧书签</button>
+          <button type="button" id="btnDataChainSoftCancelKfBmXsessionRoShareM170" class="ghost m170-soft-cancel-kf-xshare">软取消关帧跨会话只读分享</button>
+          <button type="button" id="btnWriteSnapBaseFrame" class="ghost m84-write-snap-base-frame m85-write-snap-diff-viz">写库快照基帧对照</button>
+          <button type="button" id="btnWriteSnapBaseFrameDiffViz" class="ghost m85-write-snap-diff-viz m87-baseframe-diff-playback">基帧差分可视化</button>
+          <button type="button" id="btnBaseFrameDiffPlayback" class="ghost m87-baseframe-diff-playback">基帧差分播放 scrubber</button>
+          <button type="button" id="btnCountdownEndAutoReprobe" class="ghost m78-countdown-auto-reprobe m79-reprobe-fail-sla m77-throttle-countdown">倒计时结束自动复探针（失败串联SLA·干跑）</button>
+          <label class="muted m78-countdown-auto-reprobe m79-reprobe-fail-sla" style="font-size:12px;margin-left:4px"><input type="checkbox" id="chkAutoReprobeOnCountdown" checked /> 倒计时归零自动复探针（失败串联SLA）</label>
+          <button type="button" id="btnSuggestedBustThrottle" class="ghost m76-inbox-bust-throttle m77-inbox-throttle-countdown">建议bust冷却节流状态</button>
+          <span id="bustThrottleCountdown" class="muted m77-throttle-countdown" style="font-size:12px;margin-left:4px"></span>
+          <button type="button" id="btnReopenRecoverySla" class="ghost m74-inbox-sla-reopen m75-inbox-sla-cooldown m76-inbox-bust-throttle">串联自愈后重开回升SLA（干跑·冷却防thrash·联动bust节流）</button>
+        </div>
+        <pre id="recallPoolHitDash" class="item m83-recall-hit-pct-board m84-recall-pct-drill" style="white-space:pre-wrap;font-size:12px;max-height:140px;overflow:auto">召回池命中率分位数加载中…</pre>
+        <pre id="bypassContrastDash" class="item m86-bypass-contrast-board m87-bypass-supply-peek m88-supply-peek-recontrast" style="white-space:pre-wrap;font-size:12px;max-height:120px;overflow:auto;display:none"></pre>
+        <pre id="writeShardCooldownSparkDash" class="item m88-writeshard-cooldown-spark m89-cooldown-spark-day-drill m89-bypass-history m90-bypass-history-diff m90-cooldown-day-bust-chain m90-batch-rerun-sse-phase m91-bypass-diff-rollback m91-cooldown-chain-fail-attr m91-sse-phase-taskcard m92-bypass-rollback-contrast m92-cooldown-attr-retry m92-sse-taskcard-drill m93-bypass-contrast-supply m93-cooldown-retry-chain m93-sse-jump-queue m93-phase-pause-resume m94-supply-rebypass m94-chain-phase-reorder m94-phase-resume-alarm m95-rebypass-annotate m95-phase-reorder-dryrun m95-resume-alarm-autoresume m96-annotate-contrast-strip m96-dryrun-skip-completed m96-autoresume-grace m97-contrast-clip-frames m97-skip-why-replay m97-grace-role-policy m98-clip-scrubber m98-why-force-rerun m98-grace-ab-compare m99-clip-bookmarks m99-force-fold-taskcard m99-ab-apply-winner m100-bm-share-link m100-force-clip-scrubber m100-ab-soft-undo" style="white-space:pre-wrap;font-size:12px;max-height:100px;overflow:auto;display:none"></pre>
+        <pre id="baseFrameDiffDash" class="item m85-write-snap-diff-viz m87-baseframe-diff-playback" style="white-space:pre-wrap;font-size:12px;max-height:120px;overflow:auto;display:none"></pre>
+        <pre id="inboxDeltaCacheDash" class="item m62-inbox-delta-dash m63-inbox-lowhit-dash m64-inbox-selfheal-dash m65-inbox-selfheal-dash m66-inbox-hit-probe-dash" style="white-space:pre-wrap;font-size:12px;max-height:180px;overflow:auto">加载中…</pre>
+        <div id="homeCacheAlertBanner" class="m47-home-cache-banner" style="display:none;margin:8px 0;padding:8px;border-radius:8px;background:#fff3cd;font-size:13px"></div>
+        <div id="homeCacheShellDash" class="item m48-home-shell-dash" style="font-size:13px">加载中…</div>
+        <div class="row" style="margin-top:10px;align-items:center;flex-wrap:wrap;gap:8px">
+          <button class="ghost" id="btnRefreshHomeCacheCurve">刷新命中曲线</button>
+          <button class="ghost" id="btnFlushHomeCacheCurve">落盘当前点</button>
+          <button class="ghost" id="btnNotifyCurveAlertDual">派发曲线双通道草稿</button>
+          <button class="ghost" id="btnCleanupConflictExport">清理导出产物</button>
+          <button class="ghost" id="btnRefreshExportQuotaBadge">刷新导出租户配额</button>
+          <button class="ghost m53-quota-dual" id="btnNotifyQuotaAlertDual">派发配额双通道草稿</button>
+          <button class="ghost m54-webhook-dual" id="btnCreateQuotaWebhookDraft">创建配额Webhook草稿</button>
+          <button class="ghost m54-webhook-dual" id="btnConfirmQuotaWebhookDraft" disabled>确认干跑Webhook</button>
+          <button class="ghost m55-draft-cleanup" id="btnCleanupWebhookDrafts">清理过期Webhook草稿</button>
+          <button class="ghost m53-audit-ttl m54-audit-tenant" id="btnCleanupAuditExport">清理审计导出产物</button>
+          <span id="exportQuotaBadge" class="pill m52-export-quota-badge m53-quota-dual" title="导出租户磁盘配额告警">配额检测中…</span>
+        </div>
+        <pre id="quotaWebhookDraftDash" class="item m54-webhook-dual" style="white-space:pre-wrap;font-size:12px;max-height:140px;overflow:auto;display:none"></pre>
+        <pre id="exportQuotaWarnDash" class="item m52-export-quota-badge m53-quota-dual" style="white-space:pre-wrap;font-size:12px;max-height:120px;overflow:auto;display:none"></pre>
+        <pre id="homeCacheCurveDash" class="item m49-home-curve-dash m50-curve-alert m51-curve-dual" style="white-space:pre-wrap;font-size:12px;max-height:220px;overflow:auto">曲线加载中…</pre>
+        <h3 style="margin-top:16px">科研快照审计（M49–M54）</h3>
+        <p class="lead" style="margin-top:0">谁在何时看见了进行中匹配快照；检索/修剪 + CSV；M52 异步大导出 + 脱敏档；M53 TTL/配额；M54 按租户隔离目录 + 租户配额。</p>
+        <div class="row" style="flex-wrap:wrap;gap:8px;align-items:center">
+          <input id="snapshotAuditQ" placeholder="检索 actor/jobId…" style="min-width:180px" />
+          <select id="snapshotAuditRedaction" title="脱敏档" aria-label="审计导出脱敏档">
+            <option value="full">脱敏·完整</option>
+            <option value="partner">脱敏·伙伴</option>
+            <option value="public">脱敏·公开风格</option>
+          </select>
+          <button class="ghost" id="btnRefreshSnapshotAudit">刷新快照审计</button>
+          <button class="ghost" id="btnPruneSnapshotAudit">按保留策略修剪</button>
+          <button class="ghost" id="btnExportSnapshotAuditCsv">同步导出 CSV</button>
+          <button class="ghost" id="btnExportSnapshotAuditAsync">异步大导出</button>
+          <button class="ghost" id="btnCancelSnapshotAuditAsync" disabled>取消异步导出</button>
+        </div>
+        <div id="snapshotAuditAsyncProgressBox" class="item m52-audit-async m53-audit-ttl" style="display:none;margin-top:8px;font-size:13px">
+          <div id="snapshotAuditAsyncBanner">—</div>
+          <div class="muted" id="snapshotAuditAsyncHint"></div>
+          <progress id="snapshotAuditAsyncBar" max="100" value="0" style="width:100%;margin-top:6px"></progress>
+          <a id="snapshotAuditAsyncDownload" class="buttonish ghost" href="#" style="display:none;margin-top:8px" target="_blank">下载就绪文件</a>
+        </div>
+        <pre id="researchSnapshotAuditDash" class="item" style="white-space:pre-wrap;font-size:12px;max-height:180px;overflow:auto">—</pre>
+      </section>
+
+      <section id="tab-smtp" class="panel">
+        <h2>发信 / SMTP</h2>
+        <p class="lead">发件人显示名默认「小蚁」。支持 SMTP_* 与 CHANNEL_EMAIL_* 别名。真发必须双确认。沙箱若拦 587/465，这里会用大白话告诉你，不会假装已送达。</p>
+        <div class="smtp-card">
+          <div class="item" id="smtpStatusCard">
+            <h3 style="margin-top:0">当前配置（不显示密码）</h3>
+            <div id="smtpStatusBody" class="muted">加载中…</div>
+            <div class="row" style="margin-top:12px">
+              <button id="btnSmtpVerify">探测连通</button>
+              <button class="ghost" id="btnSmtpSelfTest">向自己发一封试信</button>
+              <label class="checkrow pill"><input type="checkbox" id="confirmSmtpSelf" /> 确认真发试信</label>
+            </div>
+            <div id="smtpMsg" class="muted" style="margin-top:8px"></div>
+          </div>
+          <div class="item">
+            <h3 style="margin-top:0">怎么配</h3>
+            <div class="reason">环境变量任选一套：SMTP_HOST / SMTP_USER / SMTP_PASS / SMTP_FROM，或 CHANNEL_EMAIL_SMTP_* / CHANNEL_EMAIL_FROM_*。MAIL_FROM_NAME / OPS_DISPLAY_NAME = 小蚁。SMTP_MODE=live 且 CONFIRM_LIVE_SEND=1 才允许真发。</div>
+            <div class="meta" style="margin-top:10px">支付通道与自定义域名本波刻意不接；Chatwoot / AiToEarn 仍是干跑桩。</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="tab-inbox" class="panel">
+        <h2>站内通知中心</h2>
+        <p class="lead">运营侧也能看自己的收件箱。种子/广播会写进来；和门户通知共用同一套 API。</p>
+        <div class="row">
+          <button id="btnRefreshInbox" class="ghost">刷新</button>
+          <button id="btnInboxReadAll" class="ghost">全部标已读</button>
+          <button id="btnSeedInbox" class="ghost">写一条演示通知</button>
+        </div>
+        <div id="opsInbox" class="inbox list"></div>
+      </section>
+
+      <section id="tab-audits" class="panel">
+        <h2>操作记录</h2>
+        <div class="row">
+          <button id="btnRefreshAudits" class="ghost">刷新审计</button>
+          <a class="buttonish ghost" id="btnExportAuditsJson" href="/api/audits/export?format=json" target="_blank">导出 JSON</a>
+          <a class="buttonish ghost" id="btnExportAuditsCsv" href="/api/audits/export?format=csv" target="_blank">导出 CSV</a>
+        </div>
+        <div id="auditList" class="list"></div>
+        <h3>登录会话</h3>
+        <p class="lead">可吊销本账号其它设备/浏览器会话。口令当前用 scrypt 哈希（见安全文档）。</p>
+        <div class="row">
+          <button id="btnRefreshSessions" class="ghost">刷新会话</button>
+          <button id="btnRevokeOtherSessions" class="ghost">吊销其它会话</button>
+          <button id="btnLogout" class="ghost">退出并吊销当前</button>
+        </div>
+        <div id="sessionList" class="list"></div>
+      </section>
+
+      <section id="tab-schedules" class="panel">
+        <h2>定时采集</h2>
+        <div class="row">
+          <button id="btnReloadSched">重载定时器</button>
+          <button id="btnRefreshSched" class="ghost">刷新列表</button>
+        </div>
+        <div id="schedList" class="list"></div>
+      </section>
+
+      <section id="tab-reports" class="panel">
+        <h2>分析报告</h2>
+        <p class="lead">多模型：模板 hash / 本地增强 local / OpenAI（未配密钥则回退）。同 scope 保留版本历史。</p>
+        <div class="row">
+          <label>生成器
+            <select id="reportProvider">
+              <option value="hash">hash 模板</option>
+              <option value="local">local 增强</option>
+              <option value="openai">openai（可回退）</option>
+            </select>
+          </label>
+          <button id="btnGenPlatformReport">生成平台运行分析</button>
+          <button id="btnRefreshReports" class="ghost">刷新</button>
+          <span id="reportProviderHint" class="muted"></span>
+        </div>
+        <div id="reportList" class="list"></div>
+        <div id="reportVersions" class="list"></div>
+        <pre id="reportView" class="item" style="display:none"></pre>
+      </section>
+
+      <section id="tab-plans" class="panel">
+        <h2>套餐与功能开关</h2>
+        <p class="lead">前期全站可免费开通；配额与开关先备好，方便以后收费。功能开关可按全局/租户关模块，不会假装已付费。</p>
+        <div id="opsPlanList" class="list"></div>
+        <h3>本月用量</h3>
+        <p class="muted">对照套餐限额；快到顶会用大白话提醒。支付升级仍是演示桩。</p>
+        <div class="row"><button type="button" id="btnRefreshUsage" class="ghost">刷新用量</button><span id="usageSummary" class="muted"></span></div>
+        <div id="usageList" class="list" aria-live="polite"></div>
+        <h3>功能开关</h3>
+        <p class="muted">优先级：租户覆盖 &gt; 全局表 &gt; 代码默认。文档：docs/功能开关-M16.md</p>
+        <div class="row">
+          <label class="sr-only" for="flagTenantId">租户</label>
+          <input id="flagTenantId" value="default" aria-label="租户代码" style="width:120px" />
+          <button type="button" id="btnRefreshFlags" class="ghost">刷新开关</button>
+        </div>
+        <div id="flagList" class="list"></div>
+        <h3>匹配权重（反馈学习）</h3>
+        <pre id="weightBox" class="item">加载中…</pre>
+      </section>
+
+      <section id="tab-quality" class="panel">
+        <p id="qualitySummary" class="muted"></p>
+        <h2>清洗质检</h2>
+        <div class="row">
+          <button id="btnScanQuality">跑一轮数据质检</button>
+          <button id="btnRefreshQuality" class="ghost">刷新问题列表</button>
+          <span id="qualityScore" class="muted"></span>
+        </div>
+        <div id="qualityList" class="list"></div>
+      </section>
+
+      <section id="tab-tenants" class="panel">
+        <h2>租户 / 白标</h2>
+        <p class="lead">默认租户 default。可改产品名、主色、logo、自定义域名（解析桩）。套餐配额可绑到租户。</p>
+        <div class="row">
+          <button id="btnRefreshTenants" class="ghost">刷新</button>
+        </div>
+        <div id="tenantList" class="list"></div>
+        <div class="item formbox" style="margin-top:12px">
+          <h3>编辑默认租户白标</h3>
+          <label>产品名</label>
+          <input id="brandName" value="研企通" />
+          <label>主色</label>
+          <input id="brandColor" value="#3d8bfd" />
+          <label>标语</label>
+          <input id="brandTag" value="把实验室能力、科研成果和企业要解决的问题对上号" />
+          <label>Logo URL</label>
+          <input id="brandLogo" placeholder="https://..." />
+          <label>自定义域名（桩）</label>
+          <input id="brandDomain" placeholder="tto.example.edu.cn" />
+          <div class="row">
+            <button id="btnSaveBrand">保存白标</button>
+            <button class="ghost" id="btnPreviewBrand">预览白标</button>
+            <button class="ghost" id="btnBindPro">租户绑机构版套餐</button>
+            <button class="ghost" id="btnBindFree">租户绑回免费档</button>
+          </div>
+          <div id="brandPreview" class="item brand-preview" style="display:none;margin-top:10px">
+            <div class="brand"><span class="logo" id="bpLogo">研企通</span><span class="sub" id="bpTag"></span></div>
+            <button id="bpSample" style="margin-top:8px">示例主按钮</button>
+            <div class="muted" style="margin-top:6px">门户 / 邀请页 / 邮件主题里的产品名会跟着变（邮件真发仍看出网）。</div>
+          </div>
+          <h3>数据导出 / 删除（个保法风格）</h3>
+          <div class="row">
+            <button id="btnExportTenant" class="ghost">导出默认租户 ZIP</button>
+            <button id="btnRefreshExports" class="ghost">刷新导出任务</button>
+          </div>
+          <div id="exportList" class="list"></div>
+          <p class="muted">软删/硬删仅对非 default 租户开放；硬删需确认令牌。</p>
+          <h3>自定义域名验域（模拟）</h3>
+          <div class="row">
+            <button id="btnDomainChallenge" class="ghost">生成 DNS TXT 挑战</button>
+            <button id="btnDomainVerifySim" class="ghost">模拟验域通过</button>
+          </div>
+          <pre id="domainBox" class="item" style="display:none"></pre>
+          <div class="muted" id="tenantMsg"></div>
+        </div>
+      </section>
+
+      <section id="tab-integrations" class="panel">
+        <h2>外部对接</h2>
+        <p class="lead">Chatwoot（会话）与 AiToEarn（社媒）。先配好、能探测、能干跑；真连外网需设 INTEGRATIONS_LIVE=1。列表会显示最近一次探测结果。</p>
+        <div id="integList" class="list"></div>
+        <div class="item formbox" style="margin-top:12px">
+          <h3>保存配置</h3>
+          <label>服务商</label>
+          <select id="integProvider">
+            <option value="chatwoot">chatwoot</option>
+            <option value="aitoearn">aitoearn</option>
+          </select>
+          <label>Base URL</label>
+          <input id="integUrl" placeholder="https://chatwoot.example.com" />
+          <label>API Token</label>
+          <input id="integToken" placeholder="粘贴令牌（不会在列表明文回显）" />
+          <label><input type="checkbox" id="integEnabled" /> 启用</label>
+          <div class="row">
+            <button id="btnSaveInteg">保存</button>
+            <button class="ghost" id="btnProbeInteg">探测</button>
+            <button class="ghost" id="btnDryInteg">干跑推送一条</button>
+          </div>
+          <div class="muted" id="integMsg"></div>
+        </div>
+      </section>
+
+      <section id="tab-imports" class="panel">
+        <h2>企业授权数据批量导入</h2>
+        <p class="lead">只接受正式授权清单 / 采购导出 CSV。先校验报告，再入库。禁止灰爬。</p>
+        <div class="row">
+          <a class="buttonish" href="/api/imports/enterprise/template.csv">下载模板 CSV</a>
+          <button id="btnRefreshImports" class="ghost">刷新任务</button>
+          <label><input type="checkbox" id="importDryOnly" /> 只校验不入库</label>
+        </div>
+        <textarea id="importCsv" rows="8" style="width:100%;font-family:ui-monospace,monospace" placeholder="粘贴 CSV 全文（含表头）"></textarea>
+        <div class="row">
+          <button id="btnRunImport">提交导入 / 校验</button>
+          <button id="btnCancelImport" class="ghost" disabled>取消导入</button>
+          <label class="muted" style="display:inline-flex;align-items:center;gap:6px">
+            冲突策略
+            <select id="importMergeStrategy" title="取消或部分导入后再跑时：库里已有同名/同码怎么处理">
+              <option value="fill-empty">仅补空（推荐）</option>
+              <option value="skip">跳过已有</option>
+              <option value="overwrite">覆盖已有</option>
+            </select>
+          </label>
+          <button id="btnPreviewImportConflict" class="ghost" disabled>冲突预览</button>
+          <button id="btnExportConflictCsv" class="ghost" disabled>导出预览 CSV</button>
+          <button id="btnExportConflictFullCsv" class="ghost" disabled>全量冲突 CSV</button>
+          <button id="btnExportConflictZip" class="ghost" disabled>全量冲突 ZIP</button>
+          <button id="btnExportConflictAsync" class="ghost" disabled>异步大文件导出</button>
+          <button id="btnCancelConflictAsync" class="ghost" disabled>取消异步导出</button>
+          <button id="btnDownloadConflictAsync" class="ghost" disabled>下载异步结果</button>
+          <button id="btnResumeImport" class="ghost" disabled>差分续跑</button>
+          <span id="importMsg" class="muted"></span>
+        </div>
+        <p id="importMergeTip" class="muted" style="margin:6px 0 0">续跑时：仅补空=已有内容不动只补空字段；跳过已有=同名同码整行不改；覆盖已有=用本表字段更新。先点「冲突预览」看将新建/跳过/覆盖/补空各多少行。</p>
+        <pre id="importConflictPreview" class="item" hidden style="white-space:pre-wrap;font-size:12px;max-height:180px;overflow:auto;margin-top:8px"></pre>
+        <div id="importProgressBox" class="item feedback-m41" style="display:none;margin-top:8px" aria-live="polite">
+          <div class="row" style="justify-content:space-between"><strong>导入进度</strong><span id="importProgressPct" class="muted">0%</span></div>
+          <div class="yb-progress-bar" style="margin:8px 0"><i id="importProgressFill" class="yb-progress-fill" style="width:0%"></i></div>
+          <p id="importProgressPhase" class="muted" style="margin:0 0 4px"></p>
+          <p id="importProgressMeta" class="muted" style="margin:0"></p>
+        </div>
+        <div id="asyncConflictProgressBox" class="item feedback-m41 m49-async-export" style="display:none;margin-top:8px" aria-live="polite">
+          <div class="row" style="justify-content:space-between"><strong>异步冲突导出</strong><span id="asyncConflictPct" class="muted">0%</span></div>
+          <div class="yb-progress-bar" style="margin:8px 0"><i id="asyncConflictFill" class="yb-progress-fill" style="width:0%"></i></div>
+          <p id="asyncConflictPhase" class="muted" style="margin:0 0 4px"></p>
+          <p id="asyncConflictMeta" class="muted" style="margin:0"></p>
+        </div>
+        <h3>最近任务与校验报告</h3>
+        <div id="importList" class="list"></div>
+        <pre id="importReport" class="item" style="display:none;white-space:pre-wrap"></pre>
+      </section>
+
+      <section id="tab-events" class="panel">
+        <h2>路演 / 对接活动</h2>
+        <p class="lead">技术转移中心常用：标题、日期、参与机构、关联匹配。先做日程桩，方便 TTO 流程。</p>
+        <div class="item formbox">
+          <label>标题</label>
+          <input id="evTitle" placeholder="春季成果路演" />
+          <label>日期</label>
+          <input id="evDate" type="datetime-local" />
+          <label>地点</label>
+          <input id="evLoc" placeholder="学校技术转移中心 / 线上" />
+          <label>说明</label>
+          <input id="evDesc" placeholder="可选" />
+          <div class="row">
+            <button id="btnCreateEvent">创建活动</button>
+            <button class="ghost" id="btnRefreshEvents">刷新</button>
+          </div>
+        </div>
+        <div id="eventList" class="list"></div>
+      </section>
+
+      <section id="tab-commissions" class="panel">
+        <h2>经纪人分成桩</h2>
+        <p class="lead">成交（closed_won）后自动生成分成桩；金额与财务状态可在此维护。非真实支付。</p>
+        <div class="row">
+          <button id="btnRefreshComm" class="ghost">刷新</button>
+        </div>
+        <div id="commList" class="list"></div>
+      </section>
+
+      
+      <section id="tab-parkdocs" class="panel">
+        <h2>园区公文交换骨架</h2>
+        <div class="hall-cue" style="margin-bottom:12px;border-color:#0ea5e9;background:#f0f9ff">
+          <div class="hall-cue-icon" aria-hidden="true" style="background:#0284c7;color:#fff">文</div>
+          <div>
+            <strong>不接政务专网</strong>
+            <p class="muted" id="opsDocsBanner">发文/收文台账：草稿 → 已发出 → 已签收。仅平台内状态，不做真公文投递。</p>
+          </div>
+        </div>
+
+        <h3>公文模板可视化编辑</h3>
+        <p class="muted">改名称 / 方向 / 文号规则 / 标题与正文提示；预览文号不消耗正式序号。保存走现有模板接口。</p>
+        <div class="formbox svc-form" style="margin-bottom:16px;max-width:860px">
+          <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:8px">
+            <select id="opsTplPick"><option value="">选择已有模板…</option></select>
+            <button type="button" class="ghost" id="btnOpsTplNew">新建空白模板</button>
+            <button type="button" class="ghost" id="btnOpsTplPreview">预览文号</button>
+            <button type="button" id="btnOpsTplSave">保存模板</button>
+          </div>
+          <input type="hidden" id="opsTplId" />
+          <label class="lbl" for="opsTplName">模板名称</label>
+          <input id="opsTplName" placeholder="例如：征集通知函" />
+          <label class="lbl" for="opsTplDir">方向</label>
+          <select id="opsTplDir"><option value="outbound">发出</option><option value="inbound">收文</option></select>
+          <label class="lbl" for="opsTplRule">文号规则</label>
+          <input id="opsTplRule" placeholder="研园〔{YYYY}〕{SEQ}号" />
+          <p class="muted" style="font-size:12px">占位符：{YYYY} 四位年 · {YY} 两位年 · {SEQ} 序号 · {SEQ3} 三位补零</p>
+          <label class="lbl" for="opsTplTitle">标题提示</label>
+          <input id="opsTplTitle" placeholder="建文时自动带出的标题" />
+          <label class="lbl" for="opsTplBody">正文提示</label>
+          <textarea id="opsTplBody" rows="4" placeholder="建文时自动带出的正文摘要"></textarea>
+          <p class="muted" id="opsTplPreview" role="status">文号预览：—</p>
+          <p class="muted" id="opsTplMsg" role="status"></p>
+          <div id="opsTplList" class="list" style="margin-top:8px"></div>
+        </div>
+
+        <h3>建文 / 台账</h3>
+        <div class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:10px">
+          <select id="opsDocTpl"><option value="">模板（文号规则）</option></select>
+          <select id="opsDocWin"><option value="">关联征集窗</option></select>
+          <select id="opsDocDir"><option value="outbound">发出</option><option value="inbound">收文</option></select>
+          <input id="opsDocTitle" placeholder="公文标题" style="min-width:240px" />
+          <input id="opsDocCp" placeholder="对方单位" style="min-width:140px" />
+          <button type="button" id="btnOpsDocCreate">新建草稿</button>
+          <button type="button" class="ghost" id="btnOpsDocRefresh">刷新</button>
+          <a class="buttonish ghost" href="/work-park.html#docs" target="_blank">园区公文台</a>
+        </div>
+        <textarea id="opsDocBody" rows="3" placeholder="正文摘要" style="width:100%;margin-bottom:10px"></textarea>
+        <p class="muted" id="opsDocTplHint"></p>
+        <div id="opsDocsKpis" class="row" style="gap:8px;flex-wrap:wrap;margin-bottom:10px"></div>
+        <div class="doc-batch-bar" id="opsDocBatchBar">
+          <strong>批量（草稿）</strong>
+          <button type="button" class="ghost" id="btnOpsDocSelectDrafts">全选草稿</button>
+          <button type="button" id="btnOpsDocBatchDocNo">批量签发文号</button>
+          <button type="button" class="ghost" id="btnOpsDocBatchSent">批量标记发出</button>
+          <span class="muted" id="opsDocBatchMsg">勾选草稿后操作；不接政务专网。</span>
+        </div>
+        <div id="opsDocsList" class="list"></div>
+      </section>
+
+<section id="tab-billing" class="panel">
+        <h2>支付试点 · 对账 / 回执</h2>
+        <div class="hall-cue" style="margin-bottom:12px;border-color:#f59e0b;background:#fffbeb">
+          <div class="hall-cue-icon" aria-hidden="true" style="background:#f59e0b;color:#fff">演</div>
+          <div>
+            <strong>演示不扣款</strong>
+            <p class="muted" id="billBanner">账单 → 模拟支付 → 回执 / 对账。不会连微信、支付宝或银行卡，也不会真扣钱。</p>
+          </div>
+        </div>
+        <p class="lead">试点骨架：订单/账单、模拟支付、可读回执、对账汇总。真收款通道仍延后。</p>
+        <div class="row" id="billPilotKpis" style="gap:8px;flex-wrap:wrap;margin-bottom:10px"></div>
+        <div class="row">
+          <button id="btnReconcile">生成对账报告</button>
+          <button id="btnRefreshInvoices" class="ghost">刷新账单与回执</button>
+          <button id="btnPilotOrder" class="ghost">生成演示订单（机构专业版）</button>
+          <button id="btnReceiptZip" class="ghost">打包已付回执 ZIP</button>
+        </div>
+        <p class="muted" id="opsReceiptZipMsg"></p>
+        <pre id="reconcileBox" class="item" style="display:none;white-space:pre-wrap"></pre>
+        <h3 style="margin-top:16px">账单</h3>
+        <div id="billList" class="list"></div>
+        <h3 style="margin-top:16px">回执 / 发票</h3>
+        <div id="invoiceList" class="list"></div>
+      </section>
+
+      <section id="tab-webhooks" class="panel">
+        <h2>对接通知（对方系统回调）</h2>
+        <p class="lead">出站事件 <code>match.approved</code> / <code>lead.sent</code> / <code>deal.moved</code>。默认干跑记账并算 HMAC；设 <code>PARTNER_WEBHOOK_URL</code> + <code>WEBHOOK_LIVE=1</code> 才真 POST。签名头：<code>X-Yanqi-Timestamp</code>、<code>X-Yanqi-Signature</code>（sha256=…）。</p>
+        <div class="row">
+          <button id="btnWhStatus">刷新状态</button>
+          <button id="btnWhSelfTest" class="ghost">自测一条（干跑）</button>
+          <button id="btnWhRetryDue" class="ghost">重试到期失败</button>
+          <button id="btnWhRefresh" class="ghost">刷新日志</button>
+        </div>
+        <pre id="whStatusBox" class="codeblock" style="white-space:pre-wrap;font-size:12px"></pre>
+        <h3>投递日志</h3>
+        <div id="whDeliveryList" class="list"></div>
+      </section>
+
+      <section id="tab-lineage" class="panel">
+        <h2>这条数据从哪来</h2>
+        <p class="lead">看一张匹配或一张卡从哪来：导入批次 / 采集任务 / 门户自助 / 谁改过。不瞎编来源，extensions 没写就老实标「未标注」。</p>
+        <div class="row">
+          <input id="lineageMatchId" placeholder="匹配 ID" style="min-width:260px" />
+          <button id="btnLineageMatch">查这条匹配的来源</button>
+        </div>
+        <div class="row">
+          <select id="lineageCardKind">
+            <option value="demand">需求卡</option>
+            <option value="capability">能力卡</option>
+            <option value="outcome">成果卡</option>
+            <option value="org">组织</option>
+          </select>
+          <input id="lineageCardId" placeholder="卡 / 组织 ID" style="min-width:220px" />
+          <button id="btnLineageCard" class="ghost">查这张卡的来源</button>
+        </div>
+        <pre id="lineageBox" class="codeblock" style="white-space:pre-wrap;font-size:12px;max-height:520px;overflow:auto"></pre>
+      </section>
+
+
+      
+      <section id="tab-reviews" class="panel">
+        <h2>专家 / 同行复核队列</h2>
+        <p class="lead">能力/成果提交 → 分派复核人 → 通过则自动挂「同行复核」金标。全程进审计。</p>
+        <div id="reviewStrip" class="funnel-strip"></div>
+        <div class="row">
+          <button type="button" id="btnRefreshReviews">刷新队列</button>
+          <select id="reviewStatusFilter"><option value="">全部状态</option><option value="submitted">待分派</option><option value="assigned">复核中</option><option value="approved">已通过</option><option value="rejected">未通过</option></select>
+        </div>
+        <div class="item formbox">
+          <label>提交复核</label>
+          <select id="reviewKind"><option value="capability">能力卡</option><option value="outcome">成果卡</option></select>
+          <input id="reviewTargetId" placeholder="能力/成果 ID" style="min-width:220px" />
+          <button type="button" id="btnSubmitReview">提交</button>
+        </div>
+        <div id="reviewList" class="list"></div>
+      </section>
+
+      <section id="tab-checklists" class="panel">
+        <h2>合同前检查清单</h2>
+        <p class="lead">按对接勾 IP/TRL/预算/NDA/样例数据等。关键项未齐时「确认意向」会警告（可强制）。</p>
+        <div class="row">
+          <input id="clMatchId" placeholder="匹配 / 对接 ID" style="min-width:240px" />
+          <button type="button" id="btnLoadChecklist">加载清单</button>
+          <button type="button" id="btnEnsureChecklist" class="ghost">确保已生成</button>
+        </div>
+        <p id="clSummary" class="muted"></p>
+        <div id="clList" class="list"></div>
+      </section>
+
+      <section id="tab-taxonomy" class="panel">
+        <h2>行业 taxonomy</h2>
+        <p class="lead">中国技转常用类目（扁平+父级）。给卡打标后，搜索可滤、匹配有软加成。</p>
+        <div class="row">
+          <button type="button" id="btnRefreshTaxonomy">刷新树</button>
+          <input id="taxFilter" placeholder="搜标签" />
+          <input id="taxCardKind" placeholder="capability|outcome|demand" value="capability" style="width:140px" />
+          <input id="taxCardId" placeholder="卡 ID" style="min-width:200px" />
+          <input id="taxCodes" placeholder="代码，逗号分隔 如 mfg.vision,energy.thermal" style="min-width:260px" />
+          <button type="button" id="btnTagCard">打标签</button>
+        </div>
+        <div id="taxTree" class="list"></div>
+        <h3>按标签搜卡</h3>
+        <div class="row">
+          <input id="taxSearchCode" placeholder="标签 code" />
+          <button type="button" id="btnTaxSearch">搜索</button>
+        </div>
+        <pre id="taxSearchOut" class="codeblock" style="white-space:pre-wrap;font-size:12px;max-height:320px;overflow:auto"></pre>
+      </section>
+
+
+      <section id="tab-playbooks" class="panel">
+        <h2>跟进话术</h2>
+        <p class="lead">按场景套话术：冷启动高校、企业采购窗口、合同前尽调。一点写入线索草稿，发出前再改称呼。下面漏斗是库里的真实计数。</p>
+        <div id="funnelStrip" class="funnel-strip" aria-live="polite"></div>
+        <p id="funnelSummary" class="muted"></p>
+        <div class="row">
+          <button type="button" id="btnRefreshPlaybooks">刷新剧本</button>
+          <button type="button" id="btnRefreshFunnel" class="ghost">刷新漏斗</button>
+          <input id="funnelLeadMark" placeholder="线索ID · 标记意向/婉拒" style="min-width:200px" />
+          <button type="button" class="ghost" id="btnMarkIntent">记意向</button>
+          <button type="button" class="ghost" id="btnMarkDeclined">记婉拒</button>
+          <select id="pbScenario" aria-label="场景过滤">
+            <option value="">全部场景</option>
+            <option value="cold_uni">冷启动高校</option>
+            <option value="enterprise_buy">企业采购</option>
+            <option value="diligence_pre_contract">合同前尽调</option>
+          </select>
+        </div>
+        <div id="playbookList" class="list"></div>
+        <h3>新建 / 编辑</h3>
+        <div class="item formbox">
+          <label>代码</label><input id="pbCode" placeholder="cold_uni_custom" />
+          <label>标题</label><input id="pbTitle" placeholder="剧本标题" />
+          <label>场景</label>
+          <select id="pbScenEdit"><option value="cold_uni">cold_uni</option><option value="enterprise_buy">enterprise_buy</option><option value="diligence_pre_contract">diligence_pre_contract</option><option value="general">general</option></select>
+          <label>正文（可用 {demandTitle} {demandOrg} {supplyTitle} {supplyOrg} {personName} {reason} {trl}）</label>
+          <textarea id="pbBody" rows="8"></textarea>
+          <div class="row"><button type="button" id="btnSavePlaybook">保存剧本</button></div>
+        </div>
+        <h3>套到线索</h3>
+        <div class="row">
+          <input id="pbLeadId" placeholder="线索 ID" style="min-width:220px" aria-label="线索 ID" />
+          <input id="pbApplyId" placeholder="剧本 ID" style="min-width:220px" aria-label="剧本 ID" />
+          <button type="button" id="btnApplyPlaybook">写入草稿</button>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <div id="toastHost" aria-live="polite"></div>
+  <dialog id="dlg">
+    <form method="dialog">
+      <pre id="dlgBody"></pre>
+      <button>关闭</button>
+    </form>
+  </dialog>
+
+  <script src="/app.js"></script>
+  <script src="/publish-desk.js"></script>
+  <script src="/ops-gate.js"></script>
+</body>
+</html>

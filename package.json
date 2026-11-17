@@ -1,0 +1,76 @@
+{
+  "name": "yanqi-match",
+  "private": true,
+  "version": "0.1.0",
+  "description": "研企通 — 科研能力/成果与企业需求通用对接平台",
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "workers/*"
+  ],
+  "scripts": {
+    "deps:up": "node scripts/start-deps.mjs",
+    "bootstrap": "node scripts/bootstrap.mjs",
+    "db:push": "prisma db push --schema=apps/api/prisma/schema.prisma",
+    "db:seed": "tsx apps/api/prisma/seed.ts",
+    "dev:api": "npm run start:dev -w @yanqi/api",
+    "dev:api:prod": "npm run build -w @yanqi/api && npm run start -w @yanqi/api",
+    "crawl:openalex": "tsx workers/crawl/src/openalex.ts",
+    "crawl:csv": "tsx workers/crawl/src/import-csv.ts",
+    "match:run": "tsx workers/match/src/run-match.ts",
+    "notify:drafts": "tsx workers/notify/src/draft.ts",
+    "demo": "node scripts/demo.mjs",
+    "build:api": "npm run build -w @yanqi/api",
+    "start:api": "node apps/api/dist/main.js",
+    "crawl:batch": "node scripts/batch-import.mjs",
+    "crawl:batch:match": "node scripts/batch-import.mjs --match",
+    "export:pack": "tsx scripts/export-pack.mjs",
+    "smoke": "node scripts/smoke.mjs",
+    "backup:pg": "node scripts/backup-pg.mjs",
+    "notify:approve-demo": "tsx workers/notify/src/approve-demo.ts",
+    "test:security": "node scripts/test-security.mjs",
+    "vector:migrate": "curl -s -X POST -H \"X-API-Key: $ADMIN_API_KEY\" http://127.0.0.1:${API_PORT:-3100}/api/vector/migrate",
+    "deps:docker": "docker compose -f docker/docker-compose.yml up -d",
+    "backup:drill": "node scripts/backup-drill.mjs",
+    "restore:drill": "node scripts/restore-drill.mjs",
+    "test:match-eval": "node scripts/match-eval.mjs",
+    "test:dossier": "node scripts/dossier-eval.mjs",
+    "backup:sql-scratch": "node scripts/backup-sql-scratch.mjs",
+    "gate": "node scripts/gate.mjs",
+    "ci:gate": "node scripts/gate.mjs",
+    "smtp:doctor": "bash scripts/prod-smtp-check.sh",
+    "crawl:demands": "tsx workers/crawl/src/import-demand-fixtures.ts",
+    "clean:scan": "curl -s -X POST -H \"X-API-Key: ${ADMIN_API_KEY:-yanqi-admin-demo-key}\" http://127.0.0.1:${API_PORT:-3100}/api/flywheel/clean",
+    "flywheel:mini": "curl -s -X POST -H \"X-API-Key: ${ADMIN_API_KEY:-yanqi-admin-demo-key}\" http://127.0.0.1:${API_PORT:-3100}/api/flywheel/pipeline/mini",
+    "analyze:ingest": "curl -s -X POST -H \"X-API-Key: ${ADMIN_API_KEY:-yanqi-admin-demo-key}\" http://127.0.0.1:${API_PORT:-3100}/api/flywheel/analyze",
+    "db:m62-supply-unique": "node scripts/m62-match-supply-unique.mjs",
+    "db:m63-lead-unique": "node scripts/m63-lead-match-channel-unique.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "embedded-postgres": "18.6.0-beta.19",
+    "prisma": "^6.5.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.5.0",
+    "archiver": "^8.0.0",
+    "jieba-wasm": "^2.4.0"
+  },
+  "allowScripts": {
+    "@prisma/client@6.19.3": true,
+    "prisma@6.19.3": true,
+    "@prisma/engines@6.19.3": true,
+    "@embedded-postgres/linux-x64@18.6.0-beta.19": true,
+    "esbuild@0.28.2": true,
+    "msgpackr-extract@3.0.4": true
+  },
+  "overrides": {
+    "multer": "2.5.0",
+    "deepmerge-ts": "8.0.2",
+    "minimatch": "11.0.3"
+  }
+}

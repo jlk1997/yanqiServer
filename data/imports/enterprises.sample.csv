@@ -1,0 +1,4 @@
+orgName,orgType,region,creditCode,website,title,problem,expectedOut,budgetBand,industry,taxonomyCodes,licenseNeed,minTrl,urgency,demoLabel
+演示·授权导入样例企业,ENTERPRISE,上海,91310000MA1KDEMO99,https://example.com,MES 与产线数据贯通,老旧产线数据孤岛，希望打通 MES 与质量追溯,可落地的中台方案与试点,30-70万,"工业软件,智能制造",ict.soft;mfg.mes,negotiable,6,中,授权模板样例
+演示·授权导入·某园区企业,ENTERPRISE,江苏,,https://example.com,能耗与碳核算轻量化,车间电表数据散乱，需要碳核算与节能建议,可落地的核算表与试点,10-30万,"双碳,工业互联网",env.carbon,negotiable,4,中,授权模板样例
+演示·授权导入·某城投子公司,ENTERPRISE,浙江,,,智慧水务漏损监测,管网漏损定位慢，寻求传感与算法,试点方案,20-50万,"环保,传感",env.water,negotiable,5,中,授权模板样例

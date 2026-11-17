@@ -1,0 +1,19 @@
+{
+  "name": "研企通门户",
+  "short_name": "研企通",
+  "description": "产教对接门户：看案例、管对接、邀请同事。不缓存私密业务接口。",
+  "start_url": "/portal.html",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0b0d12",
+  "theme_color": "#3d8bfd",
+  "lang": "zh-CN",
+  "icons": [
+    {
+      "src": "/pwa-icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

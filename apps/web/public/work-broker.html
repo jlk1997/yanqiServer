@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1e3a8a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>研企通 · 经纪人办事窗</title>
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="shell-light">
+  <a class="skip-link" href="#main">跳到主内容</a>
+  <header class="top light-top">
+    <div class="brand">
+      <span class="logo">研企通</span>
+      <span class="sub" id="whoSub">经纪人 / 技术经理人办事窗</span>
+    </div>
+    <div class="auth">
+      <div id="topMeta"></div>
+      <a class="buttonish ghost" href="/portal.html#matches">公开案例</a>
+      <button type="button" class="ghost" id="btnLogout">退出</button>
+    </div>
+  </header>
+  <div class="wb-shell">
+    <aside class="wb-side" aria-label="经纪人导航">
+      <div class="sec">办事</div>
+      <a class="on" href="#home">办事首页</a>
+      <a href="#guide">四步指引</a>
+      <a href="#queue">① 待跟进</a>
+      <a href="#queue">② 一页纸</a>
+      <a href="#queue">③ 推进成交</a>
+      <a href="#ledger">④ 对账</a>
+      <a href="#playbooks">剧本包</a>
+      <a href="#sla">SLA 说明</a>
+      <div class="sec">更多</div>
+      <a href="/ops.html#playbooks">运营话术库</a>
+      <a href="/">身份入口</a>
+    </aside>
+    <main class="wb-main" id="main">
+      <section id="home">
+        <div class="wb-hero-line">
+          <div>
+            <h1>经纪人办事窗</h1>
+            <p class="lead">先保时效，再推进状态。不确定为什么对得上时，先看一页纸；成交后对账（演示，不打款）。</p>
+          </div>
+        </div>
+        <div class="hall-cue">
+          <div class="hall-cue-icon" aria-hidden="true">跟</div>
+          <div>
+            <strong>像政务大厅的「技术撮合」窗口</strong>
+            <p class="muted">取号办事：①待跟进（超时优先）→ ②看一页纸 → ③推进成交 → ④佣金对账。SLA 与账本都在，不堆黑屏。</p>
+          </div>
+        </div>
+        <div class="trust-bar" id="trustBar" aria-label="信任提示"></div>
+        <div class="kpi-row" id="kpis"></div>
+        <h2>今天先干这三件</h2>
+        <div class="task-row" id="tasks"></div>
+        <div id="emptyBox" hidden></div>
+      </section>
+
+      <section id="guide" class="wb-block">
+        <div class="section-head">
+          <h2>四步办事指引</h2>
+          <span class="muted">大白话 · 与企业/科研窗对齐</span>
+        </div>
+        <div class="svc-steps" id="svcSteps">
+          <a class="svc-step" href="#queue">
+            <span class="svc-num">1</span>
+            <div>
+              <strong>看待跟进队列</strong>
+              <p class="muted">超时标红的先处理。每条只有一个主按钮，别迷路。</p>
+            </div>
+          </a>
+          <a class="svc-step" href="#queue">
+            <span class="svc-num">2</span>
+            <div>
+              <strong>先看一页纸</strong>
+              <p class="muted">打电话前先弄清「为什么对得上」。不确定就别瞎推。</p>
+            </div>
+          </a>
+          <a class="svc-step" href="#queue">
+            <span class="svc-num">3</span>
+            <div>
+              <strong>推进成交</strong>
+              <p class="muted">按建议下一步推进；不合适就标流失。状态机帮你收口。</p>
+            </div>
+          </a>
+          <a class="svc-step" href="#ledger">
+            <span class="svc-num">4</span>
+            <div>
+              <strong>佣金对账</strong>
+              <p class="muted">成交后自动入演示账本。只对账、不打款，财务线下结算。</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section id="pipeline" class="wb-block">
+        <div class="section-head">
+          <h2>跟进管道</h2>
+          <span class="muted">超时 → 进行中 → 成交</span>
+        </div>
+        <div id="pipe"></div>
+      </section>
+
+      <section id="queue" class="wb-block">
+        <div class="section-head">
+          <h2>①②③ 待跟进 · 一页纸 · 推进</h2>
+          <span class="muted">按 SLA 紧急度排序</span>
+        </div>
+        <div class="hall-cue" style="margin-bottom:12px;border-color:#f59e0b;background:#fffbeb">
+          <div class="hall-cue-icon" aria-hidden="true" style="background:#f59e0b;color:#fff">SLA</div>
+          <div>
+            <strong>紧急队列</strong>
+            <p class="muted" id="queueBanner">超时优先；先点「看一页纸」，再按主按钮推进。</p>
+          </div>
+        </div>
+        <div class="list" id="recent"></div>
+      </section>
+
+      <section id="ledger" class="wb-block">
+        <div class="section-head">
+          <h2>④ 佣金对账</h2>
+          <span class="muted">可读演示账本 · 永不扣款</span>
+        </div>
+        <div class="hall-cue" style="margin-bottom:12px;border-color:#0ea5e9;background:#f0f9ff">
+          <div class="hall-cue-icon" aria-hidden="true" style="background:#0284c7;color:#fff">账</div>
+          <div>
+            <strong>演示不打款</strong>
+            <p class="muted" id="ledgerNote">加载中…</p>
+          </div>
+        </div>
+        <div class="kpi-row" id="ledgerKpis"></div>
+        <div class="row" style="gap:8px;flex-wrap:wrap;margin:8px 0 12px;align-items:center">
+          <label class="muted" for="ledgerStatus">状态</label>
+          <select id="ledgerStatus">
+            <option value="">全部状态</option>
+            <option value="stub">待填金额</option>
+            <option value="pending">待财务复核</option>
+            <option value="approved">已核准</option>
+            <option value="paid">已记账（演示）</option>
+          </select>
+          <label class="muted" for="ledgerFrom">从</label>
+          <input type="date" id="ledgerFrom" />
+          <label class="muted" for="ledgerTo">到</label>
+          <input type="date" id="ledgerTo" />
+          <button type="button" class="ghost" id="btnLedgerFilter">按筛选刷新</button>
+          <button type="button" class="ghost" id="btnLedgerCsv">导出 CSV</button>
+          <button type="button" class="ghost" id="btnLedgerXlsx">导出 Excel</button>
+          <button type="button" class="ghost" id="btnLedgerPdf">导出 PDF</button>
+          <span class="muted" id="ledgerExportMsg">可按状态/日期筛选后导出 · 演示不打款</span>
+        </div>
+        <div class="list" id="ledgerList"></div>
+      </section>
+
+
+      <section id="playbooks" class="wb-block">
+        <div class="section-head">
+          <h2>跟进剧本包</h2>
+          <span class="muted">手机友好 · 大白话</span>
+        </div>
+        <div class="hall-cue" style="margin-bottom:12px;border-color:#6366f1;background:#eef2ff">
+          <div class="hall-cue-icon" aria-hidden="true" style="background:#4f46e5;color:#fff">话</div>
+          <div>
+            <strong>打电话前先点一张卡</strong>
+            <p class="muted" id="pbBanner">点芯片记下下一步；一键复制整段话术。可「添加到主屏幕」当轻 PWA 用。</p>
+          </div>
+        </div>
+        <p class="muted" id="pbPwaHint"></p>
+        <div class="row" style="gap:8px;flex-wrap:wrap;margin:0 0 12px;align-items:center">
+          <span class="status-chip" id="pbOfflineStatus">离线包状态加载中…</span>
+          <button type="button" class="ghost" id="btnPbSync" aria-label="同步剧本离线包">同步离线包</button>
+          <button type="button" class="ghost" id="btnPbClearCache">清除本机缓存</button>
+        </div>
+        <div id="pbConflict" class="hall-cue" hidden style="margin-bottom:12px;border-color:#ef4444;background:#fef2f2">
+          <div class="hall-cue-icon" aria-hidden="true" style="background:#dc2626;color:#fff">!</div>
+          <div style="flex:1">
+            <strong>本机与服务器剧本包冲突</strong>
+            <p class="muted" id="pbConflictMsg">本机离线包和服务器不一致。</p>
+            <div class="row" style="gap:8px;flex-wrap:wrap;margin-top:8px">
+              <button type="button" id="btnPbKeepLocal">保留本机</button>
+              <button type="button" class="ghost" id="btnPbTakeServer">用服务器覆盖</button>
+            </div>
+          </div>
+        </div>
+        <div class="playbook-deck-wrap" id="pbDeck">
+          <div class="playbook-grid" id="pbGrid"></div>
+        </div>
+      </section>
+      <section id="sla" class="wb-block">
+        <div class="section-head">
+          <h2>SLA 说明</h2>
+          <span class="muted">跟进时效约定</span>
+        </div>
+        <p id="slaNote" class="lead"></p>
+        <pre id="slaBox" class="codeblock light-code" hidden></pre>
+        <button type="button" class="ghost" id="btnSlaRaw">展开原始数据</button>
+      </section>
+    </main>
+  </div>
+  <nav class="mobile-wb-nav" aria-label="底部导航">
+    <a href="#home">首页</a>
+    <a href="#queue">队列</a>
+    <a href="#playbooks">剧本</a>
+    <a href="#ledger">对账</a>
+    <a href="#sla">SLA</a>
+  </nav>
+  <script src="/workbench-shared.js"></script>
+  <script>
+    btnLogout.onclick = () => YB.logout();
+    YB.bindSideNav();
+    btnSlaRaw.onclick = () => {
+      slaBox.hidden = !slaBox.hidden;
+      btnSlaRaw.textContent = slaBox.hidden ? '展开原始数据' : '收起';
+    };
+
+    function renderLedger(ledger) {
+      if (!ledger || !ledger.ok) {
+        ledgerNote.textContent = '对账暂不可用。把跟进单标成「已成交」后会自动入账（演示，不打款）。';
+        ledgerList.innerHTML =
+          `<div class="empty-state calm"><div class="empty-ico" aria-hidden="true">账</div><strong>暂无佣金记录</strong><p class="muted">成交后账本会自动幂等入账。</p></div>`;
+        return;
+      }
+      ledgerNote.textContent = ledger.noteZh || '成交自动入账；只对账、不打款。';
+      const s = ledger.summary || {};
+      ledgerKpis.innerHTML = [
+        { label: '条目', value: s.totalCount || 0 },
+        { label: '合计(元)', value: s.totalYuan ?? 0 },
+        { label: '已核准(元)', value: s.approvedYuan ?? 0 },
+        { label: '待核(元)', value: s.pendingYuan ?? 0 },
+      ]
+        .map((k) => `<div class="kpi"><div class="kpi-val">${YB.esc(k.value)}</div><div class="kpi-label">${YB.esc(k.label)}</div></div>`)
+        .join('');
+      ledgerList.innerHTML =
+        (ledger.items || [])
+          .map(
+            (it) => `<div class="inbox-card">
+              <h4>${YB.esc(it.matchTitleZh || '对接')} <span class="status-chip">${YB.esc(it.statusZh || it.status)}</span>
+                ${it.originZh ? `<span class="status-chip ok">${YB.esc(it.originZh)}</span>` : ''}</h4>
+              <div class="meta">成交额 ${it.dealYuan} 元 · 比例 ${it.ratePct}% · 应付 <b>${it.amountYuan}</b> 元</div>
+              <p class="muted">${YB.esc(it.note || '')}${it.reconciledAt ? ' · 对账 ' + YB.esc(String(it.reconciledAt).slice(0, 16).replace('T', ' ')) : ''}</p>
+              <div class="inbox-actions">
+                <button type="button" class="ghost btn-sheet" data-sheet="${YB.esc(it.matchId)}">看一页纸</button>
+              </div>
+            </div>`,
+          )
+          .join('') ||
+        `<div class="empty-state calm"><div class="empty-ico" aria-hidden="true">账</div><strong>还没有分成记录</strong><p class="muted">有成交单后自动入账；也可由运营灌演示账供你先熟悉对账。</p></div>`;
+      ledgerList.querySelectorAll('.btn-sheet').forEach((btn) => {
+        btn.onclick = () => YB.openMatchSheet(btn.dataset.sheet, { roleHint: 'broker' });
+      });
+    }
+
+    (async () => {
+      const me = await YB.requireShell(['broker']);
+      if (!me) return;
+      YB.user = me.user || {};
+      YB.user.tenantId = me.user?.tenantId || me.tenantId || 'default';
+      whoSub.textContent = `经纪人 · ${me.user.name}`;
+      const home = await YB.loadHome();
+      YB.mountTopMeta(topMeta, me, home);
+      YB.renderTrust(trustBar, home.trust);
+      YB.renderKpis(kpis, home.kpis);
+      YB.renderTasks(tasks, home.tasks);
+      YB.renderPipeline(pipe, home.pipeline);
+      YB.renderEmpty(emptyBox, home.empty);
+      slaNote.textContent = home.sla?.noteZh || '暂无 SLA 说明';
+      slaBox.textContent = JSON.stringify(home.sla?.raw || home.sla || {}, null, 2);
+      if (home.sla?.noteZh) queueBanner.textContent = home.sla.noteZh + ' · 先点「看一页纸」，再按主按钮推进。';
+
+      recent.innerHTML =
+        (home.recent || [])
+          .map((m) => {
+            const next = m.nextStep || {};
+            const closed = ['closed_won', 'closed_lost'].includes(m.status);
+            return `<div class="inbox-card${m.urgent ? ' urgent' : ''}" data-id="${m.id}">
+              <h4>${YB.esc(m.title)} <span class="score">${YB.pct(m.score)}</span>
+                ${m.urgent ? '<span class="status-chip danger">超时</span>' : ''}
+                <span class="status-chip">${YB.esc(m.statusZh || '')}</span>
+              </h4>
+              <div class="meta">${YB.esc(next.why || '')}</div>
+              <p class="muted">${YB.esc(m.note || '')}</p>
+              <div class="inbox-actions">
+                <button type="button" class="ghost btn-sheet" data-sheet="${m.id}" aria-label="查看匹配一页纸">② 看一页纸</button>
+                ${
+                  closed
+                    ? ''
+                    : `<button type="button" class="btn-next" data-st="${YB.esc(next.status)}">③ ${YB.esc(next.label || '推进')}</button>
+                      <button type="button" class="ghost btn-next" data-st="closed_lost">标记流失</button>`
+                }
+              </div>
+            </div>`;
+          })
+          .join('') ||
+        `<div class="empty-state calm primary-empty"><div class="empty-ico" aria-hidden="true">单</div><strong>还没有分派单</strong><p class="muted">让运营把匹配分给你；有单后可先看一页纸再打电话。</p><a class="buttonish empty-cta-primary" href="/ops.html#brokers" aria-label="去运营台请分派跟进单">去请运营分派</a><span class="empty-hint">下一步只做这一件就够了</span></div>`;
+
+      recent.querySelectorAll('.btn-sheet').forEach((btn) => {
+        btn.onclick = () => YB.openMatchSheet(btn.dataset.sheet, { roleHint: 'broker' });
+      });
+      recent.querySelectorAll('.btn-next').forEach((btn) => {
+        btn.onclick = async () => {
+          const card = btn.closest('[data-id]');
+          const id = card?.dataset.id;
+          if (!id) return;
+          try {
+            await YB.api('/brokers/follow-up/' + id, {
+              method: 'POST',
+              body: JSON.stringify({ status: btn.dataset.st, note: '工作台建议下一步' }),
+            });
+            location.reload();
+          } catch (e) {
+            alert(e.message || '推进失败');
+          }
+        };
+      });
+
+      let ledger = home.ledger;
+      if (!ledger) {
+        try {
+          ledger = await YB.api('/commissions/ledger');
+        } catch (_) {
+          ledger = null;
+        }
+      }
+      renderLedger(ledger);
+      await loadPlaybookPack();
+    })();
+
+    const PB_IDB = { db: 'yanqi-broker', store: 'playbook-pack', keyPrefix: 'mobile-pack-v2:' };
+    let pbPendingServer = null;
+    function pbKey(tenantId) { return PB_IDB.keyPrefix + (tenantId || 'default'); }
+
+    function setPbStatus(text, kind) {
+      if (!pbOfflineStatus) return;
+      pbOfflineStatus.textContent = text || '';
+      pbOfflineStatus.className = 'status-chip' + (kind === 'ok' ? ' ok' : kind === 'danger' ? ' danger' : '');
+    }
+
+    function openPbDb() {
+      return new Promise((resolve, reject) => {
+        if (!('indexedDB' in window)) return reject(new Error('本浏览器不支持 IndexedDB'));
+        const req = indexedDB.open(PB_IDB.db, 1);
+        req.onupgradeneeded = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains(PB_IDB.store)) db.createObjectStore(PB_IDB.store);
+        };
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error || new Error('IndexedDB 打开失败'));
+      });
+    }
+
+    async function idbGetPack(tenantId) {
+      const db = await openPbDb();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(PB_IDB.store, 'readonly');
+        const req = tx.objectStore(PB_IDB.store).get(pbKey(tenantId));
+        req.onsuccess = () => resolve(req.result || null);
+        req.onerror = () => reject(req.error || new Error('读缓存失败'));
+      });
+    }
+
+    async function idbPutPack(pack) {
+      const db = await openPbDb();
+      const tid = pack.tenantId || 'default';
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(PB_IDB.store, 'readwrite');
+        tx.objectStore(PB_IDB.store).put({ ...pack, cachedAt: new Date().toISOString() }, pbKey(tid));
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error || new Error('写缓存失败'));
+      });
+    }
+
+    async function idbClearPack(tenantId) {
+      const db = await openPbDb();
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(PB_IDB.store, 'readwrite');
+        tx.objectStore(PB_IDB.store).delete(pbKey(tenantId || 'default'));
+        tx.oncomplete = () => resolve(true);
+        tx.onerror = () => reject(tx.error || new Error('清缓存失败'));
+      });
+    }
+
+    function showPbConflict(msg, serverPack) {
+      pbPendingServer = serverPack;
+      if (pbConflict) pbConflict.hidden = false;
+      if (pbConflictMsg) pbConflictMsg.textContent = msg || '本机离线包与服务器不一致。';
+      setPbStatus('本机与服务器冲突 · 请选择保留哪边', 'danger');
+    }
+    function hidePbConflict() {
+      pbPendingServer = null;
+      if (pbConflict) pbConflict.hidden = true;
+    }
+
+    function renderPlaybookPack(pack) {
+      if (pbBanner && pack.bannerZh) pbBanner.textContent = pack.bannerZh;
+      if (pbPwaHint) pbPwaHint.textContent = pack.pwaHintZh || pack.offlineNoteZh || '';
+      pbGrid.innerHTML =
+        (pack.cards || [])
+          .map((c) => {
+            const chips = (c.chips || [])
+              .map((ch) => `<button type="button" class="chip pb-chip" data-chip="${YB.esc(ch)}">${YB.esc(ch)}</button>`)
+              .join('');
+            return `<article class="playbook-card" data-id="${YB.esc(c.id)}" tabindex="0" aria-label="剧本：${YB.esc(c.titleZh)}">
+              <div><span class="status-chip ok">${YB.esc(c.scenarioZh || '')}</span></div>
+              <h4>${YB.esc(c.titleZh)}</h4>
+              <p class="muted" style="margin:0;font-size:12.5px">${YB.esc(c.tipZh || '')}</p>
+              <div class="pb-preview">${YB.esc(c.previewZh || '')}</div>
+              <div class="chip-row">${chips}</div>
+              <div class="inbox-actions">
+                <button type="button" class="btn-copy-pb">复制话术</button>
+                <button type="button" class="ghost btn-expand-pb">看全文</button>
+              </div>
+              <pre class="codeblock light-code pb-full" hidden style="font-size:12px;max-height:220px;overflow:auto"></pre>
+            </article>`;
+          })
+          .join('') ||
+        `<div class="empty-state calm"><strong>还没有剧本</strong><p class="muted">让运营在「跟进话术」里加几条。</p></div>`;
+      pbGrid.querySelectorAll('.playbook-card').forEach((card, idx) => {
+        const c = (pack.cards || [])[idx];
+        if (!c) return;
+        const full = card.querySelector('.pb-full');
+        if (full) full.textContent = c.bodyText || '';
+        card.querySelectorAll('.pb-chip').forEach((btn) => {
+          btn.onclick = () => {
+            btn.classList.toggle('on');
+            const picked = [...card.querySelectorAll('.pb-chip.on')].map((x) => x.dataset.chip);
+            const tip = picked.length ? '已点：' + picked.join(' · ') : (c.tipZh || '');
+            card.querySelector('p.muted').textContent = tip;
+          };
+        });
+        card.querySelector('.btn-copy-pb').onclick = async () => {
+          try {
+            await navigator.clipboard.writeText(c.bodyText || '');
+            alert('话术已复制，可直接贴到微信/邮件');
+          } catch (_) {
+            prompt('复制以下话术', c.bodyText || '');
+          }
+        };
+        card.querySelector('.btn-expand-pb').onclick = () => {
+          if (!full) return;
+          full.hidden = !full.hidden;
+          card.querySelector('.btn-expand-pb').textContent = full.hidden ? '看全文' : '收起';
+        };
+        card.querySelector('.btn-copy-pb')?.setAttribute('aria-label', '复制剧本话术');
+        card.querySelector('.btn-expand-pb')?.setAttribute('aria-label', '展开或收起剧本全文');
+      });
+      if (typeof YB.bindPlaybookDeck === 'function') {
+        YB.bindPlaybookDeck(pbGrid, { hintZh: '左右滑切换剧本 · 点芯片记下下一步 · 一键复制话术' });
+      }
+    }
+
+    async function loadPlaybookPack(opts) {
+      const forceSync = !!(opts && opts.forceSync);
+      const takeServer = !!(opts && opts.takeServer);
+      const online = typeof navigator.onLine === 'boolean' ? navigator.onLine : true;
+      const tenantGuess = (YB.user && (YB.user.tenantId || YB.user.tenant)) || 'default';
+      try {
+        if (!online && !forceSync) {
+          const cached = await idbGetPack(tenantGuess).catch(() => null);
+          if (cached && (cached.cards || cached.fullCards)) {
+            renderPlaybookPack({ ...cached, cards: cached.fullCards || cached.cards });
+            setPbStatus('当前离线 · 正在读本机缓存（' + (cached.cachedAt || '').slice(0, 16).replace('T', ' ') + '）', 'danger');
+            return;
+          }
+          setPbStatus('尚未缓存，请联网后点同步', 'danger');
+          pbGrid.innerHTML = `<div class="empty-state calm"><strong>离线且无缓存</strong><p class="muted">联网后点「同步离线包」。</p></div>`;
+          return;
+        }
+        setPbStatus('正在按租户同步离线包…');
+        const cached = await idbGetPack(tenantGuess).catch(() => null);
+        const q = new URLSearchParams();
+        if (cached && cached.etag) q.set('clientEtag', cached.etag);
+        if (cached && cached.version) q.set('sinceVersion', String(cached.version));
+        if (cached && cached.localDirty) q.set('clientDirty', '1');
+        const sync = await YB.api('/playbooks/mobile-pack/sync', {
+          method: 'POST',
+          body: JSON.stringify({
+            tenantId: tenantGuess,
+            clientEtag: cached?.etag || null,
+            clientVersion: cached?.version || null,
+            clientDirty: !!(cached && cached.localDirty),
+            sinceVersion: cached?.version || null,
+          }),
+        });
+        const serverPack = sync;
+        const cards = serverPack.fullCards || serverPack.cards || [];
+        const viewPack = { ...serverPack, cards };
+
+        if (sync.status === 'conflict' && cached && !takeServer) {
+          renderPlaybookPack({ ...cached, cards: cached.fullCards || cached.cards || [] });
+          showPbConflict(sync.sync?.conflictZh || sync.statusZh, viewPack);
+          return;
+        }
+        hidePbConflict();
+        if (sync.status === 'not_modified' && cached && (cached.fullCards || cached.cards)) {
+          renderPlaybookPack({ ...cached, cards: cached.fullCards || cached.cards });
+          setPbStatus('服务器无变更 · 继续用本机包', 'ok');
+          return;
+        }
+        renderPlaybookPack(viewPack);
+        try {
+          await idbPutPack({ ...viewPack, localDirty: false, fullCards: cards, cards });
+          setPbStatus(sync.status === 'not_modified' ? '服务器无变更 · 继续用本机包' : '已是最新 · 离线包已同步', 'ok');
+        } catch (ce) {
+          setPbStatus('在线可用 · 离线包写入失败：' + (ce.message || ''), 'danger');
+        }
+      } catch (e) {
+        try {
+          const cached = await idbGetPack(tenantGuess);
+          if (cached && (cached.cards || cached.fullCards)) {
+            renderPlaybookPack({ ...cached, cards: cached.fullCards || cached.cards });
+            setPbStatus('接口失败 · 已回退本机缓存', 'danger');
+            return;
+          }
+        } catch (_) {}
+        setPbStatus('离线包读写失败，仍可在线重试', 'danger');
+        pbGrid.innerHTML = `<div class="muted">${YB.esc(e.message || '剧本包加载失败')}</div>`;
+      }
+    }
+
+    btnPbSync && (btnPbSync.onclick = () => loadPlaybookPack({ forceSync: true }));
+    btnPbKeepLocal && (btnPbKeepLocal.onclick = () => {
+      hidePbConflict();
+      setPbStatus('已保留本机包（暂不覆盖）', 'ok');
+    });
+    btnPbTakeServer && (btnPbTakeServer.onclick = async () => {
+      if (!pbPendingServer) return loadPlaybookPack({ forceSync: true, takeServer: true });
+      const viewPack = pbPendingServer;
+      const cards = viewPack.fullCards || viewPack.cards || [];
+      hidePbConflict();
+      renderPlaybookPack({ ...viewPack, cards });
+      try {
+        await idbPutPack({ ...viewPack, localDirty: false, fullCards: cards, cards });
+        setPbStatus('已用服务器覆盖本机包', 'ok');
+      } catch (e) {
+        setPbStatus(e.message || '覆盖失败', 'danger');
+      }
+    });
+    btnPbClearCache &&
+      (btnPbClearCache.onclick = async () => {
+        try {
+          const tenantGuess = (YB.user && (YB.user.tenantId || YB.user.tenant)) || 'default';
+          await idbClearPack(tenantGuess);
+          hidePbConflict();
+          setPbStatus('本机离线包已清除', 'ok');
+        } catch (e) {
+          setPbStatus(e.message || '清除失败', 'danger');
+        }
+      });
+    window.addEventListener('online', () => {
+      setPbStatus('网络已恢复 · 正在同步…');
+      loadPlaybookPack({ forceSync: true });
+    });
+    window.addEventListener('offline', () => setPbStatus('已离线 · 将读本机缓存', 'danger'));
+
+    function ledgerFilterQs() {
+      const q = new URLSearchParams();
+      const st = ledgerStatus && ledgerStatus.value;
+      const fr = ledgerFrom && ledgerFrom.value;
+      const to = ledgerTo && ledgerTo.value;
+      if (st) q.set('status', st);
+      if (fr) q.set('from', fr);
+      if (to) q.set('to', to);
+      const s = q.toString();
+      return s ? '?' + s : '';
+    }
+    async function refreshLedgerFiltered() {
+      try {
+        const ledger = await YB.api('/commissions/ledger' + ledgerFilterQs());
+        renderLedger(ledger);
+        if (ledgerExportMsg) ledgerExportMsg.textContent = '已按筛选刷新 · 演示不打款';
+      } catch (e) {
+        if (ledgerExportMsg) ledgerExportMsg.textContent = e.message || '刷新失败';
+      }
+    }
+    async function exportLedger(kind) {
+      const map = {
+        csv: ['/commissions/ledger/export.csv', 'broker-ledger.csv'],
+        xlsx: ['/commissions/ledger/export.xlsx', 'broker-ledger.xls'],
+        pdf: ['/commissions/ledger/export.pdf', 'broker-ledger.pdf'],
+      };
+      const pair = map[kind];
+      if (!pair) return;
+      try {
+        if (ledgerExportMsg) ledgerExportMsg.textContent = '正在按筛选导出…';
+        await YB.downloadAuth(pair[0] + ledgerFilterQs(), pair[1]);
+        if (ledgerExportMsg) ledgerExportMsg.textContent = '已导出（含筛选 · 演示不打款）';
+      } catch (e) {
+        if (ledgerExportMsg) ledgerExportMsg.textContent = e.message || '导出失败';
+        alert(e.message || '导出失败');
+      }
+    }
+    btnLedgerFilter && (btnLedgerFilter.onclick = () => refreshLedgerFiltered());
+    btnLedgerCsv && (btnLedgerCsv.onclick = () => exportLedger('csv'));
+    btnLedgerXlsx && (btnLedgerXlsx.onclick = () => exportLedger('xlsx'));
+    btnLedgerPdf && (btnLedgerPdf.onclick = () => exportLedger('pdf'));
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+
+  </script>
+</body>
+</html>

@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "windows": [
+    {
+      "id": "win-demo-spring",
+      "titleZh": "2026 春季园区需求征集窗",
+      "region": "长三角示范园",
+      "status": "open",
+      "opensAt": "2026-03-01T00:00:00.000Z",
+      "closesAt": "2026-06-30T23:59:59.000Z",
+      "noteZh": "面向园内企业与高校征集可对接需求；园区联络员初审后公示。",
+      "createdAt": "2026-03-01T00:00:00.000Z",
+      "updatedAt": "2026-03-01T00:00:00.000Z"
+    }
+  ],
+  "approvals": [
+    {
+      "id": "appr-demo-1",
+      "windowId": "win-demo-spring",
+      "titleZh": "高端装备表面处理降本需求（示范）",
+      "orgAlias": "园内装备企业甲",
+      "demandId": null,
+      "status": "under_review",
+      "summaryZh": "希望对接高校表面处理/涂层能力，预算与TRL待核实。",
+      "reviewerNote": "",
+      "history": [
+        { "at": "2026-04-02T08:00:00.000Z", "from": null, "to": "submitted", "actor": "seed", "noteZh": "企业提交" },
+        { "at": "2026-04-03T09:00:00.000Z", "from": "submitted", "to": "under_review", "actor": "seed", "noteZh": "进入园区初审" }
+      ],
+      "createdAt": "2026-04-02T08:00:00.000Z",
+      "updatedAt": "2026-04-03T09:00:00.000Z"
+    },
+    {
+      "id": "appr-demo-2",
+      "windowId": "win-demo-spring",
+      "titleZh": "生物医药中试场地意向（示范）",
+      "orgAlias": "园内生物企业乙",
+      "demandId": null,
+      "status": "submitted",
+      "summaryZh": "需要中试级洁净空间与工艺指导，等待窗内排队。",
+      "reviewerNote": "",
+      "history": [
+        { "at": "2026-04-10T10:00:00.000Z", "from": null, "to": "submitted", "actor": "seed", "noteZh": "企业提交" }
+      ],
+      "createdAt": "2026-04-10T10:00:00.000Z",
+      "updatedAt": "2026-04-10T10:00:00.000Z"
+    }
+  ]
+}

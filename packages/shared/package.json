@@ -1,0 +1,10 @@
+{
+  "name": "@yanqi/shared",
+  "version": "0.1.0",
+  "private": true,
+  "main": "src/index.js",
+  "types": "src/index.ts",
+  "dependencies": {
+    "jieba-wasm": "^2.4.0"
+  }
+}

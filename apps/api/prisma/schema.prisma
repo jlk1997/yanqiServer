@@ -1,0 +1,1319 @@
+// 研企通 · 通用卡模型
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrgType {
+  UNIVERSITY
+  LAB_INSTITUTE
+  ENTERPRISE
+  GOVERNMENT
+  OTHER
+}
+
+enum OutcomeType {
+  PATENT
+  PAPER
+  SOFTWARE
+  PROTOTYPE
+  OTHER
+}
+
+enum MatchStatus {
+  PENDING_REVIEW
+  APPROVED
+  REJECTED
+  CONTACTED
+  CLOSED
+}
+
+model Organization {
+  id           String       @id @default(cuid())
+  name         String
+  type         OrgType
+  region       String?
+  website      String?
+  summary      String?
+  creditCode   String?
+  tenantId     String?      @default("default")
+  openAlexId   String?
+  /// 金标：verified_import | peer_reviewed | complete_profile | duplicate_clean | ops_endorsed
+  trustBadges  String[]     @default([])
+  /// 0–1 档案完整度（自动算 + 可人工覆盖）
+  qualityScore Float?
+  extensions   Json         @default("{}")
+  parentId     String?
+  parent       Organization?  @relation("OrgTree", fields: [parentId], references: [id], onDelete: SetNull)
+  children     Organization[] @relation("OrgTree")
+  /// school | college | lab | enterprise | government
+  unitKind     String?
+  publishStatus   String   @default("published")
+  publishBlockers String[] @default([])
+  nameNorm        String?
+  summaryPublic   String?  @db.Text
+  lockedFields    String[] @default([])
+  sourceUpdatedAt DateTime?
+  reviewedAt      DateTime?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  capabilities Capability[]
+  outcomes     Outcome[]
+  demands      Demand[]
+  people       Person[]
+  peopleCollege Person[] @relation("PersonCollege")
+  peopleLab     Person[] @relation("PersonLab")
+  users        User[]
+  memberships  OrgMembership[]
+  contactPoints ContactPoint[]
+
+  @@index([type])
+  @@index([name])
+  @@index([openAlexId])
+  @@index([tenantId])
+  @@index([parentId])
+  @@index([nameNorm])
+  @@index([publishStatus])
+}
+
+model Capability {
+  id            String        @id @default(cuid())
+  orgId         String
+  org           Organization  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  title         String
+  disciplines   String[]
+  keywords      String[]
+  offerTypes    String[]
+  teamSizeBand  String?
+  contactPolicy String?
+  summary       String?
+  /// TRL 1–9；能力卡也可填成熟度
+  trl           Int?
+  /// 权利概况：可转让 / 可许可 / 仅合作等（口语）
+  rights        String?
+  /// university | joint | company | individual | unclear
+  ipOwnership   String?
+  /// open | negotiable | exclusive | unclear
+  licenseOpenness String?
+  /// lab | pilot | production
+  readinessBand String?
+  trustBadges   String[]      @default([])
+  /// 行业 taxonomy 代码（见 TaxonomyTag.code）
+  taxonomyCodes String[]      @default([])
+  /// 向量存 JSON 数组；生产可迁 pgvector
+  embedding     Json?
+  extensions    Json          @default("{}")
+  personId      String?
+  person        Person?       @relation(fields: [personId], references: [id], onDelete: SetNull)
+  year          Int?
+  publishStatus   String   @default("published")
+  publishBlockers String[] @default([])
+  lockedFields    String[] @default([])
+  summaryPublic   String?  @db.Text
+  embeddingModel  String?
+  sourceUpdatedAt DateTime?
+  reviewedAt      DateTime?
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+  matchesAsA    MatchResult[] @relation("CapabilityMatch")
+
+  @@index([orgId])
+  @@index([personId])
+  @@index([publishStatus])
+}
+
+model Outcome {
+  id         String        @id @default(cuid())
+  orgId      String
+  org        Organization  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  title      String
+  type       OutcomeType
+  abstract   String?
+  ipcOrDisc  String[]
+  trl        Int?
+  rights     String?
+  /// university | joint | company | individual | unclear
+  ipOwnership String?
+  /// open | negotiable | exclusive | unclear
+  licenseOpenness String?
+  /// lab | pilot | production
+  readinessBand String?
+  trustBadges String[]     @default([])
+  taxonomyCodes String[]   @default([])
+  doi        String?
+  patentNo   String?
+  openAlexId String?
+  embedding  Json?
+  extensions Json          @default("{}")
+  personId      String?
+  person        Person?    @relation(fields: [personId], references: [id], onDelete: SetNull)
+  year          Int?
+  publishStatus   String   @default("published")
+  publishBlockers String[] @default([])
+  lockedFields    String[] @default([])
+  summaryPublic   String?  @db.Text
+  embeddingModel  String?
+  sourceUpdatedAt DateTime?
+  reviewedAt      DateTime?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  matchesAsA MatchResult[] @relation("OutcomeMatch")
+  authorships Authorship[]
+
+  @@index([orgId])
+  @@index([openAlexId])
+  @@index([personId])
+  @@index([publishStatus])
+  @@index([doi])
+  @@index([patentNo])
+}
+
+model Demand {
+  id          String        @id @default(cuid())
+  orgId       String
+  org         Organization  @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  title       String
+  problem     String
+  expectedOut String?
+  budgetBand  String?
+  industry    String[]
+  urgency     String?
+  regionPref  String?
+  /// exclusive | negotiable | open | any — 需求侧许可诉求
+  licenseNeed String?
+  /// 需求方期望的最低 TRL（1–9）
+  minTrl      Int?
+  /// 行业 taxonomy 代码
+  taxonomyCodes String[]  @default([])
+  embedding   Json?
+  extensions  Json          @default("{}")
+  personId      String?
+  person        Person?     @relation(fields: [personId], references: [id], onDelete: SetNull)
+  /// tech_problem | challenge | procurement | joint_rd | unknown
+  demandKind    String?
+  deadline      DateTime?
+  publishStatus   String   @default("published")
+  publishBlockers String[] @default([])
+  lockedFields    String[] @default([])
+  summaryPublic   String?  @db.Text
+  embeddingModel  String?
+  sourceUpdatedAt DateTime?
+  reviewedAt      DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  matches     MatchResult[]
+
+  @@index([orgId])
+  @@index([personId])
+  @@index([publishStatus])
+  @@index([orgId, title])
+}
+
+model MatchResult {
+  id             String       @id @default(cuid())
+  demandId       String
+  demand         Demand       @relation(fields: [demandId], references: [id], onDelete: Cascade)
+  capabilityId   String?
+  capability     Capability?  @relation("CapabilityMatch", fields: [capabilityId], references: [id], onDelete: SetNull)
+  outcomeId      String?
+  outcome        Outcome?     @relation("OutcomeMatch", fields: [outcomeId], references: [id], onDelete: SetNull)
+  totalScore     Float
+  scoreBreakdown Json
+  reason         String?
+  status         MatchStatus  @default(PENDING_REVIEW)
+  operatorNote   String?
+  nextFollowUp   DateTime?
+  /// 首次/阶段 SLA 小时（分派时写入，便于看板）
+  slaHours       Int?
+  slaDueAt       DateTime?
+  brokerId       String?
+  broker         User?        @relation("BrokerMatches", fields: [brokerId], references: [id], onDelete: SetNull)
+  assignedAt     DateTime?
+  /// 经纪人跟进状态机
+  followUpStatus BrokerFollowStatus?
+  followUpNote   String?
+  followUpAt     DateTime?
+  tenantId       String?      @default("default")
+  /// M62：需求×供给稳定键（c:capabilityId | o:outcomeId），DB 唯一，供批量 upsert
+  supplyKey      String?
+  primaryPersonId String?
+  primaryPerson   Person?     @relation("MatchPrimaryPerson", fields: [primaryPersonId], references: [id], onDelete: SetNull)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  leads          Lead[]
+  contactGaps    ContactGap[]
+  feedbacks      MatchFeedback[]
+  followUps      BrokerFollowUpEvent[]
+  attachments    DealAttachment[]
+  checklistItems DealChecklistItem[]
+
+  @@unique([demandId, supplyKey], name: "MatchResult_demandId_supplyKey_key")
+  @@index([demandId])
+  @@index([status])
+  @@index([totalScore])
+  @@index([brokerId])
+  @@index([followUpStatus])
+  @@index([tenantId])
+  @@index([supplyKey])
+  @@index([primaryPersonId])
+}
+
+model Person {
+  id         String        @id @default(cuid())
+  orgId      String?
+  org        Organization? @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  name       String
+  role       String?
+  email      String?
+  phone      String?
+  source     String?
+  consent    String?
+  extensions Json          @default("{}")
+  openAlexAuthorId String? @unique
+  orcid            String? @unique
+  nameNorm         String?
+  collegeOrgId     String?
+  collegeOrg       Organization? @relation("PersonCollege", fields: [collegeOrgId], references: [id], onDelete: SetNull)
+  labOrgId         String?
+  labOrg           Organization? @relation("PersonLab", fields: [labOrgId], references: [id], onDelete: SetNull)
+  researchSummary  String?  @db.Text
+  keywords         String[] @default([])
+  taxonomyCodes    String[] @default([])
+  embedding        Json?
+  embeddingModel   String?
+  publishStatus    String   @default("published")
+  publishBlockers  String[] @default([])
+  lockedFields     String[] @default([])
+  lastWorkYear     Int?
+  sourceUpdatedAt  DateTime?
+  reviewedAt       DateTime?
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  leads      Lead[]
+  capabilities Capability[]
+  outcomes     Outcome[]
+  demands      Demand[]
+  authorships  Authorship[]
+  contactPoints ContactPoint[]
+  primaryMatches MatchResult[] @relation("MatchPrimaryPerson")
+
+  @@index([orgId])
+  @@index([nameNorm])
+  @@index([publishStatus])
+  @@index([collegeOrgId])
+  @@index([labOrgId])
+}
+
+model Lead {
+  id           String       @id @default(cuid())
+  matchId      String
+  match        MatchResult  @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  personId     String?
+  person       Person?      @relation(fields: [personId], references: [id], onDelete: SetNull)
+  channel      String
+  status       String
+  draftSubject String?
+  draftBody    String?
+  /// draft -> approved -> sent | failed | dry_run
+  approvedAt   DateTime?
+  approvedBy   String?
+  sentAt       DateTime?
+  failReason   String?
+  sendMode     String?
+  /// 最近套用的经纪人剧本
+  playbookId   String?
+  playbookCode String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  /// M63：匹配×渠道唯一，供线索批量 upsert（保留已审批/已发送）
+  @@unique([matchId, channel], name: "Lead_matchId_channel_key")
+  @@index([matchId])
+  @@index([status])
+  @@index([playbookId])
+}
+
+model JobLog {
+  id        String   @id @default(cuid())
+  queue     String
+  jobName   String
+  payload   Json     @default("{}")
+  status    String
+  message   String?
+  tenantId  String?  @default("default")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([queue])
+  @@index([status])
+  @@index([tenantId])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  action     String
+  actor      String?
+  targetType String?
+  targetId   String?
+  ip         String?
+  meta       Json     @default("{}")
+  createdAt  DateTime @default(now())
+
+  @@index([action])
+  @@index([createdAt])
+  @@index([targetType, targetId])
+}
+
+enum UserRole {
+  ADMIN
+  OPERATOR
+  OPS_VIEWER
+  BROKER
+  TENANT_ADMIN
+  ORG_USER
+}
+
+model User {
+  id           String          @id @default(cuid())
+  email        String          @unique
+  name         String
+  passwordHash String
+  role         UserRole        @default(ORG_USER)
+  orgId        String?
+  org          Organization?   @relation(fields: [orgId], references: [id], onDelete: SetNull)
+  tenantId     String          @default("default")
+  active       Boolean         @default(true)
+  planCode     String          @default("free")
+  extensions   Json            @default("{}")
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  memberships  OrgMembership[]
+  notifications Notification[]
+  reports      AnalysisReport[] @relation("ReportAuthor")
+  subscriptions Subscription[]
+  brokerMatches MatchResult[] @relation("BrokerMatches")
+
+  @@index([role])
+  @@index([orgId])
+  @@index([tenantId])
+}
+
+model OrgMembership {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  orgId     String
+  org       Organization @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  roleInOrg String       @default("member")
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, orgId])
+  @@index([orgId])
+}
+
+model Plan {
+  id           String         @id @default(cuid())
+  code         String         @unique
+  name         String
+  priceMonthly Int            @default(0)
+  description  String?
+  quotas       Json           @default("{}")
+  features     Json           @default("{}")
+  active       Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  subscriptions Subscription[]
+}
+
+model Subscription {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  planId    String
+  plan      Plan     @relation(fields: [planId], references: [id])
+  status    String   @default("active")
+  /// free | stub_paid | cancelled
+  billing   String   @default("free")
+  startedAt DateTime @default(now())
+  endsAt    DateTime?
+  meta      Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([planId])
+}
+
+model QuotaUsage {
+  id        String   @id @default(cuid())
+  subject   String
+  /// user:<id> | org:<id>
+  period    String
+  /// YYYY-MM
+  metric    String
+  /// match_runs | crawl_jobs | reports | seats
+  used      Int      @default(0)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@unique([subject, period, metric])
+  @@index([subject])
+}
+
+model FeatureFlag {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  enabled   Boolean  @default(true)
+  note      String?
+  meta      Json     @default("{}")
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  body      String
+  level     String   @default("info")
+  readAt    DateTime?
+  link      String?
+  meta      Json     @default("{}")
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model CrawlSchedule {
+  id           String    @id @default(cuid())
+  name         String
+  kind         String
+  /// openalex | csv | match
+  cronExpr     String
+  enabled      Boolean   @default(true)
+  payload      Json      @default("{}")
+  lastRunAt    DateTime?
+  lastStatus   String?
+  lastMessage  String?
+  nextHint     String?
+  tenantId     String?   @default("default")
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([enabled])
+  @@index([kind])
+  @@index([tenantId])
+}
+
+model AnalysisReport {
+  id        String   @id @default(cuid())
+  title     String
+  scope     String
+  /// org | demand | match | platform
+  targetId  String?
+  contentMd String
+  summary   String?
+  scores    Json     @default("{}")
+  /// hash | openai | local — 生成器
+  provider  String   @default("hash")
+  /// 同 scope+target 下的版本族
+  familyKey String?
+  version   Int      @default(1)
+  modelMeta Json     @default("{}")
+  authorId  String?
+  author    User?    @relation("ReportAuthor", fields: [authorId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([scope])
+  @@index([targetId])
+  @@index([createdAt])
+  @@index([familyKey])
+  @@index([provider])
+}
+
+/// 多租户：Tenant.id=default 为平台默认租户；Organization/User/JobLog/MatchResult 行级 tenantId
+
+model MatchFeedback {
+  id        String   @id @default(cuid())
+  matchId   String
+  match     MatchResult @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  userId    String?
+  useful    Boolean
+  /// thumbs | accept | reject
+  kind      String   @default("thumbs")
+  /// ops | portal | status_change
+  source    String   @default("ops")
+  comment   String?
+  weightsSnapshot Json @default("{}")
+  createdAt DateTime @default(now())
+
+  @@index([matchId])
+  @@index([useful])
+  @@index([kind])
+  @@index([createdAt])
+}
+
+model DataQualityIssue {
+  id         String   @id @default(cuid())
+  entityType String
+  /// Organization | Capability | Outcome | Demand
+  entityId   String
+  code       String
+  /// missing_field | duplicate_title | thin_summary
+  severity   String   @default("warn")
+  message    String
+  meta       Json     @default("{}")
+  resolvedAt DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([entityType, entityId])
+  @@index([code])
+  @@index([resolvedAt])
+}
+
+model MatchWeightState {
+  id        String   @id @default(cuid())
+  key       String   @unique @default("default")
+  weights   Json
+  /// { semantic, keyword, discipline, region, trlFit }
+  usefulN   Int      @default(0)
+  notUsefulN Int     @default(0)
+  note      String?
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model IntegrationConfig {
+  id               String    @id @default(cuid())
+  provider         String    @unique
+  /// chatwoot | aitoearn | smtp_extra
+  enabled          Boolean   @default(false)
+  baseUrl          String?
+  apiToken         String?
+  meta             Json      @default("{}")
+  note             String?
+  lastProbeAt      DateTime?
+  lastProbeOk      Boolean?
+  lastProbeStatus  String?
+  lastProbeMessage String?
+  lastProbeMeta    Json      @default("{}")
+  updatedAt        DateTime  @updatedAt
+  createdAt        DateTime  @default(now())
+}
+
+enum BrokerFollowStatus {
+  assigned
+  contacting
+  interested
+  closed_won
+  closed_lost
+}
+
+model Tenant {
+  id          String          @id @default(cuid())
+  code        String          @unique
+  name        String
+  planCode    String          @default("free")
+  active      Boolean         @default(true)
+  /// 覆盖套餐配额时可填；空则用 Plan.quotas
+  quotas      Json            @default("{}")
+  features    Json            @default("{}")
+  note        String?
+  /// 软删 / 硬删确认（个保法风格）
+  deletedAt            DateTime?
+  deleteRequestedAt    DateTime?
+  deleteConfirmToken   String?
+  deleteConfirmExpires DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  branding    TenantBranding?
+  checkoutSessions CheckoutSession[]
+
+  @@index([planCode])
+  @@index([active])
+}
+
+model TenantBranding {
+  id           String   @id @default(cuid())
+  tenantId     String   @unique
+  tenant       Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  logoUrl      String?
+  primaryColor String   @default("#3d8bfd")
+  productName  String   @default("研企通")
+  tagline      String?
+  customDomain String?
+  /// 预留：自定义域名解析状态 pending|verifying|active|failed|stub
+  domainStatus String   @default("stub")
+  /// DNS TXT 挑战：yanqi-verify=<token>
+  domainVerifyToken String?
+  domainChallenge   String?
+  domainVerifiedAt  DateTime?
+  faviconUrl   String?
+  meta         Json     @default("{}")
+  updatedAt    DateTime @updatedAt
+  createdAt    DateTime @default(now())
+}
+
+model BrokerFollowUpEvent {
+  id         String   @id @default(cuid())
+  matchId    String
+  match      MatchResult @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  actorId    String?
+  actorEmail String?
+  fromStatus String?
+  toStatus   String
+  note       String?
+  meta       Json     @default("{}")
+  createdAt  DateTime @default(now())
+
+  @@index([matchId])
+  @@index([createdAt])
+  @@index([toStatus])
+}
+
+model CheckoutSession {
+  id        String    @id @default(cuid())
+  userId    String
+  tenantId  String?
+  tenant    Tenant?   @relation(fields: [tenantId], references: [id], onDelete: SetNull)
+  planCode  String
+  status    String    @default("pending")
+  /// pending | paid | cancelled | expired
+  amount    Int       @default(0)
+  currency  String    @default("CNY")
+  stubToken String    @unique
+  paidAt    DateTime?
+  meta      Json      @default("{}")
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([tenantId])
+}
+
+/// 集成最近一次探测结果（运维台展示）
+/// IntegrationConfig 已有字段；用 meta.lastProbe 亦可，下方单独表存导入/活动
+
+model BrokerCommission {
+  id          String   @id @default(cuid())
+  matchId     String
+  brokerId    String
+  tenantId    String   @default("default")
+  /// stub | pending | approved | paid
+  status      String   @default("stub")
+  /// 成交额分（演示）
+  dealAmount  Int      @default(0)
+  /// 分成比例 0-1
+  rate        Float    @default(0.1)
+  /// 应付分成金额分
+  amount      Int      @default(0)
+  currency    String   @default("CNY")
+  note        String?
+  meta        Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([brokerId])
+  @@index([matchId])
+  @@index([status])
+  @@index([tenantId])
+}
+
+model RoadshowEvent {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  /// 活动日期
+  eventDate   DateTime
+  location    String?
+  tenantId    String   @default("default")
+  /// draft | published | done | cancelled
+  status      String   @default("draft")
+  /// 关联组织 id 列表
+  orgIds      String[] @default([])
+  /// 关联匹配 id 列表
+  matchIds    String[] @default([])
+  hostOrgId   String?
+  contactNote String?
+  meta        Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([eventDate])
+  @@index([tenantId])
+  @@index([status])
+}
+
+model EnterpriseImportJob {
+  id            String    @id @default(cuid())
+  tenantId      String    @default("default")
+  /// qichacha_authorized | tianyancha_authorized | csv_manual | other
+  source        String    @default("csv_manual")
+  filename      String?
+  /// pending | validating | importing | done | failed
+  status        String    @default("pending")
+  totalRows     Int       @default(0)
+  validRows     Int       @default(0)
+  invalidRows   Int       @default(0)
+  importedRows  Int       @default(0)
+  /// 校验报告：{ errors:[{row,field,message}], warnings:[...] }
+  report        Json      @default("{}")
+  actorEmail    String?
+  startedAt     DateTime?
+  finishedAt    DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+/// 租户数据导出任务（个保法/GDPR 风格）
+model TenantExportJob {
+  id         String    @id @default(cuid())
+  tenantId   String
+  status     String    @default("pending")
+  /// pending | running | ready | failed | expired
+  format     String    @default("zip")
+  filePath   String?
+  fileSize   Int?
+  actorEmail String?
+  error      String?
+  meta       Json      @default("{}")
+  readyAt    DateTime?
+  expiresAt  DateTime?
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+
+  @@index([tenantId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+/// 支付桩发票（Markdown/简易 PDF 文本）
+model Invoice {
+  id                String    @id @default(cuid())
+  checkoutSessionId String?
+  tenantId          String?
+  userId            String?
+  number            String    @unique
+  planCode          String
+  amount            Int       @default(0)
+  currency          String    @default("CNY")
+  status            String    @default("issued")
+  /// issued | void | paid_stub
+  title             String?
+  bodyMd            String
+  meta              Json      @default("{}")
+  issuedAt          DateTime  @default(now())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([tenantId])
+  @@index([userId])
+  @@index([checkoutSessionId])
+  @@index([createdAt])
+}
+
+
+/// 运营保存的筛选视图（匹配工作台等）
+model SavedView {
+  id        String   @id @default(cuid())
+  userId    String?
+  tenantId  String   @default("default")
+  scope     String   @default("matches")
+  name      String
+  query     Json     @default("{}")
+  isDefault Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([tenantId, scope])
+  @@index([scope])
+}
+
+
+/// 成交/跟进附件（文件落盘 .data/attachments，元数据入库）
+model DealAttachment {
+  id           String   @id @default(cuid())
+  matchId      String
+  match        MatchResult @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  fileName     String
+  mimeType     String?
+  sizeBytes    Int      @default(0)
+  storagePath  String
+  kind         String   @default("deal_proof")
+  /// deal_proof | contract | other
+  note         String?
+  uploadedBy   String?
+  createdAt    DateTime @default(now())
+
+  @@index([matchId])
+  @@index([createdAt])
+}
+
+/// 可吊销会话（token jti）
+model AuthSession {
+  id         String    @id @default(cuid())
+  jti        String    @unique
+  userId     String
+  userAgent  String?
+  ip         String?
+  revokedAt  DateTime?
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime  @default(now())
+
+  @@index([userId])
+  @@index([revokedAt])
+  @@index([expiresAt])
+}
+
+
+/// 机构协作邀请（子账号）
+model TeamInvite {
+  id          String    @id @default(cuid())
+  token       String    @unique
+  email       String
+  name        String?
+  /// TENANT_ADMIN | ORG_USER
+  role        UserRole  @default(ORG_USER)
+  orgId       String
+  tenantId    String    @default("default")
+  invitedById String?
+  status      String    @default("pending")
+  /// pending | accepted | revoked | expired
+  note        String?
+  expiresAt   DateTime
+  acceptedAt  DateTime?
+  acceptedUserId String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@index([email])
+  @@index([orgId])
+  @@index([status])
+  @@index([tenantId])
+}
+
+
+/// 伙伴出站 Webhook 端点（租户级）
+model WebhookEndpoint {
+  id        String   @id @default(cuid())
+  tenantId  String   @default("default")
+  name      String
+  url       String
+  /// 签名密钥；也可用环境变量 PARTNER_WEBHOOK_SECRET 兜底
+  secret    String?
+  events    String[] @default([])
+  enabled   Boolean  @default(true)
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  deliveries WebhookDelivery[]
+
+  @@index([tenantId])
+  @@index([enabled])
+}
+
+/// 出站投递日志
+model WebhookDelivery {
+  id          String   @id @default(cuid())
+  endpointId  String?
+  endpoint    WebhookEndpoint? @relation(fields: [endpointId], references: [id], onDelete: SetNull)
+  tenantId    String   @default("default")
+  event       String
+  /// match.approved | lead.sent | deal.moved | …
+  payload     Json
+  status      String   @default("pending")
+  /// pending | dry_run | delivered | failed
+  attempts    Int      @default(0)
+  lastStatusCode Int?
+  lastError   String?
+  signature   String?
+  dryRun      Boolean  @default(true)
+  nextRetryAt DateTime?
+  deliveredAt DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([event])
+  @@index([status])
+  @@index([tenantId])
+  @@index([createdAt])
+}
+
+/// 经纪人跟进话术剧本（按场景）
+model BrokerPlaybook {
+  id        String   @id @default(cuid())
+  tenantId  String   @default("default")
+  code      String
+  title     String
+  /// cold_uni | enterprise_buy | diligence_pre_contract | general
+  scenario  String   @default("general")
+  bodyText  String
+  bodyHtml  String?
+  tags      String[] @default([])
+  active    Boolean  @default(true)
+  sortOrder Int      @default(0)
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([tenantId, code])
+  @@index([scenario])
+  @@index([active])
+}
+
+/// 剧本 → 意向漏斗事件
+model PlaybookFunnelEvent {
+  id         String   @id @default(cuid())
+  tenantId   String   @default("default")
+  playbookId String?
+  playbookCode String?
+  leadId     String?
+  matchId    String?
+  /// applied | draft | dry_run | live_sent | intent | declined
+  stage      String
+  actor      String?
+  note       String?
+  meta       Json     @default("{}")
+  createdAt  DateTime @default(now())
+
+  @@index([stage])
+  @@index([playbookId])
+  @@index([leadId])
+  @@index([matchId])
+  @@index([createdAt])
+  @@index([tenantId])
+}
+
+
+/// 专家/同行复核队列（挂 peer_reviewed 金标）
+model ExpertReview {
+  id             String   @id @default(cuid())
+  tenantId       String   @default("default")
+  /// capability | outcome
+  targetType     String
+  targetId       String
+  titleSnapshot  String?
+  orgName        String?
+  /// submitted | assigned | approved | rejected | withdrawn
+  status         String   @default("submitted")
+  submitter      String?
+  reviewerEmail  String?
+  reviewerNote   String?
+  decisionNote   String?
+  assignedAt     DateTime?
+  decidedAt      DateTime?
+  meta           Json     @default("{}")
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  @@index([status])
+  @@index([targetType, targetId])
+  @@index([reviewerEmail])
+  @@index([tenantId])
+  @@index([createdAt])
+}
+
+/// 对接合同前检查清单项
+model DealChecklistItem {
+  id        String      @id @default(cuid())
+  matchId   String
+  match     MatchResult @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  /// ip_clear | trl_gate | budget_owner | nda | sample_data | rights_path | contact_ready
+  code      String
+  labelZh   String
+  critical  Boolean     @default(false)
+  done      Boolean     @default(false)
+  note      String?
+  doneAt    DateTime?
+  doneBy    String?
+  sortOrder Int         @default(0)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  @@unique([matchId, code])
+  @@index([matchId])
+  @@index([done])
+}
+
+/// 轻量行业/主题 taxonomy（扁平 + 可选父级）
+model TaxonomyTag {
+  id         String   @id @default(cuid())
+  code       String   @unique
+  labelZh    String
+  parentCode String?
+  synonyms   String[] @default([])
+  sortOrder  Int      @default(0)
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([parentCode])
+  @@index([active])
+  @@index([sortOrder])
+}
+
+
+/// 合同/对接文档模板（非电子签；仅草稿骨架）
+model DocTemplate {
+  id          String   @id @default(cuid())
+  tenantId    String   @default("default")
+  code        String
+  title       String
+  /// nda_summary | moi_tech_transfer | sample_trial_memo | general
+  kind        String   @default("general")
+  bodyMd      String
+  bodyHtml    String?
+  placeholders String[] @default([])
+  active      Boolean  @default(true)
+  disclaimerZh String  @default("本稿仅为业务沟通骨架，不构成法律意见，正式签约请咨询合格律师。")
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  drafts      DocDraft[]
+
+  @@unique([tenantId, code])
+  @@index([kind])
+  @@index([active])
+}
+
+/// 由模板 + 对接上下文生成的草稿（可下载 .md）
+model DocDraft {
+  id          String   @id @default(cuid())
+  templateId  String
+  template    DocTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  matchId     String?
+  title       String
+  bodyMd      String
+  filledFrom  Json     @default("{}")
+  createdBy   String?
+  createdAt   DateTime @default(now())
+
+  @@index([templateId])
+  @@index([matchId])
+  @@index([createdAt])
+}
+
+/// 脱敏案例库（运营审批后门户可见）
+model CaseStudy {
+  id            String   @id @default(cuid())
+  tenantId      String   @default("default")
+  /// 来源对接（可空：手工录入）
+  sourceMatchId String?
+  title         String
+  /// success | failure | mixed | lesson
+  outcome       String   @default("success")
+  summaryZh     String
+  detailZh      String?
+  taxonomyCodes String[] @default([])
+  /// 脱敏后的角色标签，如「华东某高校实验室」「某模具企业」
+  demandAlias   String?
+  supplyAlias   String?
+  industryHint  String?
+  trlBand       String?
+  /// draft | pending | published | rejected | unpublished
+  status        String   @default("draft")
+  publishedAt   DateTime?
+  approvedBy    String?
+  rejectNote    String?
+  meta          Json     @default("{}")
+  createdBy     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([outcome])
+  @@index([tenantId])
+  @@index([publishedAt])
+}
+
+/// 采集原文。不对外展示。
+model RawDocument {
+  id          String   @id @default(cuid())
+  sourceCode  String
+  externalId  String
+  url         String?
+  fetchedAt   DateTime @default(now())
+  httpStatus  Int?
+  contentHash String
+  bodyText    String?  @db.Text
+  contentType String?
+  /// person | lab | outcome | demand | org | contact
+  entityHint  String?
+  batchId     String?
+  batch       IngestBatch? @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  parsed      ParsedRecord[]
+  createdAt   DateTime @default(now())
+
+  @@unique([sourceCode, externalId, contentHash])
+  @@index([sourceCode])
+  @@index([batchId])
+  @@index([entityHint])
+}
+
+model ParsedRecord {
+  id            String   @id @default(cuid())
+  rawId         String?
+  raw           RawDocument? @relation(fields: [rawId], references: [id], onDelete: SetNull)
+  batchId       String?
+  batch         IngestBatch? @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  entityHint    String
+  fields        Json     @default("{}")
+  parser        String
+  parserVersion String   @default("1")
+  confidence    Float    @default(0.5)
+  missingFields String[] @default([])
+  /// pending | accepted | rejected
+  status        String   @default("pending")
+  note          String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([status])
+  @@index([batchId])
+  @@index([entityHint])
+}
+
+model SourceDefinition {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  /// org | person | outcome | demand | contact | lab
+  targetEntity String
+  adapter     String
+  cronExpr    String?
+  enabled     Boolean  @default(true)
+  cursor      Json     @default("{}")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  batches     IngestBatch[]
+}
+
+model IngestBatch {
+  id           String   @id @default(cuid())
+  sourceCode   String
+  source       SourceDefinition @relation(fields: [sourceCode], references: [code])
+  status       String   @default("running")
+  startedAt    DateTime @default(now())
+  finishedAt   DateTime?
+  fetched      Int      @default(0)
+  parsed       Int      @default(0)
+  createdN     Int      @default(0)
+  mergedN      Int      @default(0)
+  filledN      Int      @default(0)
+  quarantinedN Int      @default(0)
+  failedN      Int      @default(0)
+  ruleVersion  String?
+  errorSamples Json     @default("[]")
+  raws         RawDocument[]
+  parsedRecords ParsedRecord[]
+
+  @@index([sourceCode])
+  @@index([startedAt])
+}
+
+model FieldEvidence {
+  id         String   @id @default(cuid())
+  entityType String
+  entityId   String
+  fieldKey   String
+  parsedId   String?
+  sourceCode String?
+  valueText  String?  @db.Text
+  locked     Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([entityType, entityId])
+  @@index([sourceCode])
+}
+
+model NameAlias {
+  id        String   @id @default(cuid())
+  kind      String
+  alias     String
+  canonical String
+  createdAt DateTime @default(now())
+
+  @@unique([kind, alias])
+}
+
+model Authorship {
+  id               String  @id @default(cuid())
+  personId         String
+  person           Person  @relation(fields: [personId], references: [id], onDelete: Cascade)
+  outcomeId        String
+  outcome          Outcome @relation(fields: [outcomeId], references: [id], onDelete: Cascade)
+  authorOrder      Int     @default(0)
+  isCorresponding  Boolean @default(false)
+
+  @@unique([personId, outcomeId])
+  @@index([outcomeId])
+}
+
+model ContactPoint {
+  id         String   @id @default(cuid())
+  personId   String?
+  person     Person?  @relation(fields: [personId], references: [id], onDelete: Cascade)
+  orgId      String?
+  org        Organization? @relation(fields: [orgId], references: [id], onDelete: Cascade)
+  /// email | phone | wechat | form
+  kind       String
+  value      String
+  sourceCode String?
+  confidence Float    @default(0.5)
+  isPublic   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([personId])
+  @@index([orgId])
+  @@index([kind, value])
+}
+
+model CoverageSnapshot {
+  id            String   @id @default(cuid())
+  taxonomyCode  String
+  region        String?
+  teacherCount  Int      @default(0)
+  demandCount   Int      @default(0)
+  outcomeCount  Int      @default(0)
+  contactRatio  Float    @default(0)
+  medianAgeDays Int?
+  /// accumulating | shadow | outreach
+  stage         String
+  metrics       Json     @default("{}")
+  computedAt    DateTime @default(now())
+
+  @@index([taxonomyCode, computedAt])
+  @@index([stage])
+}
+
+model ContactGap {
+  id        String   @id @default(cuid())
+  matchId   String
+  match     MatchResult @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  /// no_person | no_contact
+  reason    String
+  /// open | filled | dropped
+  status    String   @default("open")
+  note      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([matchId])
+  @@index([status])
+}

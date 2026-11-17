@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.data/
+.deps-runtime.json
+.env
+*.log
+apps/api/dist/
+exports/
+backups/

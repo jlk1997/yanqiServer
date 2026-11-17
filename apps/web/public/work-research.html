@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>研企通 · 科研办事窗</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="shell-light">
+  <a class="skip-link" href="#main">跳到主内容</a>
+  <header class="top light-top">
+    <div class="brand">
+      <span class="logo">研企通</span>
+      <span class="sub" id="whoSub">高校 / 实验室办事窗</span>
+    </div>
+    <div class="auth">
+      <div id="topMeta"></div>
+      <a class="buttonish ghost" href="/portal.html#demands">看企业需求</a>
+      <button type="button" class="ghost" id="btnLogout">退出</button>
+    </div>
+  </header>
+  <div class="wb-shell">
+    <aside class="wb-side" aria-label="科研导航">
+      <div class="sec">办事</div>
+      <a class="on" href="#home">办事首页</a>
+      <a href="#guide">四步指引</a>
+      <a href="#interest">③ 企业意向</a>
+      <a href="#publish-cap">① 上架能力</a>
+      <a href="#publish-out">② 上架成果</a>
+      <a href="#pipeline">供给管道</a>
+      <div class="sec">更多</div>
+      <a href="/portal.html#capabilities">能力广场</a>
+      <a href="/portal.html#outcomes">成果广场</a>
+      <a href="/">身份入口</a>
+    </aside>
+    <main class="wb-main" id="main">
+      <section id="home">
+        <div class="wb-hero-line">
+          <div>
+            <h1>科研办事窗</h1>
+            <p class="lead" id="orgLine">把能对外服务的本事写清楚，企业才找得到你。</p>
+          </div>
+        </div>
+        <div class="hall-cue">
+          <div class="hall-cue-icon" aria-hidden="true">研</div>
+          <div>
+            <strong>像政务大厅的「成果转化」窗口</strong>
+            <p class="muted">取号办事：①上架能力 → ②上架成果 → ③看企业意向与一页纸 → ④确认或请牵线。信息少而清，不堆黑屏。</p>
+          </div>
+        </div>
+        <div class="trust-bar" id="trustBar" aria-label="信任提示"></div>
+        <div class="kpi-row" id="kpis"></div>
+        <h2>今天先干这三件</h2>
+        <div class="task-row" id="tasks"></div>
+        <div id="emptyBox" hidden></div>
+        <div id="resumeTaskCardsWrap" class="m45-resume-wrap" style="margin-top:14px" aria-label="与本单位相关的续跑任务">
+          <div class="section-head" style="margin-bottom:8px">
+            <h2 style="font-size:1.05rem;margin:0">进行中 / 可续跑</h2>
+            <span class="muted">只显示与你单位相关的匹配任务</span>
+          </div>
+          <p class="muted" style="margin:0 0 8px">取消或部分完成后可在此冷静续跑；整库匹配与授权导入请走运营台。</p>
+          <div id="resumeTaskCards" class="list"></div>
+        </div>
+      </section>
+
+      <section id="guide" class="wb-block">
+        <div class="section-head">
+          <h2>四步办事指引</h2>
+          <span class="muted">大白话 · 与企业窗对齐</span>
+        </div>
+        <div class="svc-steps" id="svcSteps">
+          <a class="svc-step" href="#publish-cap">
+            <span class="svc-num">1</span>
+            <div>
+              <strong>上架一条能力</strong>
+              <p class="muted">写清能做什么、适合什么场景。企业按场景找你。</p>
+            </div>
+          </a>
+          <a class="svc-step" href="#publish-out">
+            <span class="svc-num">2</span>
+            <div>
+              <strong>上架一条成果</strong>
+              <p class="muted">专利 / 论文 / 样机都行，摘要用人话写转化价值。</p>
+            </div>
+          </a>
+          <a class="svc-step" href="#interest">
+            <span class="svc-num">3</span>
+            <div>
+              <strong>看企业意向</strong>
+              <p class="muted">对得上的需求会出现在这里。先点「看一页纸」。</p>
+            </div>
+          </a>
+          <div class="svc-step">
+            <span class="svc-num">4</span>
+            <div>
+              <strong>确认或请牵线</strong>
+              <p class="muted">合适就「有意向」；需要人跟就「请运营牵线」。不会自动对外发信。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pipeline" class="wb-block">
+        <div class="section-head">
+          <h2>供给与意向管道</h2>
+          <span class="muted">能力/成果 → 企业找来 → 回应</span>
+        </div>
+        <div id="pipe"></div>
+      </section>
+
+      <section id="interest" class="wb-block">
+        <div class="section-head">
+          <h2>③ 企业意向</h2>
+          <span class="muted">对得上的企业需求，点一下回应</span>
+        </div>
+        <div class="list" id="recent"></div>
+      </section>
+
+      <section id="mine" class="wb-block">
+        <div class="section-head">
+          <h2>我已上架</h2>
+          <span class="muted">本窗登记过的能力 / 成果</span>
+        </div>
+        <div class="list" id="cardList"></div>
+      </section>
+
+      <section id="publish-cap" class="wb-block">
+        <div class="section-head">
+          <h2>① 上架一条能力</h2>
+          <span class="muted">办事窗表单 · 必填尽量少</span>
+        </div>
+        <p class="muted">标题写清场景；摘要用大白话写能做什么。提交后会出现在供给管道，企业才能匹配到你。</p>
+        <div class="formbox svc-form">
+          <label class="lbl" for="cTitle">能力标题</label>
+          <input id="cTitle" placeholder="例如：工业视觉缺陷检测与产线落地" />
+          <label class="lbl" for="cSummary">能做什么？</label>
+          <textarea id="cSummary" rows="3" placeholder="适合什么场景、怎么合作、交付大概什么样"></textarea>
+          <label class="lbl" for="cKeywords">关键词</label>
+          <input id="cKeywords" placeholder="逗号分隔" value="技术服务,产学研" />
+          <div class="row">
+            <button type="button" id="btnCap" aria-label="提交能力到科研办事窗">提交到办事窗</button>
+            <a class="buttonish ghost" href="#guide">再看一遍指引</a>
+          </div>
+          <p id="capMsg" class="muted" role="status"></p>
+        </div>
+      </section>
+      <section id="publish-out" class="wb-block">
+        <div class="section-head">
+          <h2>② 上架一条成果</h2>
+          <span class="muted">办事窗表单 · 转化价值用人话</span>
+        </div>
+        <div class="formbox svc-form">
+          <label class="lbl" for="oTitle">成果标题</label>
+          <input id="oTitle" placeholder="成果标题" />
+          <label class="lbl" for="oAbstract">摘要 / 转化价值</label>
+          <textarea id="oAbstract" rows="3" placeholder="一两段人话：解决什么问题、现在成熟度如何"></textarea>
+          <div class="row">
+            <button type="button" id="btnOut" aria-label="提交成果到科研办事窗">提交到办事窗</button>
+            <a class="buttonish ghost" href="#interest">去看意向</a>
+          </div>
+          <p id="outMsg" class="muted" role="status"></p>
+        </div>
+      </section>
+    </main>
+  </div>
+  <nav class="mobile-wb-nav" aria-label="底部导航">
+    <a href="#home">首页</a>
+    <a href="#guide">指引</a>
+    <a href="#interest">意向</a>
+    <a href="#publish-cap">能力</a>
+    <a href="#publish-out">成果</a>
+  </nav>
+  <script src="/workbench-shared.js"></script>
+  <script>
+    btnLogout.onclick = () => YB.logout();
+    YB.bindSideNav();
+    (async () => {
+      const me = await YB.requireShell(['research']);
+      if (!me) return;
+      whoSub.textContent = `${me.personaLabel || '科研'} · ${me.user.name}`;
+      const home = await YB.loadHome();
+      let refreshInbox = async () => {};
+      YB.mountTopMeta(topMeta, me, home);
+      orgLine.textContent = home.org
+        ? `${home.org.name} · 把能对外服务的本事写清楚，企业才找得到你。`
+        : '请先认领高校/实验室单位。';
+      YB.renderTrust(trustBar, home.trust);
+      YB.renderKpis(kpis, home.kpis);
+      YB.renderTasks(tasks, home.tasks);
+      if (window.YB && typeof YB.loadResumeCards === 'function') {
+        YB.loadResumeCards('resumeTaskCards', {
+          limit: 8,
+          shell: 'research',
+          kinds: 'match',
+          onChanged: async () => {
+            try { YB.bustHomeCache(); } catch (_) {}
+            const h2 = await YB.loadHome();
+            YB.renderTasks(tasks, h2.tasks);
+            YB.renderKpis(kpis, h2.kpis);
+            try { await refreshInbox(true); } catch (_) {}
+          },
+        }).catch(() => {});
+      }
+      YB.renderPipeline(pipe, home.pipeline);
+      YB.renderEmpty(emptyBox, home.empty);
+
+      const caps = home.cards?.capabilities || [];
+      const outs = home.cards?.outcomes || [];
+      cardList.innerHTML =
+        [...caps.map((c) => ({ t: c.title, k: '能力' })), ...outs.map((o) => ({ t: o.title, k: '成果' }))]
+          .map((x) => `<div class="inbox-card"><h4>${YB.esc(x.t)} <span class="status-chip">${x.k}</span></h4>
+            <div class="meta muted">已在科研办事窗登记</div></div>`)
+          .join('') ||
+        `<div class="empty-state calm primary-empty"><div class="empty-ico" aria-hidden="true">档</div><strong>还没有上架内容</strong><p class="muted">从第 ① 步开始：先写一条能力，大约两分钟。</p><a class="buttonish empty-cta-primary" href="#publish-cap" aria-label="去上架一条科研能力">① 去上架能力</a><span class="empty-hint">下一步只做这一件就够了</span></div>`;
+
+      const inboxEmpty = `<div class="empty-state calm primary-empty"><div class="empty-ico" aria-hidden="true">意</div><strong>还没有企业意向</strong><p class="muted">先完成 ①② 上架；匹配跑完可点「看一页纸」。增量刷新，无需整页 reload。</p><a class="buttonish empty-cta-primary" href="#publish-cap" aria-label="上架能力以等待企业意向">① 上架能力</a><span class="empty-hint">下一步只做这一件就够了</span></div>`;
+      const inboxState = {
+        recent: home.recent || [],
+        knownIds: (home.recent || []).map((m) => m.id),
+        since: new Date().toISOString(),
+      };
+      recent.innerHTML = YB.renderInboxCardsHtml(inboxState.recent, {
+        roleHint: 'research',
+        emptyHtml: inboxEmpty,
+      });
+      refreshInbox = async (forceToast) => {
+        await YB.refreshInboxIncremental(recent, inboxState, {
+          roleHint: 'research',
+          emptyHtml: inboxEmpty,
+          forceToast: Boolean(forceToast),
+          onKpi: (k) => { try { YB.renderKpis(kpis, k); } catch (_) {} },
+        });
+      };
+      YB.bindInboxCardActions(recent, {
+        roleHint: 'research',
+        note: '科研办事窗回应',
+        recent: inboxState.recent,
+        getRecent: () => inboxState.recent,
+        onChanged: () => refreshInbox(true),
+      });
+      if (window.__yanqiResInboxStop) try { window.__yanqiResInboxStop(); } catch (_) {}
+      window.__yanqiResInboxStop = YB.startInboxDeltaPoll(recent, inboxState, {
+        roleHint: 'research',
+        emptyHtml: inboxEmpty,
+        everyMs: 5000,
+        onKpi: (k) => { try { YB.renderKpis(kpis, k); } catch (_) {} },
+      });
+    })();
+
+    btnCap.onclick = async () => {
+      capMsg.textContent = '提交中…';
+      try {
+        await YB.api('/portal/capabilities', {
+          method: 'POST',
+          body: JSON.stringify({
+            title: cTitle.value.trim(),
+            summary: cSummary.value.trim(),
+            keywords: (cKeywords.value || '技术服务').split(/[,，]/).map((s) => s.trim()).filter(Boolean),
+          }),
+        });
+        capMsg.textContent = '已提交到办事窗。';
+        YB.bustHomeCache();
+        setTimeout(() => location.reload(), 500);
+      } catch (e) {
+        capMsg.textContent = e.message || '失败';
+      }
+    };
+    btnOut.onclick = async () => {
+      outMsg.textContent = '提交中…';
+      try {
+        await YB.api('/portal/outcomes', {
+          method: 'POST',
+          body: JSON.stringify({
+            title: oTitle.value.trim(),
+            abstract: oAbstract.value.trim(),
+            type: 'OTHER',
+            keywords: ['成果转化'],
+          }),
+        });
+        outMsg.textContent = '已提交到办事窗。';
+        YB.bustHomeCache();
+        setTimeout(() => location.reload(), 500);
+      } catch (e) {
+        outMsg.textContent = e.message || '失败';
+      }
+    };
+  </script>
+</body>
+</html>

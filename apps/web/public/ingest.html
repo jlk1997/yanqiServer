@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>研企通 · 发布台</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><span class="logo">研企通</span><span class="sub">发布台</span></div>
+    <a href="/ops.html">返回运营台</a>
+  </header>
+  <main style="max-width:960px;margin:24px auto;padding:0 16px">
+    <p>原始采集先清洗。只有发布态进入门户和匹配。影子匹配不写线索。</p>
+    <div id="publishDesk" class="cards"></div>
+    <div class="row" style="gap:8px;margin:12px 0">
+      <button type="button" id="btnDeskRefresh">刷新发布台</button>
+      <button type="button" id="btnDeskRejudge">按规则重判发布</button>
+      <button type="button" id="btnDeskClean" class="ghost">清洗未处理草稿</button>
+    </div>
+    <div id="deskQueue" class="list"></div>
+    <h3>缺联系人</h3>
+    <div id="deskGaps" class="list"></div>
+    <h3>同名老师</h3>
+    <div id="deskDupes" class="list"></div>
+  </main>
+  <script>
+    function api(path, opts) {
+      const key = localStorage.getItem('yanqi_api_key') || 'yanqi-admin-demo-key';
+      return fetch(path, Object.assign({ headers: { 'Content-Type': 'application/json', 'X-API-Key': key } }, opts || {})).then(async (res) => {
+        const text = await res.text();
+        const body = text ? JSON.parse(text) : {};
+        if (!res.ok) throw new Error(body.message || text);
+        return body;
+      });
+    }
+  </script>
+  <script src="/publish-desk.js"></script>
+  <script>document.getElementById('btnDeskRefresh').click();</script>
+</body>
+</html>

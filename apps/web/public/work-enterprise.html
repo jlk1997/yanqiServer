@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>研企通 · 企业办事窗</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="shell-light">
+  <a class="skip-link" href="#main">跳到主内容</a>
+  <header class="top light-top">
+    <div class="brand">
+      <span class="logo">研企通</span>
+      <span class="sub" id="whoSub">企业办事窗</span>
+    </div>
+    <div class="auth">
+      <div id="topMeta"></div>
+      <a class="buttonish ghost" href="/portal.html#demands">逛广场</a>
+      <button type="button" class="ghost" id="btnLogout">退出</button>
+    </div>
+  </header>
+  <div class="wb-shell">
+    <aside class="wb-side" aria-label="企业导航">
+      <div class="sec">办事</div>
+      <a class="on" href="#home">办事首页</a>
+      <a href="#guide">四步指引</a>
+      <a href="#inbox">匹配收件箱</a>
+      <a href="#publish-demand">① 发需求</a>
+      <a href="#pipeline">进度管道</a>
+      <a href="#bills">账单回执</a>
+      <div class="sec">更多</div>
+      <a href="/portal.html#outcomes">成果广场</a>
+      <a href="/portal.html#capabilities">能力广场</a>
+      <a href="/">身份入口</a>
+    </aside>
+    <main class="wb-main" id="main">
+      <section id="home">
+        <div class="wb-hero-line">
+          <div>
+            <h1>企业办事窗</h1>
+            <p class="lead" id="orgLine">把技术卡点说清楚，系统帮你找对实验室。</p>
+          </div>
+        </div>
+        <div class="hall-cue">
+          <div class="hall-cue-icon" aria-hidden="true">窗</div>
+          <div>
+            <strong>像政务大厅的「技术对接」窗口</strong>
+            <p class="muted">取号办事：①发需求 → ②看收件箱推荐 → ③确认意向 → ④经纪人牵线。每步都有人审，不自动对外泄露。</p>
+          </div>
+        </div>
+        <div class="trust-bar" id="trustBar" aria-label="信任提示"></div>
+        <div class="tip-banner" id="billRemindBanner" hidden style="border-color:#f59e0b;background:#fffbeb"></div>
+        <div class="kpi-row" id="kpis"></div>
+        <h2>今天先干这三件</h2>
+        <div class="task-row" id="tasks"></div>
+        <div id="emptyBox" hidden></div>
+        <div id="resumeTaskCardsWrap" class="m45-resume-wrap" style="margin-top:14px" aria-label="与本单位相关的续跑任务">
+          <div class="section-head" style="margin-bottom:8px">
+            <h2 style="font-size:1.05rem;margin:0">进行中 / 可续跑</h2>
+            <span class="muted">只显示与你单位相关的匹配任务</span>
+          </div>
+          <p class="muted" style="margin:0 0 8px">取消或部分完成后可在此冷静续跑；整库匹配与授权导入请走运营台。</p>
+          <div id="resumeTaskCards" class="list"></div>
+        </div>
+      </section>
+
+      <section id="guide" class="wb-block">
+        <div class="section-head">
+          <h2>四步办事指引</h2>
+          <span class="muted">大白话 · 不会迷路</span>
+        </div>
+        <div class="svc-steps" id="svcSteps">
+          <a class="svc-step" href="#publish-demand">
+            <span class="svc-num">1</span>
+            <div>
+              <strong>发一条技术需求</strong>
+              <p class="muted">标题写场景，卡点用大白话。预算可以先写大概。</p>
+            </div>
+          </a>
+          <a class="svc-step" href="#inbox">
+            <span class="svc-num">2</span>
+            <div>
+              <strong>看匹配收件箱</strong>
+              <p class="muted">系统推实验室/成果。点「看一页纸」就懂为什么推。</p>
+            </div>
+          </a>
+          <a class="svc-step" href="#inbox">
+            <span class="svc-num">3</span>
+            <div>
+              <strong>确认有意向</strong>
+              <p class="muted">合适就点头；不合适就说暂不合适。不会自动对外发信。</p>
+            </div>
+          </a>
+          <div class="svc-step">
+            <span class="svc-num">4</span>
+            <div>
+              <strong>经纪人牵线收口</strong>
+              <p class="muted">有意向后技术经理人跟进对接，合同与权利线下对齐。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="pipeline" class="wb-block">
+        <div class="section-head">
+          <h2>对接进度</h2>
+          <span class="muted">发需求 → 匹配 → 意向 → 收口</span>
+        </div>
+        <div id="pipe"></div>
+      </section>
+
+      <section id="inbox" class="wb-block">
+        <div class="section-head">
+          <h2>② 匹配收件箱</h2>
+          <span class="muted">推荐给你的实验室 / 成果</span>
+        </div>
+        <div class="list" id="recent"></div>
+      </section>
+
+      <section id="my-demands" class="wb-block">
+        <div class="section-head">
+          <h2>我发出的需求</h2>
+          <span class="muted">本窗登记过的单</span>
+        </div>
+        <div class="list" id="demandList"></div>
+      </section>
+
+
+      <section id="bills" class="wb-block">
+        <div class="section-head">
+          <h2>账单与回执</h2>
+          <span class="muted">支付试点 · 演示不扣款</span>
+        </div>
+        <div class="hall-cue" style="border-color:#f59e0b;background:#fffbeb">
+          <div class="hall-cue-icon" aria-hidden="true" style="background:#f59e0b;color:#fff">演</div>
+          <div>
+            <strong>演示不扣款</strong>
+            <p class="muted" id="entBillBanner">这里只跑试点骨架：下单 → 模拟支付 → 看回执。不会连真支付通道，也不会扣你的钱。</p>
+          </div>
+        </div>
+        <div class="row" style="margin:10px 0;gap:8px;flex-wrap:wrap">
+          <button type="button" id="btnEntOrder">生成演示升级单</button>
+          <button type="button" class="ghost" id="btnEntBillRefresh">刷新</button>
+          <button type="button" class="ghost" id="btnEntRemindDraft">生成账单提醒草稿</button>
+          <button type="button" class="ghost" id="btnEntReceiptZip">打包已付回执 ZIP</button>
+          <a class="buttonish ghost" href="/portal.html#pricing">去套餐页</a>
+        </div>
+        <p class="muted" id="entRemindMsg" role="status"></p>
+        <p class="muted" id="entSlaNote"></p>
+        <div class="kpi-row" id="entBillKpis"></div>
+        <h3>我的账单</h3>
+        <div class="list" id="entBillList"></div>
+        <h3>我的回执</h3>
+        <div class="list" id="entReceiptList"></div>
+      </section>
+      <section id="publish-demand" class="wb-block">
+        <div class="section-head">
+          <h2>① 发一条技术需求</h2>
+          <span class="muted">办事窗表单 · 必填尽量少</span>
+        </div>
+        <p class="muted">标题写清楚场景；卡点用大白话；预算可以先写大概。提交后人审匹配，不会立刻对外广播你的真名。</p>
+        <div class="formbox svc-form">
+          <label class="lbl" for="dTitle">需求标题</label>
+          <input id="dTitle" placeholder="例如：精密零件表面缺陷在线视觉检测" />
+          <label class="lbl" for="dProblem">现在卡在哪？</label>
+          <textarea id="dProblem" rows="4" placeholder="希望做成什么样？现有方案差在哪？"></textarea>
+          <label class="lbl" for="dBudget">预算区间（可空）</label>
+          <input id="dBudget" placeholder="例如 30-80万" />
+          <label class="lbl" for="dIndustry">行业 / 标签</label>
+          <input id="dIndustry" placeholder="逗号分隔" value="智能制造" />
+          <div class="row">
+            <button type="button" id="btnPubDemand" aria-label="提交技术需求到办事窗">提交到办事窗</button>
+            <a class="buttonish ghost" href="#guide">再看一遍指引</a>
+          </div>
+          <p id="pubMsg" class="muted" role="status"></p>
+        </div>
+      </section>
+    </main>
+  </div>
+  <nav class="mobile-wb-nav" aria-label="底部导航">
+    <a href="#home">首页</a>
+    <a href="#guide">指引</a>
+    <a href="#inbox">收件箱</a>
+    <a href="#publish-demand">发需求</a>
+    <a href="#bills">账单</a>
+  </nav>
+  <script src="/workbench-shared.js"></script>
+  <script>
+    btnLogout.onclick = () => YB.logout();
+    YB.bindSideNav();
+    (async () => {
+      const me = await YB.requireShell(['enterprise', 'onboarding']);
+      if (!me) return;
+      whoSub.textContent = `${me.personaLabel || '企业'} · ${me.user.name}`;
+      const home = await YB.loadHome();
+      let refreshInbox = async () => {};
+      YB.mountTopMeta(topMeta, me, home);
+      orgLine.textContent = home.org
+        ? `${home.org.name} · 把技术卡点说清楚，系统帮你找对实验室。`
+        : '你还没绑单位，先去门户认领，或直接试着发需求。';
+      YB.renderTrust(trustBar, home.trust);
+      YB.renderKpis(kpis, home.kpis);
+      YB.renderTasks(tasks, home.tasks);
+      if (window.YB && typeof YB.loadResumeCards === 'function') {
+        YB.loadResumeCards('resumeTaskCards', {
+          limit: 8,
+          shell: 'enterprise',
+          kinds: 'match',
+          onChanged: async () => {
+            try { YB.bustHomeCache(); } catch (_) {}
+            const h2 = await YB.loadHome();
+            YB.renderTasks(tasks, h2.tasks);
+            YB.renderKpis(kpis, h2.kpis);
+            try { await refreshInbox(true); } catch (_) {}
+          },
+        }).catch(() => {});
+      }
+      YB.renderPipeline(pipe, home.pipeline);
+      YB.renderEmpty(emptyBox, home.empty);
+      try {
+        const br = home.billReminders;
+        if (br && br.unpaidCount > 0 && billRemindBanner) {
+          billRemindBanner.hidden = false;
+          const slaBits = [];
+          if (br.soonCount) slaBits.push('临近 ' + br.soonCount);
+          if (br.overdueCount) slaBits.push('逾期关注 ' + br.overdueCount);
+          billRemindBanner.innerHTML = `<strong>演示账单提醒${slaBits.length ? ' · ' + slaBits.join(' / ') : ''}</strong><p class="muted" style="margin:4px 0 8px">${YB.esc(br.bannerZh || '')}</p>
+            <p class="muted" style="margin:0 0 8px">${YB.esc(br.slaPolicyZh || '')}</p>
+            <div class="row" style="gap:8px;flex-wrap:wrap">
+              <a class="buttonish" href="#bills">去账单回执</a>
+              <button type="button" class="ghost" id="btnHomeRemindDraft">写入提醒草稿</button>
+            </div>`;
+          const b = document.getElementById('btnHomeRemindDraft');
+          if (b) b.onclick = () => draftBillRemind();
+        }
+      } catch (_) {}
+
+      demandList.innerHTML =
+        (home.myDemands || [])
+          .map(
+            (d) => `<div class="inbox-card"><h4>${YB.esc(d.title)} <span class="status-chip">${YB.esc(d.statusZh)}</span></h4>
+            <div class="meta muted">已在办事窗登记 · 可在收件箱等推荐</div></div>`,
+          )
+          .join('') ||
+        `<div class="empty-state calm primary-empty"><div class="empty-ico" aria-hidden="true">需</div><strong>还没有发出的需求</strong><p class="muted">从第 ① 步开始：写清场景和卡点，大约两分钟。</p><a class="buttonish empty-cta-primary" href="#publish-demand" aria-label="去发一条技术需求">① 去发需求</a><span class="empty-hint">下一步只做这一件就够了</span></div>`;
+
+      const inboxEmpty = `<div class="empty-state calm primary-empty"><div class="empty-ico" aria-hidden="true">信</div><strong>收件箱还是空的</strong><p class="muted">先发一条技术需求。匹配跑完会出现「看一页纸」和「确认有意向」；无需整页刷新。</p><a class="buttonish empty-cta-primary" href="#publish-demand" aria-label="去发需求以填充收件箱">① 去发需求</a><span class="empty-hint">下一步只做这一件就够了</span></div>`;
+      const inboxState = {
+        recent: home.recent || [],
+        knownIds: (home.recent || []).map((m) => m.id),
+        since: new Date().toISOString(),
+      };
+      recent.innerHTML = YB.renderInboxCardsHtml(inboxState.recent, {
+        roleHint: 'enterprise',
+        emptyHtml: inboxEmpty,
+      });
+      refreshInbox = async (forceToast) => {
+        await YB.refreshInboxIncremental(recent, inboxState, {
+          roleHint: 'enterprise',
+          emptyHtml: inboxEmpty,
+          forceToast: Boolean(forceToast),
+          onKpi: (k) => { try { YB.renderKpis(kpis, k); } catch (_) {} },
+        });
+      };
+      YB.bindInboxCardActions(recent, {
+        roleHint: 'enterprise',
+        recent: inboxState.recent,
+        getRecent: () => inboxState.recent,
+        onChanged: () => refreshInbox(true),
+      });
+      try { await refreshEntBills(); } catch (_) {}
+      // M58：匹配完成后短轮询增量，不整页 reload；busy/toast 由 refresh 清理
+      if (window.__yanqiEntInboxStop) try { window.__yanqiEntInboxStop(); } catch (_) {}
+      window.__yanqiEntInboxStop = YB.startInboxDeltaPoll(recent, inboxState, {
+        roleHint: 'enterprise',
+        emptyHtml: inboxEmpty,
+        everyMs: 5000,
+        onKpi: (k) => { try { YB.renderKpis(kpis, k); } catch (_) {} },
+      });
+      // 续跑卡完成后也增量刷收件箱
+      if (window.YB && typeof YB.loadResumeCards === 'function') {
+        /* already loaded above; patch onChanged via re-call is heavy — poll covers match done */
+      }
+    })();
+
+
+    async function refreshEntBills() {
+      try {
+        const pilot = await YB.api('/billing/pilot');
+        if (pilot.bannerZh) entBillBanner.textContent = pilot.bannerZh;
+        entBillKpis.innerHTML = [
+          ['支付维', Math.round((pilot.paymentMaturityApprox || 0) * 100) + '%'],
+          ['真扣款', '否'],
+        ].map(([a,b]) => `<span class="status-chip">${a} ${b}</span>`).join('');
+      } catch (_) {}
+      const mine = await YB.api('/billing/mine');
+      let remMap = {};
+      try {
+        const rem = await YB.api('/billing/reminders');
+        (rem.items || []).forEach((it) => { remMap[it.billId] = it; });
+        if (entSlaNote) {
+          entSlaNote.textContent = rem.slaPolicyZh
+            ? rem.slaPolicyZh + (rem.unpaidCount ? ` · 待付 ${rem.unpaidCount}（临近 ${rem.soonCount || 0} / 逾期关注 ${rem.overdueCount || 0}）` : '')
+            : '';
+        }
+      } catch (_) {}
+      entBillList.innerHTML =
+        (mine.bills || [])
+          .map((b) => {
+            const sla = remMap[b.id];
+            const pay = b.canSimulatePay
+              ? `<button type="button" class="buttonish btn-sim" data-id="${YB.esc(b.id)}" data-tok="${YB.esc(b.stubToken)}">模拟支付</button>`
+              : '';
+            const urg = sla
+              ? `<span class="status-chip">${YB.esc(sla.urgencyZh || '')}</span> <span class="muted">${YB.esc(String(sla.ageHours || ''))}h</span>`
+              : '';
+            return `<div class="inbox-card">
+              <h4>¥${YB.esc(b.amountYuan)} · ${YB.esc(b.planCode)} <span class="status-chip">${YB.esc(b.statusZh || b.status)}</span> ${urg}</h4>
+              <div class="meta">账单 ${YB.esc(b.id.slice(0, 12))}…${sla && sla.slaZh ? ' · ' + YB.esc(sla.slaZh) : ''}</div>
+              <div class="inbox-actions">${pay || '<span class="muted">已结束</span>'}</div>
+            </div>`;
+          })
+          .join('') ||
+        `<div class="empty-state calm"><div class="empty-ico" aria-hidden="true">账</div><strong>还没有账单</strong><p class="muted">点「生成演示升级单」体验一遍，不会真扣款。</p></div>`;
+      entReceiptList.innerHTML =
+        (mine.receipts || [])
+          .map(
+            (r) => `<div class="inbox-card">
+              <h4>${YB.esc(r.number)} · ¥${YB.esc(r.amountYuan)} <span class="status-chip">${YB.esc(r.statusZh || '演示回执')}</span></h4>
+              <div class="meta">${YB.esc(r.title || r.planCode || '')}</div>
+              <div class="inbox-actions">
+                <a class="buttonish ghost" href="${YB.esc(r.receiptPath)}" target="_blank">看回执</a>
+                <a class="buttonish" href="${YB.esc(r.exportPdf || ('/api/billing/receipts/' + r.id + '/pdf'))}" target="_blank">下载 PDF</a>
+              </div>
+            </div>`,
+          )
+          .join('') ||
+        `<div class="empty-state calm"><strong>暂无回执</strong><p class="muted">模拟支付成功后会出现演示发票回执。</p></div>`;
+      entBillList.querySelectorAll('.btn-sim').forEach((btn) => {
+        btn.onclick = async () => {
+          if (!confirm('演示不扣款：确认模拟支付？')) return;
+          try {
+            await YB.api('/billing/checkout/' + btn.dataset.id + '/simulate-pay', {
+              method: 'POST',
+              body: JSON.stringify({ stubToken: btn.dataset.tok }),
+            });
+            alert('已模拟支付（未真扣款）');
+            YB.bustHomeCache();
+            await refreshEntBills();
+          } catch (e) {
+            alert(e.message || '失败');
+          }
+        };
+      });
+    }
+    btnEntOrder && (btnEntOrder.onclick = async () => {
+      try {
+        const r = await YB.api('/billing/order', { method: 'POST', body: JSON.stringify({ planCode: 'org_pro' }) });
+        alert(r.bannerZh || r.message || '订单已生成');
+        await refreshEntBills();
+      } catch (e) {
+        alert(e.message || '下单失败');
+      }
+    });
+    btnEntBillRefresh && (btnEntBillRefresh.onclick = () => refreshEntBills().catch((e) => alert(e.message || e)));
+
+    async function draftBillRemind() {
+      try {
+        const r = await YB.api('/billing/reminders/notify-draft', { method: 'POST', body: '{}' });
+        const msg = r.bannerZh || r.message || r.noteZh || '已写入提醒';
+        if (entRemindMsg) entRemindMsg.textContent = msg;
+        alert(msg);
+      } catch (e) {
+        alert(e.message || '提醒草稿失败');
+      }
+    }
+    btnEntRemindDraft && (btnEntRemindDraft.onclick = () => draftBillRemind());
+    btnEntReceiptZip && (btnEntReceiptZip.onclick = async () => {
+      try {
+        const r = await YB.api('/billing/receipts/archive', { method: 'POST', body: '{}' });
+        if (entRemindMsg) entRemindMsg.textContent = (r.bannerZh || '') + ' · ' + (r.count || 0) + ' 份';
+        if (r.downloadPath) window.open(r.downloadPath, '_blank');
+        else alert(r.noteZh || '已生成');
+      } catch (e) {
+        alert(e.message || '归档失败');
+      }
+    });
+
+    // SLA note from reminders
+    (async () => {
+      try {
+        const rem = await YB.api('/billing/reminders');
+        if (entSlaNote) {
+          entSlaNote.textContent = rem.slaPolicyZh
+            ? rem.slaPolicyZh + (rem.unpaidCount ? ` · 待付 ${rem.unpaidCount}（临近 ${rem.soonCount || 0} / 逾期关注 ${rem.overdueCount || 0}）` : '')
+            : '';
+        }
+      } catch (_) {}
+    })();
+
+    btnPubDemand.onclick = async () => {
+      // M56：发需求等待/安全反馈，避免静默挂起
+      pubMsg.textContent = '正在提交需求…';
+      pubMsg.setAttribute('aria-busy', 'true');
+      try {
+        if (!dTitle.value.trim() || !dProblem.value.trim()) {
+          pubMsg.textContent = '请先填写标题和卡点说明';
+          YB.toast && YB.toast('标题和卡点都要填', 'warn');
+          return;
+        }
+        await YB.api('/portal/demands', {
+          method: 'POST',
+          body: JSON.stringify({
+            title: dTitle.value.trim(),
+            problem: dProblem.value.trim(),
+            budgetBand: dBudget.value.trim() || undefined,
+            industry: (dIndustry.value || '智能制造').split(/[,，]/).map((s) => s.trim()).filter(Boolean),
+          }),
+          busyText: '提交需求中…',
+          successToast: false,
+        });
+        pubMsg.textContent = '已提交。去收件箱看推荐/一页纸；匹配跑完会出现「看一页纸」。';
+        YB.toast && YB.toast('需求已提交，稍后看收件箱推荐', 'ok');
+        dTitle.value = '';
+        dProblem.value = '';
+        setTimeout(() => location.reload(), 700);
+      } catch (e) {
+        const msg = String(e.message || e || '发布失败');
+        pubMsg.textContent = msg;
+        if (/401|登录|会话/.test(msg)) {
+          YB.toast && YB.toast('登录已失效，请重新登录后再发需求', 'security');
+          YB.securityBanner && YB.securityBanner('安全提示：发需求需要登录（401）。', 'security');
+        } else if (/403|无权|没有权限/.test(msg)) {
+          YB.toast && YB.toast('没有权限发需求（403）', 'security');
+        } else {
+          YB.toast && YB.toast(msg.slice(0, 160), 'err');
+        }
+      } finally {
+        pubMsg.removeAttribute('aria-busy');
+      }
+    };
+  </script>
+</body>
+</html>

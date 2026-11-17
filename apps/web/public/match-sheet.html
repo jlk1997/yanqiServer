@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>研企通 · 匹配一页纸</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="shell-light">
+  <a class="skip-link" href="#main">跳到主内容</a>
+  <header class="top light-top no-print">
+    <div class="brand">
+      <span class="logo">研企通</span>
+      <span class="sub">匹配一页纸</span>
+    </div>
+    <div class="auth export-bar">
+      <label class="tier-pick muted" for="tierSel">分享级别
+        <select id="tierSel" aria-label="一页纸分享级别">
+          <option value="full">全量（内部）</option>
+          <option value="partner">合作方</option>
+          <option value="public">对外脱敏</option>
+        </select>
+      </label>
+      <button type="button" class="ghost" id="btnPrint">打印 / 另存 PDF</button>
+      <button type="button" class="ghost" id="btnHtml">下载 HTML</button>
+      <button type="button" class="ghost" id="btnPdf" aria-label="下载一页纸 PDF">下载 PDF</button>
+      <button type="button" class="ghost" id="btnPng">下载长图 PNG</button>
+      <button type="button" class="ghost" id="btnJpeg">下载长图 JPEG</button>
+      <button type="button" class="ghost" id="btnShare" aria-label="生成一页纸分享链接">生成分享链接</button>
+      <button type="button" class="ghost" id="btnMyShares">我的分享</button>
+      <button type="button" class="ghost" id="btnCopy">复制本页链接</button>
+      <a class="buttonish ghost" href="/" id="backHome">返回入口</a>
+      <button type="button" class="ghost" id="btnLogout">退出</button>
+    </div>
+  </header>
+  <main class="page-sheet" id="main">
+    <div class="hall-cue no-print" id="tierHint">
+      <div class="hall-cue-icon" aria-hidden="true">纸</div>
+      <div>
+        <strong id="tierTitle">全量（内部）</strong>
+        <p class="muted" id="tierBlurb">含完整组织名与权利细节，仅登录方可见。</p>
+      </div>
+    </div>
+    <div class="sheet-doc" id="doc" aria-busy="true">
+      <div class="yb-sheet-skeleton m55-skel" aria-hidden="true">
+        <div class="skeleton skel-line skel-title"></div>
+        <div class="skeleton skel-line"></div>
+        <div class="skeleton skel-line"></div>
+        <div class="skeleton skel-line skel-short"></div>
+        <div class="skeleton skel-block"></div>
+      </div>
+      <p class="muted m55-wait-hint" id="sheetWaitHint">正在打开一页纸…</p>
+    </div>
+    <p class="muted no-print" id="shareOut" hidden></p>
+    <section class="share-desk no-print" id="shareDesk" hidden>
+      <h3>我的分享台账</h3>
+      <p class="muted" style="margin:0 0 8px;font-size:12.5px">可撤销或改过期天数。撤销/过期后，公开令牌立刻打不开。</p>
+      <div class="row" style="margin-bottom:8px">
+        <button type="button" class="ghost" id="btnRefreshShares">刷新台账</button>
+        <label class="muted" style="font-size:12.5px"><input type="checkbox" id="shareIncludeDead" /> 含已撤销/过期</label>
+      </div>
+      <div id="shareList"></div>
+    </section>
+  </main>
+  <div class="onepager-sticky-bar no-print" id="onePagerBar" role="toolbar" aria-label="一页纸主操作">
+    <button type="button" id="barPdf" class="buttonish" aria-label="导出一页纸 PDF">导出 PDF</button>
+    <button type="button" id="barShare" class="ghost" aria-label="生成分享链接">分享</button>
+    <button type="button" id="barPrint" class="ghost" aria-label="打印一页纸">打印</button>
+  </div>
+  <script src="/workbench-shared.js"></script>
+  <script>
+    btnLogout.onclick = () => YB.logout();
+    btnPrint.onclick = () => window.print();
+    document.body.classList.add('has-onepager-bar', 'density-m40');
+    if (typeof YB.enhanceA11y === 'function') YB.enhanceA11y(document);
+    barPdf && (barPdf.onclick = () => btnPdf.click());
+    barShare && (barShare.onclick = () => btnShare.click());
+    barPrint && (barPrint.onclick = () => btnPrint.click());
+    const params = new URLSearchParams(location.search);
+    let id = params.get('id');
+    const shareToken = params.get('share');
+    const tierFromUrl = params.get('tier') || 'full';
+    tierSel.value = ['full', 'partner', 'public'].includes(tierFromUrl) ? tierFromUrl : 'full';
+
+    const TIER_FALLBACK = {
+      full: { labelZh: '全量（内部）', blurbZh: '含完整组织名、匹配分与权利细节。仅登录方可见，勿外传。' },
+      partner: { labelZh: '合作方', blurbZh: '保留匹配理由与分数，组织名略脱敏。适合转给合作对接人。' },
+      public: { labelZh: '对外脱敏', blurbZh: '仅公开口径：别名、分档、通用下一步。适合园区公示或对外转发。' },
+    };
+
+    function applyTierHint(tier, meta) {
+      const m = meta || TIER_FALLBACK[tier] || TIER_FALLBACK.full;
+      tierTitle.textContent = m.labelZh || tier;
+      tierBlurb.textContent = m.blurbZh || '';
+    }
+
+    function showSheetSkeleton(msg) {
+      doc.setAttribute('aria-busy', 'true');
+      doc.innerHTML =
+        `<div class="yb-sheet-skeleton m55-skel" aria-hidden="true">
+          <div class="skeleton skel-line skel-title"></div>
+          <div class="skeleton skel-line"></div>
+          <div class="skeleton skel-line"></div>
+          <div class="skeleton skel-line skel-short"></div>
+          <div class="skeleton skel-block"></div>
+        </div>
+        <p class="muted m55-wait-hint">${YB.esc(msg || '正在打开一页纸…')}</p>`;
+    }
+
+    async function loadById(matchId, tier) {
+      showSheetSkeleton('正在打开一页纸（瘦身首屏）…');
+      YB.busy(true, '打开一页纸…');
+      const t0 = performance.now();
+      try {
+        const data = await YB.api(
+          '/matches/' + matchId + '/one-pager?tier=' + encodeURIComponent(tier) + '&fields=sheet&slim=1',
+          { busy: false, quiet: false, timeoutMs: 25000, successToast: false },
+        );
+        const op = data.onePager || data;
+        applyTierHint(data.tier || tier, data.tierMeta);
+        document.title = (op.headlineZh || '匹配一页纸') + ' · 研企通';
+        const ms = Math.round(data.timingMs != null ? data.timingMs : performance.now() - t0);
+        doc.removeAttribute('aria-busy');
+        doc.innerHTML =
+          `<div class="yb-sheet-kicker">匹配一页纸 · ${YB.esc(op.shareTierZh || tier)} · ${YB.esc(data.cache || 'MISS')} · ${ms}ms</div>
+           <h1 style="margin:4px 0 12px;font-size:22px">${YB.esc(op.headlineZh || '')}</h1>` +
+          YB.renderOnePager(op, {});
+        YB.toast('一页纸已就绪（' + ms + 'ms · ' + (data.cache || 'MISS') + '）', 'ok', 2200);
+        return data;
+      } catch (e) {
+        doc.removeAttribute('aria-busy');
+        doc.innerHTML =
+          `<div class="empty-state calm"><strong>打不开一页纸</strong><p class="muted">${YB.esc(e.message || e)}</p>
+           <p class="muted">若提示未登录/无权限，请返回入口重新登录或切换演示号。</p></div>`;
+        throw e;
+      } finally {
+        YB.busy(false);
+      }
+    }
+
+    async function loadByShare(token) {
+      showSheetSkeleton('正在打开分享一页纸…');
+      YB.busy(true, '打开分享链接…');
+      try {
+        const r = await fetch('/api/matches/one-pager/s/' + encodeURIComponent(token));
+        const data = await r.json().catch(() => ({}));
+        if (r.status === 401) {
+          YB.toast('登录已失效，请重新登录', 'security');
+          YB.securityBanner('安全提示：分享或会话需要登录（401）。', 'security');
+          throw new Error(data.message || '未登录或会话过期');
+        }
+        if (r.status === 403) {
+          YB.toast('没有权限查看此分享', 'security');
+          YB.securityBanner('安全提示：当前无权打开该分享（403）。', 'security');
+          throw new Error(data.message || '没有权限');
+        }
+        if (!r.ok) throw new Error(data.message || data.messageZh || '分享链接无效');
+        const op = data.onePager || {};
+        const tier = data.share?.tier || 'public';
+        tierSel.value = tier;
+        applyTierHint(tier, { labelZh: data.share?.tierZh, blurbZh: data.noteZh });
+        id = data.share?.matchId || id;
+        document.title = (op.headlineZh || '匹配一页纸') + ' · 研企通';
+        doc.removeAttribute('aria-busy');
+        doc.innerHTML =
+          `<div class="yb-sheet-kicker">分享打开 · ${YB.esc(data.share?.tierZh || tier)}</div>
+           <h1 style="margin:4px 0 12px;font-size:22px">${YB.esc(op.headlineZh || '')}</h1>` +
+          YB.renderOnePager(op, {});
+        YB.toast('分享一页纸已打开', 'ok', 2000);
+        if (tier === 'full' && !YB.token) {
+          shareOut.hidden = false;
+          shareOut.textContent = '全量分享建议登录后查看导出；当前若字段偏少，请登录。';
+        }
+        return data;
+      } catch (e) {
+        doc.removeAttribute('aria-busy');
+        doc.innerHTML =
+          `<div class="empty-state calm"><strong>还不能打开</strong><p class="muted">${YB.esc(e.message || e)}</p></div>`;
+        YB.toast(e.message || '分享打不开', 'warn');
+      } finally {
+        YB.busy(false);
+      }
+    }
+
+    function bindExports(tier) {
+      const role = '';
+      btnHtml.onclick = async (e) => {
+        e.preventDefault();
+        if (!id) return alert('分享脱敏版请用「生成分享链接」或打印本页');
+        if (!YB.token) { YB.toast('请先登录再导出', 'security'); return (location.href = '/?next=' + encodeURIComponent(location.pathname + location.search)); }
+        await YB.downloadAuth(
+          '/matches/' + id + '/one-pager/html?download=1&tier=' + encodeURIComponent(tier),
+          'yanqi-one-pager-' + tier + '.html',
+        );
+      };
+      btnPdf.onclick = async (e) => {
+        e.preventDefault();
+        if (!id) return alert('请先有匹配编号或登录后导出');
+        if (!YB.token) { YB.toast('请先登录再导出', 'security'); return (location.href = '/?next=' + encodeURIComponent(location.pathname + location.search)); }
+        await YB.downloadAuth(
+          '/matches/' + id + '/one-pager/pdf?tier=' + encodeURIComponent(tier),
+          'yanqi-one-pager-' + tier + '.pdf',
+        );
+      };
+      btnPng.onclick = async (e) => {
+        e.preventDefault();
+        if (!id) return alert('请先有匹配编号');
+        if (!YB.token) { YB.toast('请先登录再导出', 'security'); return (location.href = '/?next=' + encodeURIComponent(location.pathname + location.search)); }
+        btnPng.textContent = '生成中…';
+        try {
+          await YB.downloadAuth(
+            '/matches/' + id + '/one-pager/png?tier=' + encodeURIComponent(tier),
+            'yanqi-one-pager-' + tier + '.png',
+          );
+        } finally {
+          btnPng.textContent = '下载长图 PNG';
+        }
+      };
+      btnJpeg.onclick = async (e) => {
+        e.preventDefault();
+        if (!id) return alert('请先有匹配编号');
+        if (!YB.token) { YB.toast('请先登录再导出', 'security'); return (location.href = '/?next=' + encodeURIComponent(location.pathname + location.search)); }
+        btnJpeg.textContent = '生成中…';
+        try {
+          await YB.downloadAuth(
+            '/matches/' + id + '/one-pager/jpeg?tier=' + encodeURIComponent(tier),
+            'yanqi-one-pager-' + tier + '.jpg',
+          );
+        } finally {
+          btnJpeg.textContent = '下载长图 JPEG';
+        }
+      };
+
+      btnShare.onclick = async () => {
+        if (!id) return alert('缺少匹配编号，无法生成分享');
+        if (!YB.token) { YB.toast('请先登录再导出', 'security'); return (location.href = '/?next=' + encodeURIComponent(location.pathname + location.search)); }
+        try {
+          const r = await YB.api('/matches/' + id + '/one-pager/share', {
+            method: 'POST',
+            body: JSON.stringify({ tier: tierSel.value, expiresDays: 14 }),
+          });
+          const url = location.origin + (r.urlPath || '/match-sheet.html?share=' + r.share.token);
+          shareOut.hidden = false;
+          shareOut.innerHTML = `${YB.esc(r.noteZh || '')}<br/><code>${YB.esc(url)}</code>`;
+          try {
+            await navigator.clipboard.writeText(url);
+            btnShare.textContent = '链接已复制';
+            setTimeout(() => (btnShare.textContent = '生成分享链接'), 1600);
+          } catch {
+            prompt('复制分享链接', url);
+          }
+        } catch (e) {
+          alert(e.message || '生成失败');
+        }
+      };
+      btnCopy.onclick = async () => {
+        const url =
+          location.origin +
+          '/match-sheet.html?' +
+          (shareToken ? 'share=' + encodeURIComponent(shareToken) : 'id=' + encodeURIComponent(id || '') + '&tier=' + encodeURIComponent(tierSel.value));
+        try {
+          await navigator.clipboard.writeText(url);
+          btnCopy.textContent = '已复制';
+          setTimeout(() => (btnCopy.textContent = '复制本页链接'), 1500);
+        } catch {
+          prompt('复制链接', url);
+        }
+      };
+    }
+
+    tierSel.onchange = async () => {
+      if (!id) {
+        applyTierHint(tierSel.value);
+        return;
+      }
+      if (!YB.token && tierSel.value === 'full') {
+        location.href = '/?next=' + encodeURIComponent('/match-sheet.html?id=' + id + '&tier=full');
+        return;
+      }
+      try {
+        await loadById(id, tierSel.value);
+        bindExports(tierSel.value);
+        history.replaceState(null, '', '/match-sheet.html?id=' + encodeURIComponent(id) + '&tier=' + encodeURIComponent(tierSel.value));
+      } catch (e) {
+        alert(e.message || '切换失败');
+      }
+    };
+
+    (async () => {
+      try {
+        if (shareToken) {
+          await loadByShare(shareToken);
+          bindExports(tierSel.value);
+          if (YB.token) {
+            Promise.resolve()
+              .then(() => YB.api('/auth/me', { quiet: true, busy: false }))
+              .then((me) => { if (me && me.homePath) backHome.href = me.homePath; })
+              .catch(() => {});
+            setTimeout(() => { refreshShareDesk().catch(() => {}); }, 0);
+          }
+          return;
+        }
+        if (!YB.token) {
+          YB.toast('请先登录后再看一页纸', 'security');
+          location.href = '/?next=' + encodeURIComponent(location.pathname + location.search);
+          return;
+        }
+        if (!id) {
+          doc.removeAttribute('aria-busy');
+          doc.innerHTML =
+            '<div class="empty-state calm"><div class="empty-ico" aria-hidden="true">纸</div><strong>缺少匹配编号</strong><p class="muted">请从工作台点「看一页纸」打开，或使用分享链接。</p></div>';
+          return;
+        }
+        // M55：一页纸首屏优先；me/tiers/台账并行不挡正文
+        const paint = loadById(id, tierSel.value);
+        const side = Promise.all([
+          YB.api('/auth/me', { quiet: true, busy: false }).then((me) => {
+            if (me && me.homePath) backHome.href = me.homePath;
+          }).catch(() => {}),
+          YB.api('/matches/one-pager/tiers', { quiet: true, busy: false }).then((tiers) => {
+            (tiers.tiers || []).forEach((x) => { TIER_FALLBACK[x.key] = x; });
+            applyTierHint(tierSel.value, TIER_FALLBACK[tierSel.value]);
+          }).catch(() => {}),
+        ]);
+        await paint;
+        bindExports(tierSel.value);
+        await side;
+        setTimeout(() => { refreshShareDesk().catch(() => {}); }, 0);
+      } catch (e) {
+        doc.removeAttribute('aria-busy');
+        doc.innerHTML = `<div class="empty-state calm"><strong>打不开</strong><p class="muted">${YB.esc(e.message || e)}</p></div>`;
+      }
+    })();
+
+    async function refreshShareDesk() {
+      if (!YB.token) return;
+      shareDesk.hidden = false;
+      try {
+        const q =
+          (id ? 'matchId=' + encodeURIComponent(id) + '&' : '') +
+          (shareIncludeDead.checked ? 'includeDead=1' : '');
+        const d = await YB.api('/matches/one-pager/shares?' + q);
+        shareList.innerHTML =
+          (d.items || [])
+            .map((s) => {
+              const url = location.origin + (s.urlPath || '/match-sheet.html?share=' + s.token);
+              const dead = !s.alive;
+              return `<div class="share-row">
+                <span class="status-chip">${YB.esc(s.tierZh || s.tier)}</span>
+                <span class="status-chip ${dead ? 'warning' : ''}">${YB.esc(s.statusZh || '')}</span>
+                <span class="muted" style="font-size:12px">到期 ${YB.esc(String(s.expiresAt || '').slice(0, 10))}</span>
+                <code style="font-size:11px;max-width:220px;overflow:hidden;text-overflow:ellipsis">${YB.esc(url)}</code>
+                ${
+                  s.alive
+                    ? `<button type="button" class="ghost btn-rev" data-token="${YB.esc(s.token)}">撤销</button>
+                       <button type="button" class="ghost btn-exp" data-token="${YB.esc(s.token)}">改过期</button>`
+                    : '<span class="muted">已失效</span>'
+                }
+              </div>`;
+            })
+            .join('') ||
+          '<p class="muted">还没有分享链接。点上方「生成分享链接」。</p>';
+        shareList.querySelectorAll('.btn-rev').forEach((btn) => {
+          btn.onclick = async () => {
+            if (!confirm('撤销后对方立刻打不开，确定？')) return;
+            try {
+              const r = await YB.api('/matches/one-pager/s/' + btn.dataset.token + '/revoke', {
+                method: 'POST',
+                body: '{}',
+              });
+              shareOut.hidden = false;
+              shareOut.textContent = r.noteZh || '已撤销';
+              await refreshShareDesk();
+            } catch (e) {
+              alert(e.message || '撤销失败');
+            }
+          };
+        });
+        shareList.querySelectorAll('.btn-exp').forEach((btn) => {
+          btn.onclick = async () => {
+            const days = prompt('再有效多少天？（1-90）', '14');
+            if (!days) return;
+            try {
+              const r = await YB.api('/matches/one-pager/s/' + btn.dataset.token, {
+                method: 'PATCH',
+                body: JSON.stringify({ expiresDays: Number(days) }),
+              });
+              shareOut.hidden = false;
+              shareOut.textContent = r.noteZh || '已更新过期';
+              await refreshShareDesk();
+            } catch (e) {
+              alert(e.message || '更新失败');
+            }
+          };
+        });
+      } catch (e) {
+        shareList.innerHTML = '<p class="muted">' + YB.esc(e.message || '加载失败') + '</p>';
+      }
+    }
+    btnMyShares.onclick = async () => {
+      shareDesk.hidden = false;
+      shareDesk.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      await refreshShareDesk();
+    };
+    btnRefreshShares.onclick = () => refreshShareDesk();
+    shareIncludeDead.onchange = () => refreshShareDesk();
+
+    // after creating a share, refresh desk
+    const _bind = bindExports;
+    // patch bindExports share success already inside; hook via Mutation — simpler: wrap btnShare after bind
+    const origBind = bindExports;
+    bindExports = function (tier) {
+      origBind(tier);
+      const prev = btnShare.onclick;
+      btnShare.onclick = async (ev) => {
+        if (prev) await prev.call(btnShare, ev);
+        try {
+          await refreshShareDesk();
+        } catch (_) {}
+      };
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+{
+  "labelZh": "演示夹具·揭榜挂帅/园区需求榜（扩容包B）",
+  "compliance": "仅供本地演示与冷启动堆量；上线请改用授权 CSV/JSON。禁止 CNKI / 未授权企查查。标注「演示夹具」不得对外冒充真实工商库。",
+  "demands": [
+    {
+      "orgName": "演示·揭榜挂帅·某高新区管委会",
+      "orgType": "GOVERNMENT",
+      "region": "江苏",
+      "title": "揭榜挂帅：工业软件国产替代（样例）",
+      "problem": "面向离散制造 MES/APS 关键模块，征集可工程化团队揭榜。",
+      "expectedOut": "试点企业清单+验收指标",
+      "budgetBand": "揭榜奖金+后补助",
+      "industry": [
+        "工业软件",
+        "智能制造"
+      ],
+      "taxonomyCodes": [
+        "mfg.mes",
+        "ict.soft"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 6,
+      "urgency": "高",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·揭榜挂帅·某经开区",
+      "orgType": "GOVERNMENT",
+      "region": "湖北",
+      "title": "揭榜挂帅：动力电池安全监测（样例）",
+      "problem": "园区链主企业提出电芯/模组热失控早期识别需求。",
+      "expectedOut": "可部署算法与传感器方案",
+      "budgetBand": "揭榜专项",
+      "industry": [
+        "新能源",
+        "安全"
+      ],
+      "taxonomyCodes": [
+        "energy.thermal",
+        "mat.battery"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 6,
+      "urgency": "高",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某省级科技计划办",
+      "orgType": "GOVERNMENT",
+      "region": "广东",
+      "title": "省重点研发·人工智能+制造（样例公告）",
+      "problem": "征集高校院所与企业联合申报方向：视觉质检、柔性装配。",
+      "expectedOut": "形成指南条目与对接会名单",
+      "budgetBand": "计划经费口径",
+      "industry": [
+        "人工智能",
+        "先进制造"
+      ],
+      "taxonomyCodes": [
+        "ict.ai",
+        "mfg.vision"
+      ],
+      "licenseNeed": "any",
+      "minTrl": 5,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某省级科技计划办",
+      "orgType": "GOVERNMENT",
+      "region": "山东",
+      "title": "省重点研发·海洋与新材料（样例公告）",
+      "problem": "征集耐蚀涂层、轻量化结构、在线检测类成果。",
+      "expectedOut": "专题项目库",
+      "budgetBand": "计划经费口径",
+      "industry": [
+        "新材料",
+        "海洋"
+      ],
+      "taxonomyCodes": [
+        "mat.coat",
+        "ocean"
+      ],
+      "licenseNeed": "any",
+      "minTrl": 5,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某产业园区招商办",
+      "orgType": "GOVERNMENT",
+      "region": "上海",
+      "title": "园区企业技术需求榜（样例）",
+      "problem": "汇总入驻企业共性痛点：能耗监测、碳核算、设备预测维护。",
+      "expectedOut": "需求榜单与匹配沙龙",
+      "budgetBand": "园区配套",
+      "industry": [
+        "双碳",
+        "工业互联网"
+      ],
+      "taxonomyCodes": [
+        "env.carbon",
+        "ict.edge"
+      ],
+      "licenseNeed": "any",
+      "minTrl": 4,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某产业园区招商办",
+      "orgType": "GOVERNMENT",
+      "region": "四川",
+      "title": "园区揭榜：医疗器械检测平台（样例）",
+      "problem": "缺少第三方快速检测与算法验证平台。",
+      "expectedOut": "共建平台方案",
+      "budgetBand": "园区专项",
+      "industry": [
+        "医疗器械"
+      ],
+      "taxonomyCodes": [
+        "bio.device",
+        "bio.diag"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 5,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某市工信局",
+      "orgType": "GOVERNMENT",
+      "region": "天津",
+      "title": "企业数字化诊断需求汇集（样例）",
+      "problem": "中小企业数字化改造摸底，形成可对接高校清单。",
+      "expectedOut": "诊断报告模板与对接会",
+      "budgetBand": "财政引导资金口径",
+      "industry": [
+        "数字化",
+        "中小企业"
+      ],
+      "taxonomyCodes": [
+        "ict.soft",
+        "mfg.mes"
+      ],
+      "licenseNeed": "any",
+      "minTrl": 4,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某市科技局",
+      "orgType": "GOVERNMENT",
+      "region": "重庆",
+      "title": "揭榜挂帅：氢燃料电池电堆（样例）",
+      "problem": "本地产业链补短板，征集电堆与热管理团队。",
+      "expectedOut": "揭榜任务书",
+      "budgetBand": "专项资金",
+      "industry": [
+        "氢能",
+        "热管理"
+      ],
+      "taxonomyCodes": [
+        "energy.hydrogen",
+        "energy.thermal"
+      ],
+      "licenseNeed": "negotiable",
+      "minTrl": 5,
+      "urgency": "高",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某高新区管委会",
+      "orgType": "GOVERNMENT",
+      "region": "安徽",
+      "title": "揭榜挂帅：工业视觉开源工具链（样例）",
+      "problem": "降低中小企业视觉落地门槛。",
+      "expectedOut": "开源工具+培训",
+      "budgetBand": "揭榜+后补助",
+      "industry": [
+        "工业视觉",
+        "开源"
+      ],
+      "taxonomyCodes": [
+        "mfg.vision",
+        "ict.ai"
+      ],
+      "licenseNeed": "open",
+      "minTrl": 5,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    },
+    {
+      "orgName": "演示·某新区管委会",
+      "orgType": "GOVERNMENT",
+      "region": "北京",
+      "title": "科技计划·空天光电专项需求征集（样例）",
+      "problem": "征集可转化的光电探测与轻量化结构成果。",
+      "expectedOut": "对接名录",
+      "budgetBand": "计划口径",
+      "industry": [
+        "空天",
+        "光电"
+      ],
+      "taxonomyCodes": [
+        "space"
+      ],
+      "licenseNeed": "any",
+      "minTrl": 5,
+      "urgency": "中",
+      "demoLabel": "演示夹具"
+    }
+  ]
+}

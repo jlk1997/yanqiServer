@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>研企通 · 登录</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/branding.js" defer></script>
+</head>
+<body class="shell-light entry-page density-m40">
+  <a class="skip-link" href="#entryMain">跳到登录主内容</a>
+  <header class="top light-top">
+    <div class="brand">
+      <span class="logo" data-brand-name>研企通</span>
+      <span class="sub">把实验室能做的，和企业要解决的，对上号</span>
+    </div>
+    <div class="auth">
+      <a class="buttonish ghost" href="/portal.html">先逛公开广场</a>
+    </div>
+  </header>
+
+  <main class="entry-wrap" id="entryMain">
+    <section class="entry-hero">
+      <h1>按身份进入，只看见你该干的事</h1>
+      <p class="lead">企业发需求、高校上架成果、经纪人跟对接、园区看汇总、运营做采洗配联——按身份进，首页只留今天三件事。</p>
+    </section>
+
+    <section class="entry-grid">
+      <div class="entry-card">
+        <h2>登录</h2>
+        <p class="muted">账号可用邮箱，或演示短名（admin / enterprise / uni / broker / park）</p>
+        <label class="lbl" for="loginId">账号</label>
+        <input id="loginId" name="loginId" autocomplete="username" aria-label="登录账号" placeholder="例如 enterprise 或 enterprise@yanqi.local" value="enterprise" />
+        <label class="lbl" for="loginPass">密码</label>
+        <input id="loginPass" name="loginPass" type="password" autocomplete="current-password" aria-label="登录密码" value="yanqi123" />
+        <div class="row" style="margin-top:12px">
+          <button type="button" id="btnLogin" aria-label="进入我的工作台">进入我的工作台</button>
+        </div>
+        <p id="loginMsg" class="muted" style="margin-top:8px"></p>
+      </div>
+
+      <div class="entry-card">
+        <h2>试点一键进</h2>
+        <p class="muted">密码都是 <code>yanqi123</code>。点卡片即登录并跳转对应壳。</p>
+        <div id="demoList" class="demo-list" role="list" aria-label="试点一键进入各身份"></div>
+      </div>
+    </section>
+
+    <section class="entry-roles">
+      <div class="role-pill"><strong>企业</strong><span>发需求 · 看推荐 · 跟进度</span></div>
+      <div class="role-pill"><strong>高校/实验室</strong><span>上架能力成果 · 看企业意向</span></div>
+      <div class="role-pill"><strong>经纪人</strong><span>跟进单 · SLA · 推进状态</span></div>
+      <div class="role-pill"><strong>园区/政府</strong><span>观察看板 · 案例 · 政策位</span></div>
+      <div class="role-pill"><strong>运营</strong><span>今天待办 · 采洗配联 · 复核</span></div>
+    </section>
+  </main>
+
+  <script src="/entry.js"></script>
+</body>
+</html>

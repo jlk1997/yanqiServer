@@ -1,0 +1,674 @@
+{
+  "version": 6,
+  "frozenAt": "2026-11-01",
+  "noteZh": "M19：在 M18 硬反例基础上为部分案加 taxonomyCodes 软加成；无标签案不漂",
+  "weights": {
+    "semantic": 0.32,
+    "keyword": 0.3,
+    "discipline": 0.22,
+    "region": 0.06,
+    "trlFit": 0.1
+  },
+  "cases": [
+    {
+      "id": "vision-defect-online",
+      "demand": {
+        "title": "精密零件表面缺陷在线视觉检测",
+        "text": "现有人工抽检漏检高，希望上在线视觉，适配现有节拍，误检率可控，最好能落边缘盒子。工业视觉 缺陷检测 AOI",
+        "keywords": [
+          "工业视觉",
+          "缺陷检测",
+          "AOI",
+          "边缘部署"
+        ],
+        "industry": [
+          "智能制造",
+          "工业视觉",
+          "缺陷检测",
+          "AOI"
+        ],
+        "region": "上海",
+        "minTrl": 5,
+        "licenseNeed": "negotiable",
+        "taxonomyCodes": [
+          "mfg.vision"
+        ]
+      },
+      "candidates": [
+        {
+          "id": "cap-vision",
+          "title": "工业视觉缺陷检测与产线落地",
+          "text": "面向金属件与注塑件的在线视觉检测，支持小样本学习与边缘部署。工业视觉 缺陷检测 深度学习 AOI 产线",
+          "keywords": [
+            "工业视觉",
+            "缺陷检测",
+            "深度学习",
+            "AOI",
+            "产线"
+          ],
+          "disciplines": [
+            "计算机视觉",
+            "智能制造"
+          ],
+          "region": "上海",
+          "trl": 6,
+          "expectRank": 1,
+          "licenseOpenness": "negotiable",
+          "ipOwnership": "university",
+          "trustBadges": [
+            "complete_profile",
+            "peer_reviewed"
+          ],
+          "taxonomyCodes": [
+            "mfg.vision",
+            "mfg"
+          ]
+        },
+        {
+          "id": "cap-twin",
+          "title": "离散制造数字孪生与柔性装配",
+          "text": "可对产线节拍、工装夹具与机器人轨迹做孪生仿真与优化。数字孪生 柔性装配 工艺仿真 机器人",
+          "keywords": [
+            "数字孪生",
+            "柔性装配",
+            "工艺仿真",
+            "机器人"
+          ],
+          "disciplines": [
+            "机械工程",
+            "自动化"
+          ],
+          "region": "上海",
+          "trl": 5,
+          "expectRank": 2
+        },
+        {
+          "id": "cap-battery",
+          "title": "固态电池界面与热管理材料",
+          "text": "研究固态电解质界面阻抗与热失控抑制材料体系。固态电池 热管理 材料",
+          "keywords": [
+            "固态电池",
+            "热管理",
+            "材料",
+            "界面"
+          ],
+          "disciplines": [
+            "材料科学",
+            "能源"
+          ],
+          "region": "北京",
+          "trl": 4,
+          "expectRank": 3
+        },
+        {
+          "id": "neg-finance-bot",
+          "title": "金融客服话术机器人",
+          "text": "银行理财销售话术与质检，与工业视觉无关。",
+          "keywords": [
+            "金融",
+            "客服",
+            "话术"
+          ],
+          "disciplines": [
+            "金融科技"
+          ],
+          "region": "北京",
+          "trl": 8,
+          "licenseOpenness": "exclusive",
+          "expectRank": 4,
+          "hardNegative": true,
+          "taxonomyCodes": [
+            "ict.soft"
+          ]
+        }
+      ],
+      "minTop1Score": 0.45,
+      "minTop1Margin": 0.02
+    },
+    {
+      "id": "battery-thermal",
+      "demand": {
+        "title": "储能电芯热管理与界面失效分析",
+        "text": "高倍率工况下热失控风险与界面阻抗上升，需要材料与热管理联合方案。新能源 固态电池 热管理 材料",
+        "keywords": [
+          "固态电池",
+          "热管理",
+          "失效分析",
+          "材料"
+        ],
+        "industry": [
+          "新能源",
+          "固态电池",
+          "热管理",
+          "材料"
+        ],
+        "region": "长三角"
+      },
+      "candidates": [
+        {
+          "id": "cap-battery",
+          "title": "固态电池界面与热管理材料",
+          "text": "研究固态电解质界面阻抗与热失控抑制材料体系。固态电池 热管理 材料 失效",
+          "keywords": [
+            "固态电池",
+            "热管理",
+            "材料",
+            "界面",
+            "失效"
+          ],
+          "disciplines": [
+            "材料科学",
+            "能源"
+          ],
+          "region": "上海",
+          "trl": 5,
+          "expectRank": 1,
+          "readinessBand": "pilot",
+          "licenseOpenness": "negotiable"
+        },
+        {
+          "id": "cap-vision",
+          "title": "工业视觉缺陷检测与产线落地",
+          "text": "面向金属件与注塑件的在线视觉检测。工业视觉 AOI",
+          "keywords": [
+            "工业视觉",
+            "缺陷检测",
+            "AOI"
+          ],
+          "disciplines": [
+            "计算机视觉",
+            "智能制造"
+          ],
+          "region": "上海",
+          "trl": 6,
+          "expectRank": 3
+        },
+        {
+          "id": "cap-thermal-sim",
+          "title": "电芯热仿真与热管理结构设计",
+          "text": "针对储能模组的 CFD/热仿真与冷板结构优化。热管理 仿真 储能",
+          "keywords": [
+            "热管理",
+            "仿真",
+            "储能",
+            "冷板"
+          ],
+          "disciplines": [
+            "热能工程",
+            "能源"
+          ],
+          "region": "江苏",
+          "trl": 6,
+          "expectRank": 2
+        }
+      ],
+      "minTop1Score": 0.4,
+      "minTop1Margin": 0.015
+    },
+    {
+      "id": "cobot-flex",
+      "demand": {
+        "title": "协作机器人柔性上下料改造",
+        "text": "老产线节拍不稳，希望引入协作机器人做柔性上下料并与MES打通。智能制造 机器人 柔性装配",
+        "keywords": [
+          "协作机器人",
+          "上下料",
+          "柔性装配",
+          "MES"
+        ],
+        "industry": [
+          "智能制造",
+          "机器人",
+          "柔性装配"
+        ],
+        "region": "江苏"
+      },
+      "candidates": [
+        {
+          "id": "cap-twin",
+          "title": "离散制造数字孪生与柔性装配",
+          "text": "产线节拍、工装夹具与机器人轨迹孪生仿真。数字孪生 柔性装配 机器人",
+          "keywords": [
+            "数字孪生",
+            "柔性装配",
+            "工艺仿真",
+            "机器人"
+          ],
+          "disciplines": [
+            "机械工程",
+            "自动化"
+          ],
+          "region": "江苏",
+          "trl": 6,
+          "expectRank": 1
+        },
+        {
+          "id": "cap-vision",
+          "title": "工业视觉缺陷检测与产线落地",
+          "text": "在线视觉检测与边缘部署。工业视觉 AOI",
+          "keywords": [
+            "工业视觉",
+            "缺陷检测",
+            "AOI"
+          ],
+          "disciplines": [
+            "计算机视觉",
+            "智能制造"
+          ],
+          "region": "上海",
+          "trl": 6,
+          "expectRank": 2
+        },
+        {
+          "id": "cap-battery",
+          "title": "固态电池界面与热管理材料",
+          "text": "固态电解质与热失控材料。固态电池",
+          "keywords": [
+            "固态电池",
+            "材料"
+          ],
+          "disciplines": [
+            "材料科学"
+          ],
+          "region": "北京",
+          "trl": 4,
+          "expectRank": 3
+        }
+      ],
+      "minTop1Score": 0.4,
+      "minTop1Margin": 0.02
+    },
+    {
+      "id": "coating-uniformity",
+      "demand": {
+        "title": "镀膜均匀性在线监测",
+        "text": "大面积镀膜均匀性波动导致良率下降，需要在线光学监测。光电 工业视觉 材料",
+        "keywords": [
+          "镀膜",
+          "均匀性",
+          "在线监测",
+          "光学"
+        ],
+        "industry": [
+          "光电",
+          "工业视觉",
+          "材料"
+        ],
+        "region": "浙江"
+      },
+      "candidates": [
+        {
+          "id": "cap-vision",
+          "title": "工业视觉缺陷检测与产线落地",
+          "text": "在线视觉检测与光学量测。工业视觉 缺陷检测 AOI 光学",
+          "keywords": [
+            "工业视觉",
+            "缺陷检测",
+            "AOI",
+            "光学"
+          ],
+          "disciplines": [
+            "计算机视觉",
+            "智能制造"
+          ],
+          "region": "上海",
+          "trl": 6,
+          "expectRank": 2
+        },
+        {
+          "id": "cap-materials-coat",
+          "title": "薄膜材料表征与镀膜工艺",
+          "text": "镀膜工艺窗口与膜厚表征。镀膜 材料 表征",
+          "keywords": [
+            "镀膜",
+            "材料",
+            "膜厚",
+            "表征"
+          ],
+          "disciplines": [
+            "材料科学",
+            "光电"
+          ],
+          "region": "浙江",
+          "trl": 5,
+          "expectRank": 1
+        },
+        {
+          "id": "cap-battery",
+          "title": "固态电池界面与热管理材料",
+          "text": "固态电解质界面。固态电池",
+          "keywords": [
+            "固态电池",
+            "材料"
+          ],
+          "disciplines": [
+            "材料科学"
+          ],
+          "region": "北京",
+          "trl": 4,
+          "expectRank": 3
+        }
+      ],
+      "minTop1Score": 0.35,
+      "minTop1Margin": 0.008
+    },
+    {
+      "id": "agri-sensing",
+      "demand": {
+        "title": "大田作物病虫害遥感预警",
+        "text": "需要多光谱无人机巡田与病虫害早期识别模型，对接农技站。农业 遥感 多光谱",
+        "keywords": [
+          "遥感",
+          "病虫害",
+          "多光谱",
+          "无人机"
+        ],
+        "industry": [
+          "智慧农业",
+          "遥感",
+          "计算机视觉"
+        ],
+        "region": "安徽"
+      },
+      "candidates": [
+        {
+          "id": "cap-remote",
+          "title": "多光谱遥感与作物表型分析",
+          "text": "无人机多光谱与病虫害识别。遥感 多光谱 农业 病虫害",
+          "keywords": [
+            "遥感",
+            "多光谱",
+            "病虫害",
+            "无人机",
+            "农业"
+          ],
+          "disciplines": [
+            "遥感",
+            "农学"
+          ],
+          "region": "安徽",
+          "trl": 5,
+          "expectRank": 1
+        },
+        {
+          "id": "cap-vision",
+          "title": "工业视觉缺陷检测与产线落地",
+          "text": "工业视觉 AOI 产线",
+          "keywords": [
+            "工业视觉",
+            "AOI"
+          ],
+          "disciplines": [
+            "计算机视觉"
+          ],
+          "region": "上海",
+          "trl": 6,
+          "expectRank": 2
+        },
+        {
+          "id": "cap-twin",
+          "title": "离散制造数字孪生与柔性装配",
+          "text": "数字孪生 机器人",
+          "keywords": [
+            "数字孪生",
+            "机器人"
+          ],
+          "disciplines": [
+            "自动化"
+          ],
+          "region": "江苏",
+          "trl": 6,
+          "expectRank": 3
+        }
+      ],
+      "minTop1Score": 0.4,
+      "minTop1Margin": 0.02
+    },
+    {
+      "id": "soft-mes",
+      "demand": {
+        "title": "离散车间 MES 与质量追溯升级",
+        "text": "老旧 MES 难与质检、仓储打通，要做批次追溯与安灯。智能制造 MES 质量追溯",
+        "keywords": [
+          "MES",
+          "质量追溯",
+          "安灯",
+          "仓储"
+        ],
+        "industry": [
+          "智能制造",
+          "工业软件",
+          "质量管理"
+        ],
+        "region": "广东"
+      },
+      "candidates": [
+        {
+          "id": "cap-mes",
+          "title": "离散制造 MES 与质量追溯平台",
+          "text": "MES 质量追溯 安灯 仓储对接",
+          "keywords": [
+            "MES",
+            "质量追溯",
+            "安灯",
+            "仓储",
+            "工业软件"
+          ],
+          "disciplines": [
+            "工业工程",
+            "软件工程"
+          ],
+          "region": "广东",
+          "trl": 7,
+          "expectRank": 1
+        },
+        {
+          "id": "cap-twin",
+          "title": "离散制造数字孪生与柔性装配",
+          "text": "数字孪生 柔性装配 工艺仿真",
+          "keywords": [
+            "数字孪生",
+            "柔性装配",
+            "工艺仿真"
+          ],
+          "disciplines": [
+            "机械工程",
+            "自动化"
+          ],
+          "region": "上海",
+          "trl": 5,
+          "expectRank": 2
+        },
+        {
+          "id": "cap-battery",
+          "title": "固态电池界面与热管理材料",
+          "text": "固态电池 材料",
+          "keywords": [
+            "固态电池"
+          ],
+          "disciplines": [
+            "材料科学"
+          ],
+          "region": "北京",
+          "trl": 4,
+          "expectRank": 3
+        }
+      ],
+      "minTop1Score": 0.4,
+      "minTop1Margin": 0.015
+    },
+    {
+      "id": "exclusive-vs-open-ip",
+      "demand": {
+        "title": "产线独家视觉模组采购",
+        "text": "希望独家授权落地到自有产线，排他许可，三年独家。工业视觉 缺陷检测",
+        "keywords": [
+          "工业视觉",
+          "缺陷检测",
+          "独家"
+        ],
+        "industry": [
+          "智能制造",
+          "工业视觉"
+        ],
+        "region": "苏州",
+        "licenseNeed": "exclusive",
+        "minTrl": 7,
+        "taxonomyCodes": [
+          "mfg.vision"
+        ]
+      },
+      "candidates": [
+        {
+          "id": "cap-nego-line",
+          "title": "产线视觉检测可协商许可",
+          "text": "面向产线的缺陷检测模组，许可可谈排他期。工业视觉 缺陷检测 产线",
+          "keywords": [
+            "工业视觉",
+            "缺陷检测",
+            "产线"
+          ],
+          "disciplines": [
+            "智能制造",
+            "计算机视觉"
+          ],
+          "region": "苏州",
+          "trl": 7,
+          "licenseOpenness": "negotiable",
+          "ipOwnership": "university",
+          "readinessBand": "production",
+          "trustBadges": [
+            "peer_reviewed",
+            "complete_profile"
+          ],
+          "expectRank": 1,
+          "taxonomyCodes": [
+            "mfg.vision"
+          ]
+        },
+        {
+          "id": "cap-open-only",
+          "title": "开源视觉算法演示包",
+          "text": "教学向开源缺陷检测 demo，仅开放许可，不提供独家。工业视觉 缺陷检测",
+          "keywords": [
+            "工业视觉",
+            "缺陷检测",
+            "开源"
+          ],
+          "disciplines": [
+            "计算机视觉"
+          ],
+          "region": "苏州",
+          "trl": 4,
+          "licenseOpenness": "open",
+          "readinessBand": "lab",
+          "expectRank": 2,
+          "hardNegative": true,
+          "taxonomyCodes": [
+            "mfg.vision"
+          ]
+        },
+        {
+          "id": "neg-agri-drone",
+          "title": "农业无人机植保调度",
+          "text": "大田植保路径规划，与产线视觉无关。",
+          "keywords": [
+            "农业",
+            "无人机"
+          ],
+          "disciplines": [
+            "农业工程"
+          ],
+          "region": "合肥",
+          "trl": 6,
+          "expectRank": 3,
+          "hardNegative": true
+        }
+      ],
+      "minTop1Score": 0.4,
+      "minTop1Margin": 0.015
+    },
+    {
+      "id": "trl-gate-thermal",
+      "demand": {
+        "title": "动力电池热失控在线监测交付",
+        "text": "要可上线的热管理监测方案，量产交付。电池 热管理 热失控",
+        "keywords": [
+          "电池",
+          "热管理",
+          "热失控"
+        ],
+        "industry": [
+          "新能源",
+          "电池"
+        ],
+        "region": "宁德",
+        "licenseNeed": "negotiable",
+        "minTrl": 7,
+        "taxonomyCodes": [
+          "energy.thermal",
+          "mat.battery"
+        ]
+      },
+      "candidates": [
+        {
+          "id": "cap-thermal-pilot",
+          "title": "电池热管理中试监测套件",
+          "text": "已在中试线验证的热失控预警。电池 热管理 热失控 中试",
+          "keywords": [
+            "电池",
+            "热管理",
+            "热失控",
+            "中试"
+          ],
+          "disciplines": [
+            "新能源",
+            "热管理"
+          ],
+          "region": "宁德",
+          "trl": 7,
+          "licenseOpenness": "negotiable",
+          "readinessBand": "pilot",
+          "trustBadges": [
+            "ops_endorsed"
+          ],
+          "expectRank": 1,
+          "taxonomyCodes": [
+            "energy.thermal"
+          ]
+        },
+        {
+          "id": "cap-thermal-paper",
+          "title": "热失控机理仿真论文代码",
+          "text": "实验室仿真与论文复现，TRL 低。电池 热管理",
+          "keywords": [
+            "电池",
+            "热管理",
+            "仿真"
+          ],
+          "disciplines": [
+            "新能源"
+          ],
+          "region": "宁德",
+          "trl": 2,
+          "licenseOpenness": "open",
+          "readinessBand": "lab",
+          "expectRank": 2,
+          "hardNegative": true,
+          "taxonomyCodes": [
+            "energy.thermal"
+          ]
+        }
+      ],
+      "minTop1Score": 0.42,
+      "minTop1Margin": 0.02
+    }
+  ],
+  "thresholds": {
+    "maxRankMismatch": 0,
+    "maxScoreAbsDriftFromFrozen": 0.08,
+    "failOnTop1Swap": true
+  },
+  "frozenScoresNote": "首次跑评测脚本会把实际分数写入 .data/metrics/match-eval-baseline.json；之后对比漂移。",
+  "wave": "M19"
+}

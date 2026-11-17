@@ -1,0 +1,93 @@
+{
+  "version": 2,
+  "updatedAt": "2026-11-01T12:00:00.000Z",
+  "items": [
+    {
+      "id": "doc-demo-out-001",
+      "direction": "outbound",
+      "titleZh": "关于征集2026春季产学研对接项目的函（演示）",
+      "bodyZh": "各入驻企业、合作高校：现公开征集技术需求与可转化成果，请于窗口期内提交。本函为平台内演示公文，未走政务专网。",
+      "counterpartyZh": "园区入驻单位",
+      "status": "sent",
+      "history": [
+        {
+          "at": "2026-10-20T08:00:00.000Z",
+          "from": null,
+          "to": "draft",
+          "actor": "park-demo",
+          "noteZh": "起草"
+        },
+        {
+          "at": "2026-10-21T09:00:00.000Z",
+          "from": "draft",
+          "to": "sent",
+          "actor": "park-demo",
+          "noteZh": "平台内标记发出"
+        }
+      ],
+      "createdAt": "2026-10-20T08:00:00.000Z",
+      "updatedAt": "2026-10-21T09:00:00.000Z",
+      "createdBy": "park-demo",
+      "docNo": "研园〔2026〕1号",
+      "templateId": "tpl-collect-notice",
+      "templateNameZh": "征集通知函",
+      "windowId": null,
+      "windowTitleZh": null
+    },
+    {
+      "id": "doc-demo-in-001",
+      "direction": "inbound",
+      "titleZh": "某高校技术转移中心回函（演示）",
+      "bodyZh": "我中心拟推荐两项成果参与本次征集，材料见附件清单。本回函为演示收文。",
+      "counterpartyZh": "示范高校技术转移中心",
+      "status": "draft",
+      "history": [
+        {
+          "at": "2026-10-22T10:00:00.000Z",
+          "from": null,
+          "to": "draft",
+          "actor": "park-demo",
+          "noteZh": "登记收文草稿"
+        }
+      ],
+      "createdAt": "2026-10-22T10:00:00.000Z",
+      "updatedAt": "2026-10-22T10:00:00.000Z",
+      "createdBy": "park-demo",
+      "docNo": "研收〔2026〕002号",
+      "templateId": "tpl-ack-reply",
+      "templateNameZh": "收文回执函"
+    }
+  ],
+  "seqByYear": {
+    "2026": 2
+  },
+  "templates": [
+    {
+      "id": "tpl-collect-notice",
+      "nameZh": "征集通知函",
+      "direction": "outbound",
+      "docNoRule": "研园〔{YYYY}〕{SEQ}号",
+      "titleHintZh": "关于公开征集产学研对接项目的函",
+      "bodyHintZh": "请各入驻企业、合作高校于征集窗期内提交技术需求或可转化成果。",
+      "active": true
+    },
+    {
+      "id": "tpl-ack-reply",
+      "nameZh": "收文回执函",
+      "direction": "inbound",
+      "docNoRule": "研收〔{YYYY}〕{SEQ3}号",
+      "titleHintZh": "关于收到材料的回执（演示）",
+      "bodyHintZh": "材料已收悉，将按征集窗流程办理。",
+      "active": true
+    },
+    {
+      "id": "tpl-window-announce",
+      "nameZh": "征集窗启停公告",
+      "direction": "outbound",
+      "docNoRule": "研公〔{YYYY}〕{SEQ}号",
+      "titleHintZh": "关于调整征集窗口期的公告",
+      "bodyHintZh": "现将征集窗启停安排告知如下（演示，未走专网）。",
+      "active": true
+    }
+  ]
+}

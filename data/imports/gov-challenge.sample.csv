@@ -1,0 +1,2 @@
+orgName,orgType,region,title,problem,expectedOut,budgetBand,industry,taxonomyCodes,licenseNeed,minTrl,urgency,demoLabel
+演示·某高新区管委会,GOVERNMENT,江苏,揭榜挂帅：工业软件国产替代（CSV样例）,面向离散制造 MES 关键模块征集揭榜团队,试点企业清单,揭榜奖金,"工业软件,智能制造",mfg.mes;ict.soft,negotiable,6,高,演示夹具

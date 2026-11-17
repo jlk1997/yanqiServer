@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>研企通 · 邀请完善档案</title>
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/branding.js" defer></script>
+</head>
+<body>
+  <header class="top">
+    <div class="brand"><span class="logo" data-brand-name>研企通</span><span class="sub">邀请完善档案 · 小蚁不会自动群发</span></div>
+    <div class="row" style="margin:0">
+      <a class="buttonish ghost" href="/portal.html">公开门户</a>
+      <a class="buttonish ghost" href="/">运维台</a>
+    </div>
+  </header>
+  <div class="invite-shell">
+    <div id="teamAcceptBox" class="invite-card formbox" style="display:none;margin-bottom:16px">
+      <h2 style="margin-top:0">加入团队协作</h2>
+      <p class="muted" id="teamPeekHint">正在读取邀请…</p>
+      <label>你的姓名</label>
+      <input id="teamName" placeholder="怎么称呼你" />
+      <label>设置登录密码 *</label>
+      <input id="teamPass" type="password" placeholder="至少 6 位" />
+      <div class="row" style="margin-top:12px"><button id="btnTeamAccept">接受邀请并开通账号</button></div>
+      <div id="teamMsg" class="muted" style="margin-top:8px"></div>
+    </div>
+    <div id="claimBox" class="invite-card formbox">
+      <h2 style="margin-top:0;letter-spacing:-0.02em">完善机构档案</h2>
+      <p class="muted">只提交你们愿意公开的能力/需求。运营（小蚁）人工复核后才会进入匹配，系统不会自动群发营销邮件。</p>
+      <div class="progress-rail"><i id="invProgress" style="width:12%"></i></div>
+      <div class="meta" id="invProgressLabel">先填机构与联系人</div>
+      <label>机构名称 *</label>
+      <input id="orgName" placeholder="例如：某某大学某某实验室 / 某某科技有限公司" />
+      <label>机构类型</label>
+      <select id="orgType">
+        <option value="企业">企业</option>
+        <option value="高校">高校</option>
+        <option value="实验室">实验室 / 院所</option>
+        <option value="政府">政府 / 平台</option>
+      </select>
+      <label>地域</label>
+      <input id="region" placeholder="例如：上海" />
+      <label>联系人 *</label>
+      <input id="contactName" placeholder="姓名" />
+      <label>职务</label>
+      <input id="contactRole" placeholder="例如：技术负责人" />
+      <label>邮箱（选填，仅用于对接）</label>
+      <input id="contactEmail" type="email" placeholder="name@example.com" />
+      <label>卡片类型</label>
+      <select id="cardKind">
+        <option value="capability">能力卡（我们能做什么）</option>
+        <option value="demand">需求卡（我们要解决什么）</option>
+        <option value="outcome">成果卡（已有专利/样机/论文等）</option>
+      </select>
+      <label>标题 *</label>
+      <input id="title" placeholder="一句话标题" />
+      <label>简介 / 问题描述 *</label>
+      <textarea id="summary" placeholder="请用大白话写清楚能力边界或需求痛点"></textarea>
+      <label>标签（用 | 分隔）</label>
+      <input id="tags" placeholder="智能制造|工业视觉|热管理" />
+      <div class="row" style="margin-top:16px">
+        <button id="btnSubmit">提交认领</button>
+      </div>
+      <div id="msg" class="muted" style="margin-top:10px"></div>
+    </div>
+  </div>
+  <script>
+    const params = new URLSearchParams(location.search);
+    if (params.get('org')) orgName.value = params.get('org');
+    if (params.get('kind')) cardKind.value = params.get('kind');
+    const teamTok = params.get('team');
+    if (teamTok) {
+      teamAcceptBox.style.display = '';
+      claimBox.style.display = 'none';
+      (async () => {
+        try {
+          const r = await fetch('/api/public/team-invite/' + teamTok);
+          const j = await r.json();
+          if (!r.ok) throw new Error(j.message || '邀请无效');
+          teamPeekHint.textContent = j.expired
+            ? '这张邀请已过期或用过了，请让管理员重发。'
+            : `邀请邮箱 ${j.email} · 加入「${j.orgName || '机构'}」· 角色 ${j.role === 'TENANT_ADMIN' ? '机构管理员' : '机构成员'}`;
+          if (j.name) teamName.value = j.name;
+        } catch (e) {
+          teamPeekHint.textContent = e.message || e;
+        }
+      })();
+      btnTeamAccept.onclick = async () => {
+        teamMsg.className = 'muted';
+        teamMsg.textContent = '提交中…';
+        try {
+          const r = await fetch('/api/public/team-invite/' + teamTok + '/accept', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ password: teamPass.value, name: teamName.value }),
+          });
+          const j = await r.json();
+          if (!r.ok) throw new Error(j.message || r.statusText);
+          teamMsg.className = 'badge-ok';
+          teamMsg.textContent = (j.message || '已加入') + ' → 去门户登录';
+          setTimeout(() => location.href = '/portal.html#auth', 800);
+        } catch (e) {
+          teamMsg.className = 'badge-danger';
+          teamMsg.textContent = e.message || e;
+        }
+      };
+    }
+    function refreshProgress() {
+      const req = [orgName, contactName, title, summary];
+      const filled = req.filter((el) => el.value.trim()).length;
+      const pct = Math.round((filled / req.length) * 100);
+      invProgress.style.width = Math.max(12, pct) + '%';
+      invProgressLabel.textContent = pct >= 100 ? '必填项齐了，可以提交' : `必填完成 ${filled}/${req.length}`;
+    }
+    [orgName, contactName, title, summary].forEach((el) => el.addEventListener('input', refreshProgress));
+    refreshProgress();
+    btnSubmit.onclick = async () => {
+      msg.className = 'muted';
+      msg.textContent = '提交中…';
+      try {
+        const body = {
+          orgName: orgName.value.trim(),
+          orgType: orgType.value,
+          region: region.value.trim(),
+          contactName: contactName.value.trim(),
+          contactRole: contactRole.value.trim(),
+          contactEmail: contactEmail.value.trim(),
+          cardKind: cardKind.value,
+          title: title.value.trim(),
+          summary: summary.value.trim(),
+          tags: tags.value.split('|').map(s => s.trim()).filter(Boolean),
+        };
+        if (!body.orgName || !body.contactName || !body.title || !body.summary) {
+          throw new Error('请把带 * 的字段填完');
+        }
+        const r = await fetch('/api/public/invite/claim', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const j = await r.json().catch(() => ({}));
+        if (!r.ok) throw new Error(j.message || j.error || r.statusText);
+        msg.className = 'badge-ok';
+        msg.textContent = j.message || '提交成功，运营会人工复核';
+      } catch (e) {
+        msg.className = 'badge-danger';
+        msg.textContent = '失败：' + (e.message || e);
+      }
+    };
+  </script>
+</body>
+</html>

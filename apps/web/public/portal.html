@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#3d8bfd" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/pwa-icon.svg" type="image/svg+xml" />
+  <title>研企通 · 高校实验室 ↔ 企业需求对接</title>
+  <script src="/i18n/zh.js"></script>
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="/branding.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#portalMain">跳到主内容</a>
+  <header class="top">
+    <div class="brand">
+      <span class="logo" data-brand-name>研企通</span>
+      <span class="sub">公开广场 · 登录后按身份进工作台</span>
+    </div>
+    <div class="auth">
+      <a class="buttonish ghost" href="/">工作台登录</a>
+      <a class="buttonish ghost" href="/invite.html">邀请认领</a>
+      <span id="portalStatusChip" class="status-chip warn">状态检测中</span>
+      <span id="who" class="muted">未登录</span>
+    </div>
+  </header>
+  <nav class="navp">
+    <a href="#home" data-p="home" class="on">首页</a>
+    <a href="#matches" data-p="matches">对接案例</a>
+    <a href="#outcomes" data-p="outcomes">成果广场</a>
+    <a href="#capabilities" data-p="capabilities">能力广场</a>
+    <a href="#demands" data-p="demands">需求广场</a>
+    <a href="#pricing" data-p="pricing">套餐价格</a>
+    <a href="#auth" data-p="auth">注册 / 登录</a>
+    <a href="#workspace" data-p="workspace">机构工作台</a>
+    <a href="#deals" data-p="deals">我的对接</a>
+    <a href="#cases" data-p="cases">脱敏案例</a>
+    <a href="#workspace" data-p="workspace" id="navOnboard" style="display:none">开通引导</a>
+    <a href="#workspace" data-p="workspace" id="navUnread">通知</a>
+  </nav>
+
+  <section id="page-home" class="page">
+    <div class="hero">
+      <h1>实验室有啥本事，企业卡在哪，先对上再说</h1>
+      <p>
+        研企通帮高校院所和企业把「能做的」和「要解决的」凑到一块。
+        前期先把公开学术数据和企业需求堆起来，洗干净再匹配；单位自己补档案，运营和技术经理人负责把关、找人、跟进。
+        免费档就能上手，以后要升级套餐也不用换系统。
+      </p>
+      <div class="row">
+        <a class="buttonish" href="#workspace">去工作台发需求/能力</a>
+        <a class="buttonish ghost" href="#auth">开通单位账号</a>
+        <a class="buttonish ghost" href="#cases">看脱敏案例</a>
+      </div>
+    </div>
+    <div class="wrap" id="portalMain" tabindex="-1">
+      <div class="kpi-row" id="homeStats"></div>
+      <div class="grid3" style="margin: 8px 0 22px">
+        <div class="feature">
+          <h3>① 先把两边数据堆起来</h3>
+          <p class="muted">高校成果走公开学术接口；企业需求用授权表格或演示样例。不爬知网，也不瞎爬工商库。</p>
+        </div>
+        <div class="feature">
+          <h3>② 匹配说人话</h3>
+          <p class="muted">看主题像不像、行业对不对、成熟度够不够，每条都能讲清「为啥推这一对」。</p>
+        </div>
+        <div class="feature">
+          <h3>③ 找到人对上话</h3>
+          <p class="muted">系统写好邀约草稿，人审过再发；经纪人跟进进度一眼能看见。</p>
+        </div>
+      </div>
+      <h3>高分对接预览</h3>
+      <div id="homeCases" class="list"></div>
+    </div>
+  </section>
+
+  <section id="page-matches" class="page" style="display:none">
+    <div class="wrap">
+      <h2>公开对接案例</h2>
+      <p class="muted">脱敏预览平台上的高分匹配，方便企业与高校感受「对得上」长什么样。</p>
+      <div class="row">
+        <input id="mq" class="searchbox" placeholder="搜需求或成果关键词" style="flex:1;min-width:200px" />
+        <button id="btnM">搜索</button>
+      </div>
+      <div id="matchPublicList" class="list"></div>
+    </div>
+  </section>
+
+  <section id="page-outcomes" class="page" style="display:none">
+    <div class="wrap">
+      <h2>成果广场</h2>
+      <div class="row">
+        <input id="oq" placeholder="搜索成果标题" style="flex:1;min-width:200px" />
+        <button id="btnO">搜索</button>
+      </div>
+      <div id="outList" class="list"></div>
+    </div>
+  </section>
+
+  <section id="page-capabilities" class="page" style="display:none">
+    <div class="wrap">
+      <h2>能力广场</h2>
+      <p class="muted">实验室可对外服务的能力：联合研发、检测、中试、咨询等。</p>
+      <div class="row">
+        <input id="cq" placeholder="搜索能力标题" style="flex:1;min-width:200px" />
+        <button id="btnC">搜索</button>
+      </div>
+      <div id="capList" class="list"></div>
+    </div>
+  </section>
+
+  <section id="page-demands" class="page" style="display:none">
+    <div class="wrap">
+      <h2>需求广场</h2>
+      <div class="row">
+        <input id="dq" placeholder="搜索需求标题" style="flex:1;min-width:200px" />
+        <button id="btnD">搜索</button>
+      </div>
+      <div id="demList" class="list"></div>
+    </div>
+  </section>
+
+  <section id="page-pricing" class="page" style="display:none">
+    <div class="wrap">
+      <h2>套餐价格</h2>
+      <p class="muted">现阶段全部可先免费开通；下面配额是产品化骨架，方便以后收费与私有化交付。</p>
+      <h3>本月用量</h3>
+      <p class="lead">登录后可看配额还剩多少。快用完会说人话提醒；升级支付仍是演示，不会真扣款。</p>
+      <div id="usagePanel" class="list" aria-live="polite"></div>
+      <div class="grid3" id="priceCards" style="margin-top:16px"></div>
+      <div class="item" style="margin-top:16px">
+        <h3>和市面上常见平台差在哪</h3>
+        <ul class="muted">
+          <li>科易网等偏成果展示与活动运营；我们把「可解释匹配 + 运营冷启动 + 可私有化」做成主链路。</li>
+          <li>转果果 / InnoMatch 强在经纪人网络；我们把经纪人分派做成系统能力，并支持自建团队。</li>
+          <li>不追火石那种产业大数据底座；专注产教对接转化闭环，数据从合法源冷启动。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="page-auth" class="page" style="display:none">
+    <div class="wrap grid2">
+      <div class="item formbox">
+        <h3>登录</h3>
+        <label>邮箱（运维可用 admin）</label>
+        <input id="loginEmail" aria-label="登录邮箱" value="admin@yanqi.local" />
+        <label>密码</label>
+        <input id="loginPass" type="password" value="yanqi123" />
+        <button id="btnLoginP">登录</button>
+        <div class="muted" id="loginMsg"></div>
+      </div>
+      <div class="item formbox">
+        <h3>注册机构账号（免费版）</h3>
+        <label>邮箱</label>
+        <input id="regEmail" placeholder="you@company.com" />
+        <label>姓名</label>
+        <input id="regName" placeholder="张工" />
+        <label>密码</label>
+        <input id="regPass" type="password" />
+        <label>组织名称</label>
+        <input id="regOrg" placeholder="某某科技有限公司 / 某某实验室" />
+        <label>组织类型</label>
+        <select id="regType">
+          <option value="ENTERPRISE">企业</option>
+          <option value="UNIVERSITY">高校</option>
+          <option value="LAB_INSTITUTE">实验室/院所</option>
+        </select>
+        <button id="btnReg">注册并进入工作台</button>
+        <div class="muted" id="regMsg"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="page-workspace" class="page" style="display:none">
+    <div class="card" style="margin-bottom:12px"><strong>今天在门户就三步：</strong> ① 认领/完善本单位 &nbsp; ② 发一条需求或能力（字段能填多少算多少）&nbsp; ③ 去「我的对接」看匹配。</div>
+    <div id="wsUsage" class="list" aria-live="polite" style="margin-bottom:12px"></div>
+
+    <div class="wrap">
+      <div id="onboardBox" class="onboard" style="display:none"></div>
+      <div id="sampleDataHint" class="item" style="display:none">
+        <h3 style="margin-top:0">演示数据开关</h3>
+        <p class="muted">工作台空的时候，可以一键用平台公开案例当参考（不会改你的库，只是前端预览）。</p>
+        <label class="checkrow"><input type="checkbox" id="toggleSamplePreview" /> 显示公开对接案例作参考</label>
+        <div id="samplePreview" class="list" style="margin-top:10px"></div>
+      </div>
+      <div id="wsHead" class="item"></div>
+      <div id="wsClaim" class="item formbox" style="display:none">
+        <h3>第一步：认领本单位</h3>
+        <label>从库里选一个（有现成的就别新建）</label>
+        <select id="claimOrgSelect"><option value="">— 请选择 —</option></select>
+        <label>或新建组织名称</label>
+        <input id="claimOrgName" placeholder="某某科技 / 某某实验室" />
+        <label>类型</label>
+        <select id="claimOrgType">
+          <option value="ENTERPRISE">企业</option>
+          <option value="UNIVERSITY">高校</option>
+          <option value="LAB_INSTITUTE">实验室/院所</option>
+        </select>
+        <button id="btnClaim">确认认领</button>
+        <div class="muted" id="claimMsg"></div>
+      </div>
+      <div id="wsOrgEdit" class="item formbox" style="display:none">
+        <h3>第二步：资料能补则补（可跳过）</h3>
+        <label>简介</label>
+        <textarea id="orgSummary" rows="2"></textarea>
+        <label>地域</label>
+        <input id="orgRegion" placeholder="如：上海" />
+        <label>官网</label>
+        <input id="orgWebsite" placeholder="https://" />
+        <button id="btnSaveOrg">保存资料</button>
+        <button id="btnReportOrg" class="ghost">生成机构分析报告</button>
+        <button id="btnUpgrade" class="ghost">升级机构版（演示桩）</button>
+        <div id="cardMsg" class="muted"></div>
+        <pre id="wsReport" class="item" style="display:none;margin-top:8px"></pre>
+      </div>
+      <div id="wsHints" class="list"></div>
+      <div class="row">
+        <button id="btnAskMatch" class="ghost">请运营帮我跑匹配</button>
+        <span class="muted">会记一条站内通知给运营侧关注</span>
+      </div>
+      <h3>推荐匹配 <span class="muted" style="font-weight:normal">（可点有用/不准）</span></h3>
+      <div id="wsMatches" class="list"></div>
+      <h3>一句话发需求</h3>
+      <p class="muted">写一段话 → 预览草稿 → 确认发布。确认后一键入库，不用再点第二下。</p>
+      <div class="item formbox">
+        <label>一句话说清「谁、卡在哪、大概预算」</label>
+        <textarea id="portalOneLine" rows="4" placeholder="例：我们是苏州某某厂，预算 30-80 万，产线视觉漏检高，希望两周内试点……"></textarea>
+        <div class="row" style="margin-top:8px;gap:8px;flex-wrap:wrap">
+          <button type="button" id="btnOneLinePreview">先看草稿</button>
+          <button type="button" id="btnOneLinePublish" class="ghost" disabled>确认并发布</button>
+          <button type="button" id="btnPortalParse" class="ghost">改填详细表单</button>
+        </div>
+        <div id="portalOneLineHints" class="row" style="flex-wrap:wrap;gap:6px;margin:8px 0"></div>
+        <pre id="portalOneLineOut" class="codeblock" style="white-space:pre-wrap;font-size:12px;max-height:180px;overflow:auto;margin-top:8px"></pre>
+        <textarea id="portalPaste" rows="1" style="display:none" aria-hidden="true"></textarea>
+      </div>
+      <h3>发需求 / 发能力（详细表单）</h3>
+      <p class="muted">必填就标题+说明；许可、TRL 这些点开再填。</p>
+      <div class="grid2 formbox">
+        <div class="item">
+          <h4>① 发需求</h4>
+          <input id="demTitle" placeholder="一句话：卡在哪" />
+          <textarea id="demProblem" rows="3" placeholder="再多说两句痛点（必填）"></textarea>
+          <input id="demTags" placeholder="行业词，逗号分隔（选填）" />
+          <input id="demBudget" placeholder="预算大概多少（选填）" />
+          <details>
+            <summary class="muted">更多选项（许可 / 最低成熟度）</summary>
+            <div class="row" style="flex-wrap:wrap;gap:8px;margin:6px 0">
+              <select id="demLicenseNeed" aria-label="许可诉求"><option value="">许可先不限</option><option value="negotiable">可协商</option><option value="exclusive">要偏独占</option><option value="open">只要开放/非独占</option></select>
+              <input id="demMinTrl" placeholder="最低 TRL" style="width:90px" aria-label="期望最低 TRL" />
+            </div>
+          </details>
+          <button id="btnAddDem">发布需求</button>
+        </div>
+        <div class="item">
+          <h4>② 发能力</h4>
+          <input id="capTitle" placeholder="你们擅长啥" />
+          <textarea id="capSummary" rows="2" placeholder="一两句说明（必填）"></textarea>
+          <input id="capKeywords" placeholder="关键词（选填）" />
+          <input id="capDisc" placeholder="学科/领域（选填）" />
+          <details>
+            <summary class="muted">更多选项（TRL / 权属 / 许可）</summary>
+            <div class="row" style="flex-wrap:wrap;gap:8px;margin:6px 0">
+              <input id="capTrl" placeholder="TRL 1-9" style="width:90px" aria-label="能力 TRL" />
+              <select id="capIp" aria-label="权属"><option value="">权属稍后补</option><option value="university">高校/院所</option><option value="joint">联合</option><option value="company">企业</option><option value="unclear">尚不清晰</option></select>
+              <select id="capLicense" aria-label="许可"><option value="">许可稍后补</option><option value="open">较开放</option><option value="negotiable">可协商</option><option value="exclusive">偏独占</option></select>
+              <select id="capReady" aria-label="就绪度"><option value="">就绪度稍后补</option><option value="lab">实验室</option><option value="pilot">中试</option><option value="production">可工程化</option></select>
+            </div>
+          </details>
+          <button id="btnAddCap">发布能力</button>
+        </div>
+      </div>
+      <details class="item formbox" style="margin-top:12px">
+        <summary><strong>③ 发成果</strong>（论文/专利/软件，可后补）</summary>
+        <input id="outTitle" placeholder="成果标题" />
+        <select id="outType"><option value="PAPER">论文</option><option value="PATENT">专利</option><option value="SOFTWARE">软件</option><option value="PROTOTYPE">样机</option><option value="OTHER">其他</option></select>
+        <textarea id="outAbstract" rows="2" placeholder="摘要"></textarea>
+        <input id="outTags" placeholder="标签（选填）" />
+        <details>
+          <summary class="muted">更多选项</summary>
+          <input id="outTrl" placeholder="TRL 1-9" aria-label="成果 TRL" />
+          <input id="outRights" placeholder="权利概况" aria-label="权利概况" />
+          <select id="outIp" aria-label="权属"><option value="">权属稍后补</option><option value="university">高校/院所</option><option value="joint">联合</option><option value="company">企业</option><option value="unclear">尚不清晰</option></select>
+          <select id="outLicense" aria-label="许可"><option value="">许可稍后补</option><option value="open">较开放</option><option value="negotiable">可协商</option><option value="exclusive">偏独占</option></select>
+          <select id="outReady" aria-label="就绪度"><option value="">就绪度稍后补</option><option value="lab">实验室</option><option value="pilot">中试</option><option value="production">可工程化</option></select>
+        </details>
+        <button id="btnAddOut">发布成果</button>
+      </details>
+      <h3>我的卡片</h3>
+      <div id="wsCards" class="list"></div>
+      <h3>通知收件箱</h3>
+      <div class="row"><button id="btnReadAll" class="ghost">全部标已读</button><span id="wsUnreadHint" class="muted"></span></div>
+      <div id="wsNotes" class="inbox list"></div>
+<div class="wrap" id="teamInviteBox" style="display:none">
+    <div class="item formbox">
+      <h3>邀请同事协作</h3>
+      <p class="muted">机构管理员可发邀请链接；对方设密码后以成员/管理员身份进门户。邮件真发看出网，默认先复制链接。</p>
+      <label>同事邮箱</label>
+      <input id="teamInvEmail" type="email" placeholder="name@company.com" />
+      <label>姓名（选填）</label>
+      <input id="teamInvName" placeholder="怎么称呼" />
+      <label>角色</label>
+      <select id="teamInvRole">
+        <option value="ORG_USER">机构成员</option>
+        <option value="TENANT_ADMIN">机构管理员</option>
+      </select>
+      <div class="row">
+        <button id="btnCreateTeamInv">生成邀请链接</button>
+        <button class="ghost" id="btnRefreshTeamInv">刷新列表</button>
+      </div>
+      <textarea id="teamInvCopy" rows="3" style="width:100%;margin-top:8px" readonly placeholder="生成后的链接会出现在这里"></textarea>
+      <div id="teamInvList" class="list" style="margin-top:8px"></div>
+      <div id="teamInvMsg" class="muted"></div>
+    </div>
+  </div>
+    </div>
+  </section>
+
+  
+  <section id="page-cases" class="page" style="display:none">
+    <div class="card">
+      <h2>脱敏案例库</h2>
+      <p class="lead">真实对接复盘的匿名版，组织名称已替换为地域角色标签。仅供参考，不构成承诺。</p>
+      <div class="row">
+        <input id="caseTaxFilter" placeholder="行业标签 code，如 mfg.vision" />
+        <select id="caseOutcomeFilter">
+          <option value="">全部结果</option>
+          <option value="success">成功</option>
+          <option value="failure">未继续</option>
+          <option value="mixed">混合</option>
+          <option value="lesson">教训</option>
+        </select>
+        <button type="button" id="btnLoadCases">刷新</button>
+      </div>
+      <div id="portalCaseList" class="list" style="margin-top:12px"></div>
+    </div>
+  </section>
+
+  <section id="page-deals" class="page" style="display:none">
+    <div class="wrap">
+      <h2>我的对接</h2>
+      <p class="muted">把卡片拖到对应列就能改状态（乱拖会被拦住）。右下角会弹出「撤销」。也可以切回列表慢慢点按钮。</p>
+      <div class="row" style="gap:8px;flex-wrap:wrap">
+        <button id="btnRefreshDeals" class="ghost">刷新看板</button>
+        <button id="btnDealsListMode" class="ghost">列表模式</button>
+        <button id="btnDealsBoardMode" class="ghost">看板模式</button>
+        <span id="dealsHint" class="muted"></span>
+      </div>
+      <p class="muted" id="dealsBoardHint">看板可用鼠标拖拽；也可用 Tab 聚焦卡片后按 ← → 挪列（功能开关 board_dnd）。</p>
+      <div id="dealsBoard" class="deal-board" role="region" aria-label="对接看板" style="margin-top:12px"></div>
+      <div id="dealsList" class="list" style="display:none"></div>
+      <div id="dealsTimeline" class="item" style="display:none;margin-top:12px"></div>
+    </div>
+  </section>
+
+  <footer class="footerp">研企通 · 产教融合对接中台 · 数据来源以公开合法 API / 授权名录为准 · 邮件默认人审后发送
+  · <a href="/api/public/status" id="statusPageLink" target="_blank">系统状态</a></footer>
+  <nav class="mobile-bottom-nav" aria-label="手机底栏">
+    <a href="#home" data-p="home">首页</a>
+    <a href="#matches" data-p="matches">案例</a>
+    <a href="#deals" data-p="deals">对接</a>
+    <a href="#workspace" data-p="workspace">工作台</a>
+    <a href="#auth" data-p="auth">我的</a>
+  </nav>
+  <script src="/portal.js"></script>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(function () {});
+    }
+  </script>
+</body>
+</html>
